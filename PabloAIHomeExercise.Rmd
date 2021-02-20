@@ -1,0 +1,128 @@
+---
+title:    "Pablo AI home exercise"
+author:   "Pablo Daniel Jelsky"
+date:     "20/02/2021"
+version:  0.01
+output:   html_document
+---
+
+# **Exercise on target tracking**
+## Links related to this exercise
+-   [Digital Elevation Model (DEM)](https://en.wikipedia.org/wiki/Digital_elevation_model)
+-   [Geospatial Data Abstraction Library (GDAL)](https://en.wikipedia.org/wiki/GDAL)
+-   [GeoTIFF](https://en.wikipedia.org/wiki/GeoTIFF)
+
+## Task objective: double tracking
+-   The idea of this task is to create an algorithm that allows the continuous tracking after the person - "target" - by a couple of followers
+-   Given a DSM (Digital Surface Model) building's map - 100 [m] x 100 [m] matrix ????
+-   Given the "target" maximum speed as 1 meter/second in a not known in advance route. The "target movement is limited only to "ground" level
+-   Given the "followers" speed as 2 meters/second, and are only allowed to be as close as 10 meters (no less than this) from the "target". The "followers" movement is also limited to "ground" level
+-   The task objective is to create an algorithm that once in a second, gives us the "target" and "followers" position given the limitations above, and issues instructions to the "followers" next movement in order that at least one of the "followers" could have "eye-contact" as much as possible with the "target"
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Development steps
+
+```{r Global variables}
+# Clear the global work-space
+rm (list = ls())
+# Define new global variables
+DSM_FILE                              = "cage6.tif"
+TARGET_MAXIMUM_SPEED_IN_M_SEC         = 1
+FOLLOWER_SPEED_IN_M_SEC               = 2
+TARGET_FOLLOWER_MINIMUM_DISTANCE_M    = 10
+DSM_LENGTH_M                          = 100
+
+
+```
+
+
+```{r R packages needed}
+# knitr library - A general-purpose tool for dynamic report generation in R
+suppressPackageStartupMessages(library(knitr))
+# dplyr library - A grammar of data manipulation, providing a consistent set of verbs that help you solve the most common data manipulation challenges
+suppressPackageStartupMessages(library(dplyr))                             
+# ggplot2 library - A tool to create elegant data visualizations using the grammar of graphics
+suppressPackageStartupMessages(library(ggplot2))
+# A package providing classes and methods for spatial data: points, lines, polygons and grids, needed by raster library
+suppressPackageStartupMessageslibrary((sp))
+# library used to work with raster data
+suppressPackageStartupMessages(library(raster))
+# GDAL is a translator library for raster and vector geospatial data formats that is released under an X/MIT style Open Source License by the Open Source Geospatial Foundation. As a library, it presents a single raster abstract data model and single vector abstract data model to the calling application for all supported formats. 
+# This library is the port to R of the GDAL library (to be used for GeoTIFFs and oher core GIS functions)
+library(rgdal)
+
+```
+
+
+```{r Data importing}
+# Set the working directory
+setwd ("/home/pablo/Documents/Software Engineering/AI home exercise/Input/")
+# Use stack function to read in all bands
+cage6Stack <- stack(DSM_FILE)
+# view raster attributes
+cage6Stack@layers
+cage6Raster <- raster(DSM_FILE)
+cage6DataSet <- getValues(cage6Raster, format = "matrix")
+GDALinfo(DSM_FILE)
+
+```
+
+
+## Visual simulation
+
+```{r}
+
+# Show the DSM (Digital Surface Model) map in Python or Matlab (in this case in R)
+spplot(cage6Raster)
+# Target
+## Create "target" route given beginning and ending location
+## Show "target" progress over time in DSM map
+# Followers
+## Show "followers" progress over time in DSM map
+# Line of sight (LOS)
+## Show line of sight between the "follower" and the "target" if the LOS exists
+
+
+
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+
+```{r}
+
+# Create a new data frame with projectile trajectory velocities for a specific row
+GoFromAtoB = function(OriginalDataFrame, rowInOriginalDataFrame)
+{
+  # slice: Subset rows using their positions
+  VelocityDataFrame            = slice(OriginalDataFrame, rowNumber)
+  # select: returns a subset of the columns of the data-frame and transpose to rows
+  VelocityDataFrame.x         = t(select(VelocityDataFrame, contains("VelX_")))
+  VelocityDataFrame.y         = t(select(VelocityDataFrame, contains("VelY_")))
+  VelocityDataFrame.z         = t(select(VelocityDataFrame, contains("VelZ_")))
+  # create a new data-frame based on previous 3 fields
+  VelocityDataFrame           = data.frame(
+                                  VelocityDataFrame.x, 
+                                  VelocityDataFrame.y,
+                                  VelocityDataFrame.z,
+                                  row.names = NULL)
+  # Remove row n
+  # Remove temporal vectors
+  VelocityDataFrame.x         = NULL
+  VelocityDataFrame.y         = NULL
+  VelocityDataFrame.z         = NULL
+  # rename column names
+  colnames(VelocityDataFrame) = c("X","Y","Z")
+  # filter: extracts a subset of rows from a data frame based on logical conditions that the row is not NA
+  VelocityDataFrame                         = filter(VelocityDataFrame, !is.na(X))
+  
+  return (VelocityDataFrame)
+}
+
+```
+
+
