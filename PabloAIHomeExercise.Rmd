@@ -48,7 +48,7 @@ suppressPackageStartupMessages(library(dplyr))
 # ggplot2 library - A tool to create elegant data visualizations using the grammar of graphics
 suppressPackageStartupMessages(library(ggplot2))
 # A package providing classes and methods for spatial data: points, lines, polygons and grids, needed by raster library
-suppressPackageStartupMessageslibrary((sp))
+suppressPackageStartupMessages(library(sp))
 # library used to work with raster data
 suppressPackageStartupMessages(library(raster))
 # GDAL is a translator library for raster and vector geospatial data formats that is released under an X/MIT style Open Source License by the Open Source Geospatial Foundation. As a library, it presents a single raster abstract data model and single vector abstract data model to the calling application for all supported formats. 
@@ -61,13 +61,15 @@ library(rgdal)
 ```{r Data importing}
 # Set the working directory
 setwd ("/home/pablo/Documents/Software Engineering/AI home exercise/Input/")
-# Use stack function to read in all bands
-cage6Stack <- stack(DSM_FILE)
+
 # view raster attributes
-cage6Stack@layers
 cage6Raster <- raster(DSM_FILE)
-cage6DataSet <- getValues(cage6Raster, format = "matrix")
 GDALinfo(DSM_FILE)
+# Convert to matrix to start working
+cage6Matrix <- getValues(cage6Raster, format = "matrix")
+print(c("Number of rows of ", DSM_FILE, ":", nrow(cage6Matrix)))
+print(c("Number of columns of ", DSM_FILE, ":", ncol(cage6Matrix)))
+
 
 ```
 
@@ -79,7 +81,13 @@ GDALinfo(DSM_FILE)
 # Show the DSM (Digital Surface Model) map in Python or Matlab (in this case in R)
 spplot(cage6Raster)
 # Target
-## Create "target" route given beginning and ending location
+## Create "target" route given beginning and ending location __GoFromAtoB(OriginalDSMFile, LocationA, LocationB, VisibilityInMeters)__
+
+GoFromAtoB = function(OriginalDSMFile, LocationA, LocationB, VisibilityInMeters)
+{
+  return (NewDSMFileWithRouteFromAtoB)
+}
+
 ## Show "target" progress over time in DSM map
 # Followers
 ## Show "followers" progress over time in DSM map
@@ -92,37 +100,84 @@ spplot(cage6Raster)
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
 
+##    Help tools for the solution
+###       Line of sight (LOS) map
+-   Map for every pixel at "ground" level, all the pixels that are inside the LOS
+-   Take a few locations in the DSM and show the results in it
+
+##    Working with "only" one follower
+-   Write a function that will return the progress command to the follower given his and the "target" current locations: __CalculateNextLocation(TargetCurrentLocation, FollowerCurrentLocation)__
+-   Progress command will take in account the potential next location of both the "target" and the "follower" so that will have LOS between "follower" and "target" as much as possible time
 
 ```{r}
 
-# Create a new data frame with projectile trajectory velocities for a specific row
-GoFromAtoB = function(OriginalDataFrame, rowInOriginalDataFrame)
+
+
+CalculateNextLocation = function(TargetCurrentLocation, FollowerCurrentLocation)
 {
-  # slice: Subset rows using their positions
-  VelocityDataFrame            = slice(OriginalDataFrame, rowNumber)
-  # select: returns a subset of the columns of the data-frame and transpose to rows
-  VelocityDataFrame.x         = t(select(VelocityDataFrame, contains("VelX_")))
-  VelocityDataFrame.y         = t(select(VelocityDataFrame, contains("VelY_")))
-  VelocityDataFrame.z         = t(select(VelocityDataFrame, contains("VelZ_")))
-  # create a new data-frame based on previous 3 fields
-  VelocityDataFrame           = data.frame(
-                                  VelocityDataFrame.x, 
-                                  VelocityDataFrame.y,
-                                  VelocityDataFrame.z,
-                                  row.names = NULL)
-  # Remove row n
-  # Remove temporal vectors
-  VelocityDataFrame.x         = NULL
-  VelocityDataFrame.y         = NULL
-  VelocityDataFrame.z         = NULL
-  # rename column names
-  colnames(VelocityDataFrame) = c("X","Y","Z")
-  # filter: extracts a subset of rows from a data frame based on logical conditions that the row is not NA
-  VelocityDataFrame                         = filter(VelocityDataFrame, !is.na(X))
-  
-  return (VelocityDataFrame)
+  return (FollowerNextLocation)
 }
 
 ```
+
+
+##    Working with a couple of followers - Central calculation
+-   Like in the previous section, but the function should give guidance to both followers: __CalculateNextLocation2(TargetCurrentLocation, FollowerCurrentLocation)__
+-   It is desirable that there will be some kind of coordination between both commands so that one follower will complement the other
+
+```{r}
+
+CalculateNextLocation2 = function(TargetCurrentLocation, FollowerCurrentLocation)
+{
+  return (FollowersNextLocation)
+}
+
+```
+
+
+##    Working with a couple of followers - Distributed calculation
+-   Write a function that will return the progress command to a __single__ follower given his, the second follower and the "target" current locations: __CalculateNextLocation3(TargetCurrentLocation, OtherFollowerCurrentLocation, FollowerCurrentLocation)__
+-   The function (for each follower) are not related between them
+-   The function will give guidance every 2 seconds, once the function will work with follower1, and the next second will work with follower2, therefore the function(s) won't work with the same input
+-   It is desirable that there will be some kind of coordination between both commands so that one follower will complement the other
+
+
+```{r}
+
+
+CalculateNextLocation3 = function(TargetCurrentLocation, OtherFollowerCurrentLocation, FollowerCurrentLocation)
+{
+  return (FollowerNextLocation)
+}
+
+
+```
+
+
+
+# __שאלות ליאיר__
+-   המפה בפועך היא
+ 
+  201x351 "pixels"
+  
+  אך כתוב במבחן שהמפה היא 
+
+  100x100 m
+  מה זה אומר ?
+ 
+  שאנחנו לוקחים רק 
+ 
+  100x100 פיקסלים ויוצאים בנהחה שכל פיקסל מטר אחד ?
+
+-   מה רסולוציה מינימאלית בסימולציה ?
+  מטר אחד ושנייה אחת ?
+-   אם כך, בהנתן שמהירות המטרה היא עד 1 מטר לשנייה, מה זה אומר ? שהמטרה יכולה לא לזוז מפיקסל לפיקסל אם זה פחות ממטר לשנייה ?
+-   כתוב שמהירות העוקבים היא 2 מטר לשנייה. יכולה להיות גם פחות או קבועה ב 2מטר לשנייה ?
+-   נקודות התחלה של המטרה והעוקבים יהיו קבועות ?
+-   לחישוב מסלול מטרה חשבתי על קו ראיה של המטרה ואם רואה חומה אז הוא מחליט ללכת מצד החומה
+
+אם כך, האם לתת לו VISIBILITY.... כמה מטרים הוא יכול לראות ?
+
+
 
 
