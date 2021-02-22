@@ -2,7 +2,7 @@
 title:    "Pablo AI home exercise"
 author:   "Pablo Daniel Jelsky"
 date:     "20/02/2021"
-version:  0.01
+version:  0.02
 output:   html_document
 ---
 
@@ -19,8 +19,19 @@ output:   html_document
 -   Given the "followers" speed as 2 meters/second, and are only allowed to be as close as 10 meters (no less than this) from the "target". The "followers" movement is also limited to "ground" level
 -   The task objective is to create an algorithm that once in a second, gives us the "target" and "followers" position given the limitations above, and issues instructions to the "followers" next movement in order that at least one of the "followers" could have "eye-contact" as much as possible with the "target"
 
+## Clarifications from Yair email (2021-02-21)
+-   Work with the DSM with the size 'as is' 351x201 pixels 
+-   One pixel equals to one meter
+-   The target is supposed to have constant rate (1 meter/second) and could NOT stop
+-   The follower agent could also stop or up to 2 meters/second (0 meters/second, 1 meter/second, 2 meters/second)
+-   Starting points for the target and follower agents could be in every place but NOT in a "obstacle" level (NOT "ground" level)
+-   The agents will have LOS with the "target" in the first simulation cycle
+
 
 ```{r setup, include=FALSE}
+# knitr library - A general-purpose tool for dynamic report generation in R
+suppressPackageStartupMessages(library(knitr))
+
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
@@ -29,20 +40,21 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r Global variables}
 # Clear the global work-space
 rm (list = ls())
-# Define new global variables
+# Define global variables
+ROOT_DIRECTORY                        = "/home/pablo/Documents/Software Engineering/AI home exercise/Input/"
 DSM_FILE                              = "cage6.tif"
-TARGET_MAXIMUM_SPEED_IN_M_SEC         = 1
-FOLLOWER_SPEED_IN_M_SEC               = 2
-TARGET_FOLLOWER_MINIMUM_DISTANCE_M    = 10
-DSM_LENGTH_M                          = 100
+TARGET_SPEED_IN_M_SEC                 = 1
+AGENT_SPEED_IN_M_SEC                  = 2
+TARGET_AGENT_MINIMUM_DISTANCE_M       = 10
+
+
 
 
 ```
 
 
 ```{r R packages needed}
-# knitr library - A general-purpose tool for dynamic report generation in R
-suppressPackageStartupMessages(library(knitr))
+
 # dplyr library - A grammar of data manipulation, providing a consistent set of verbs that help you solve the most common data manipulation challenges
 suppressPackageStartupMessages(library(dplyr))                             
 # ggplot2 library - A tool to create elegant data visualizations using the grammar of graphics
@@ -52,34 +64,43 @@ suppressPackageStartupMessages(library(sp))
 # library used to work with raster data
 suppressPackageStartupMessages(library(raster))
 # GDAL is a translator library for raster and vector geospatial data formats that is released under an X/MIT style Open Source License by the Open Source Geospatial Foundation. As a library, it presents a single raster abstract data model and single vector abstract data model to the calling application for all supported formats. 
-# This library is the port to R of the GDAL library (to be used for GeoTIFFs and oher core GIS functions)
+# This library is the port to R of the GDAL library (to be used for GeoTIFFs and oTher core GIS functions)
 library(rgdal)
 
 ```
 
 
 ```{r Data importing}
+
 # Set the working directory
-setwd ("/home/pablo/Documents/Software Engineering/AI home exercise/Input/")
+setwd (ROOT_DIRECTORY) #  because we are using knitr, then we need also the following solution
+require("knitr")
+opts_knit$set(root.dir = ROOT_DIRECTORY)
 
 # view raster attributes
-cage6Raster <- raster(DSM_FILE)
+DsmOriginalRaster   <- raster(DSM_FILE)
 GDALinfo(DSM_FILE)
 # Convert to matrix to start working
-cage6Matrix <- getValues(cage6Raster, format = "matrix")
-print(c("Number of rows of ", DSM_FILE, ":", nrow(cage6Matrix)))
-print(c("Number of columns of ", DSM_FILE, ":", ncol(cage6Matrix)))
-
+DsmOriginalMatrix   <- getValues(DsmOriginalRaster, format = "matrix")
+# Get useful variables
+DsmNumberOfColumns  <- ncol(DsmOriginalMatrix)
+DsmNumberOfRows     <- nrow(DsmOriginalMatrix)
+sprintf("Info for %s DSM file: %d rows x %d columns", DSM_FILE, DsmNumberOfRows, DsmNumberOfColumns) 
 
 ```
 
 
 ## Visual simulation
 
+### Useful links
+-   [Finding Shortest Path in the Plane with Obstacles](https://www.codingame.com/playgrounds/39380/finding-shortest-path-in-the-plane-with-obstacles)
+-   [A* Algorithm: How to find the shortest path between two points](https://medium.com/analytics-vidhya/a-algorithm-how-to-find-the-shortest-path-between-two-points-767c8a76376)
+-   [Shortest distance between two cells in a matrix or grid](https://www.geeksforgeeks.org/shortest-distance-two-cells-matrix-grid/)
+
 ```{r}
 
 # Show the DSM (Digital Surface Model) map in Python or Matlab (in this case in R)
-spplot(cage6Raster)
+spplot(DsmOriginalRaster)
 # Target
 ## Create "target" route given beginning and ending location __GoFromAtoB(OriginalDSMFile, LocationA, LocationB, VisibilityInMeters)__
 
@@ -89,6 +110,41 @@ GoFromAtoB = function(OriginalDSMFile, LocationA, LocationB, VisibilityInMeters)
 }
 
 ## Show "target" progress over time in DSM map
+TargetArrivedToDestination  <- FALSE
+SimulationTimeInSeconds     <- 0
+### Loop
+while (TargetArrivedToDestination == FALSE) {
+
+  if (SimulationTimeInSeconds >= 60) {
+    TargetArrivedToDestination  <- TRUE
+  }
+  else {
+    print(sprintf("Time %d    Target position (x,y)", SimulationTimeInSeconds))
+    SimulationTimeInSeconds     <- SimulationTimeInSeconds + 1
+  }
+}
+
+DsmTargetRasterLayerBuildings   <- DsmOriginalRaster
+DsmTargetRasterLayerTarget      <- list("Target", c(180500,329900), "0")
+plot(DsmTargetRasterLayerBuildings, main = "Target")
+
+# turn the data into a spatial data frame 
+#DsmTargetRasterLayerBuildings_df <- SpatialLinesDataFrame(DsmTargetRasterLayerBuildings) 
+#tidy(coastlines_sim2_df)
+
+## Convert it to a dataframe    
+DsmTargetRasterLayerBuildings_df  <- as.data.frame(DsmTargetRasterLayerBuildings, xy = TRUE)
+## Renaming columns
+DsmTargetRasterLayerBuildings_df  <- setNames(DsmTargetRasterLayerBuildings_df, c("longitude", "latitude", "altitude"))
+# Convert altitude to factor
+#DsmTargetRasterLayerBuildings_df$altitude <- as.factor(DsmTargetRasterLayerBuildings_df$altitude)
+# plot the data 
+ggplot() +
+  geom_path(data = DsmTargetRasterLayerBuildings_df, aes(x = longitude, y = latitude, color = altitude)) +
+  geom_point() +
+  labs(title = "Target")
+#  geom_path(data = DsmTargetRasterLayerBuildings_df, aes(x = long, y = lat, group = group)) +
+#  labs(title = "Target")
 # Followers
 ## Show "followers" progress over time in DSM map
 # Line of sight (LOS)
@@ -97,8 +153,6 @@ GoFromAtoB = function(OriginalDSMFile, LocationA, LocationB, VisibilityInMeters)
 
 
 ```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
 
 ##    Help tools for the solution
 ###       Line of sight (LOS) map
@@ -155,28 +209,6 @@ CalculateNextLocation3 = function(TargetCurrentLocation, OtherFollowerCurrentLoc
 
 
 
-# __שאלות ליאיר__
--   המפה בפועך היא
- 
-  201x351 "pixels"
-  
-  אך כתוב במבחן שהמפה היא 
-
-  100x100 m
-  מה זה אומר ?
- 
-  שאנחנו לוקחים רק 
- 
-  100x100 פיקסלים ויוצאים בנהחה שכל פיקסל מטר אחד ?
-
--   מה רסולוציה מינימאלית בסימולציה ?
-  מטר אחד ושנייה אחת ?
--   אם כך, בהנתן שמהירות המטרה היא עד 1 מטר לשנייה, מה זה אומר ? שהמטרה יכולה לא לזוז מפיקסל לפיקסל אם זה פחות ממטר לשנייה ?
--   כתוב שמהירות העוקבים היא 2 מטר לשנייה. יכולה להיות גם פחות או קבועה ב 2מטר לשנייה ?
--   נקודות התחלה של המטרה והעוקבים יהיו קבועות ?
--   לחישוב מסלול מטרה חשבתי על קו ראיה של המטרה ואם רואה חומה אז הוא מחליט ללכת מצד החומה
-
-אם כך, האם לתת לו VISIBILITY.... כמה מטרים הוא יכול לראות ?
 
 
 
