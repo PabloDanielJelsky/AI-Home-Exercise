@@ -1,8 +1,8 @@
 ---
 title:    "Pablo AI home exercise"
 author:   "Pablo Daniel Jelsky"
-date:     "20/02/2021"
-version:  0.02
+date:     "22/02/2021"
+version:  0.03
 output:   html_document
 ---
 
@@ -59,6 +59,7 @@ TARGET_AGENT_MINIMUM_DISTANCE_M       = 10
 suppressPackageStartupMessages(library(dplyr))                             
 # ggplot2 library - A tool to create elegant data visualizations using the grammar of graphics
 suppressPackageStartupMessages(library(ggplot2))
+library(viridis)
 # A package providing classes and methods for spatial data: points, lines, polygons and grids, needed by raster library
 suppressPackageStartupMessages(library(sp))
 # library used to work with raster data
@@ -138,11 +139,16 @@ DsmTargetRasterLayerBuildings_df  <- as.data.frame(DsmTargetRasterLayerBuildings
 DsmTargetRasterLayerBuildings_df  <- setNames(DsmTargetRasterLayerBuildings_df, c("longitude", "latitude", "altitude"))
 # Convert altitude to factor
 #DsmTargetRasterLayerBuildings_df$altitude <- as.factor(DsmTargetRasterLayerBuildings_df$altitude)
+#factor
+#levels(DsmTargetRasterLayerBuildings_df$altitude)
 # plot the data 
-ggplot() +
-  geom_path(data = DsmTargetRasterLayerBuildings_df, aes(x = longitude, y = latitude, color = altitude)) +
-  geom_point() +
-  labs(title = "Target")
+#ggplot() +
+#  geom_path(data = DsmTargetRasterLayerBuildings_df, aes(x = longitude, y = latitude, color = altitude)) +
+#  geom_point() +
+#  labs(title = "Target"
+plot <- ggplot(DsmTargetRasterLayerBuildings_df, aes(x = longitude, y = latitude, color = altitude))
+plot <- plot + geom_point() + scale_color_viridis()
+print (plot)
 #  geom_path(data = DsmTargetRasterLayerBuildings_df, aes(x = long, y = lat, group = group)) +
 #  labs(title = "Target")
 # Followers
