@@ -4,7 +4,7 @@
 //
 // File:			PabloSupportClasses.h
 //
-// Version:			01.00
+// Version:			01.01
 //
 // Description:		Support classes for the AI home excercise interface file
 //
@@ -17,6 +17,7 @@
 //	Date		Author					Release		Change Id	Description of change
 //	----------- -----------------------	-----------	----------- ---------------------
 //	24-02-2021	Pablo Daniel Jelsky		01			00			Initial
+//	27-02-2021	Pablo Daniel Jelsky		01			01			Working with Logger, Location, DsmLocation and DsmInformation classes
 //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -64,6 +65,7 @@
 		#define	DEFAULT_DSM_INFORMATION_FILE_NAME	"output/DsmInformation.txt"
 		#define	INVALID_COLUMN						-1
 		#define	INVALID_ROW							-1
+		#define INVALID_DSM_VALUE					-1
 		/*---- data declarations ---------------------------------------------------*/		
 		/*---- function prototypes -------------------------------------------------*/	
 
@@ -162,6 +164,11 @@
 		class DsmLocation : public Location
 		{
 			public:
+				void Value(DsmLocation location, int value);
+				void Value(DsmLocation location, long value);
+				void Value(DsmLocation location, float value);
+				void Value(DsmLocation location, double value);
+				void Value(double value);
 				double Value(void);
 				void Walkable(bool walkable);
 				bool Walkable(void);
@@ -170,13 +177,14 @@
 				DsmLocation& operator = (DsmLocation& location);
 			
 				//	Default Constructor 
-//				DsmLocation(); 
+				DsmLocation(); 
 
 				//	Parametrized Constructors 
-				DsmLocation(DsmLocation location, int value);
-				DsmLocation(DsmLocation location, long value);
-				DsmLocation(DsmLocation location, float value);
-				DsmLocation(DsmLocation location, double value);
+				DsmLocation(int column, int row);
+				DsmLocation(int column, int row, int value);
+				DsmLocation(int column, int row, long value);
+				DsmLocation(int column, int row, float value);
+				DsmLocation(int column, int row, double value);
 		 
 				//	Destructor
 				~DsmLocation();
@@ -208,8 +216,8 @@
 				void Columns(int columns);
 				int Rows(void);
 				int Columns(void);
-				double PixelValue(int row, int column);
-				bool PixelValue(int row, int column, double pixelValue);
+				double Value(int column, int row);
+				bool Value(int column, int row, double value);
 
 				//	Default Constructor 
 				DsmInformation();
@@ -222,8 +230,8 @@
 				
 			private: 
 				//	Private variables
-				bool    		initialized = false;
-				double  		*pPixelValue = NULL; 
+				bool    		initialized		= false;
+				DsmLocation		*pLocation		= NULL; 
 				int     		columns = 0, rows = 0;
 				class Logger	logger;
 				

@@ -456,7 +456,7 @@ static void DsmInputFileAnalyze(char *pszFilename, class DsmInformation &DsmInfo
  				
  				for (row = 0; row < nYSize; row++)
  					for (column = 0; column < nXSize; column++)
- 						DsmInformationObject.PixelValue(row, column, pafScanline[row * nXSize + column]);
+ 						DsmInformationObject.Value(column, row, pafScanline[row * nXSize + column]);
  			
  			}
 	        
@@ -483,7 +483,7 @@ static void DsmOutputFileCreation(char *pszFilename, class DsmInformation &DsmIn
 	for (row = 0; row < rows; row++)
 		for (column = 0; column < columns; column++)
 		{
-			switch ((int) DsmInformationObject.PixelValue(row, column))
+			switch ((int) DsmInformationObject.Value(column, row))
 			{
 				case 3300:
 					LoggerObject << "[" << column << "," << row << "] = 3300\n";
@@ -502,7 +502,7 @@ static void DsmOutputFileCreation(char *pszFilename, class DsmInformation &DsmIn
 					outputFile.plot(column+1, rows - (row+1), 0, 0, 65535); 
 					break;
 				default:
-					LoggerObject << "[" << column << "," << row << "] = " << (int) DsmInformationObject.PixelValue(row, column) << "\n";
+					LoggerObject << "[" << column << "," << row << "] = " << (int) DsmInformationObject.Value(column, row) << "\n";
 			}
 		}
 

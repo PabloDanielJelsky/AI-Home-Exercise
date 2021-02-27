@@ -4,7 +4,7 @@
 //
 // File:			PabloSupportClasses.c
 //
-// Version:			01.00
+// Version:			01.01
 //
 // Description:		Support classes for the AI home excercise source file
 //
@@ -17,6 +17,7 @@
 //	Date		Author					Release		Change Id	Description of change
 //	----------- -----------------------	-----------	----------- ---------------------
 //	24-02-2021	Pablo Daniel Jelsky		01			00			Initial
+//	27-02-2021	Pablo Daniel Jelsky		01			01			Working with Logger, Location, DsmLocation and DsmInformation classes
 //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -135,40 +136,82 @@
 			
 		}	//	Location::~Location()
 		
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: DsmLocation
+		// Function				: Default constructors
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 27-02-2021
+		// Class description	: This class represents a specific location for DSM maps
+		// Function description	: This constructor will create a non valid object
+		// Remarks         		: 
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: None	
+		/////////////////////////////////////////////////////////////////////////////////
+		DsmLocation::DsmLocation()
+		{
+			this->_Location(INVALID_COLUMN, INVALID_ROW);
+			this->value	= INVALID_DSM_VALUE;
+			
+		}	//	DsmLocation::DsmLocation()
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: DsmLocation
+		// Function				: Parametrized constructor
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 27-02-2021
+		// Class description	: This class represents a specific location for DSM maps
+		// Function description	: This constructor will create a non valid object
+		// Remarks         		: 
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			:	column
+		//							row
+		/////////////////////////////////////////////////////////////////////////////////
+		DsmLocation::DsmLocation(int column, int row)
+		{
+			this->_Location(column, row);
+			this->value	= INVALID_DSM_VALUE;
+			
+		}	//	DsmLocation::DsmLocation()
+		
 		/////////////////////////////////////////////////////////////////////////////////
 		// Class name			: DsmLocation
 		// Function				: Parametrized constructors
 		// Programmer name		: Pablo Daniel Jelsky
 		// Last update date		: 27-02-2021
 		// Class description	: This class represents a specific location for DSM maps
-		// Function description	: This family of constructors take as parameter the 
-		//							location (column,  row) and the location value
+		// Function description	: This family of constructors will create a valid object
 		// Remarks         		: 
 		/////////////////////////////////////////////////////////////////////////////////
-		// Arguments			:	location (as DsmLocation)
+		// Arguments			:	column
+		//							row
 		//							value (as int, long, float or double)	
 		/////////////////////////////////////////////////////////////////////////////////
-		DsmLocation::DsmLocation(DsmLocation location, int value)
+		DsmLocation::DsmLocation(int column, int row, int value)
 		{
-			this->_Value(location, (double) value);
+			this->_Location(column, row);
+			this->value	= (double) value;
 			
 		}	//	DsmLocation::DsmLocation()
 		
-		DsmLocation::DsmLocation(DsmLocation location, long value)
+		DsmLocation::DsmLocation(int column, int row, long value)
 		{
-			this->_Value(location, (double) value);
+			this->_Location(column, row);
+			this->value	= (double) value;
 			
 		}	//	DsmLocation::DsmLocation()
 		
-		DsmLocation::DsmLocation(DsmLocation location, float value)
+		DsmLocation::DsmLocation(int column, int row, float value)
 		{
-			this->_Value(location, (double) value);
+			this->_Location(column, row);
+			this->value	= (double) value;
 			
 		}	//	DsmLocation::DsmLocation()
 		
-		DsmLocation::DsmLocation(DsmLocation location, double value)
+		DsmLocation::DsmLocation(int column, int row, double value)
 		{
-			this->_Value(location, (double) value);
+			this->_Location(column, row);
+			this->value	= (double) value;
 			
 		}	//	DsmLocation::DsmLocation()
 		
@@ -245,9 +288,9 @@
 		{ 
 			logger.SetFilename(DEFAULT_DSM_INFORMATION_FILE_NAME);
 			logger.WriteLine("Default Constructor called"); 
-			this->initialized  = false; 
-			this->columns      = 0;
-			this->rows         = 0;
+			this->initialized	= false; 
+			this->columns		= 0;
+			this->rows			= 0;
 			
 		}	//	DsmInformation::DsmInformation()
 
@@ -256,11 +299,11 @@
 		{ 
 			logger.WriteLine("Parametrized Constructor called"); 
 
-			this->initialized  = true;
-			this->columns      = columns;
-			this->rows         = rows;
+			this->initialized	= true;
+			this->columns		= columns;
+			this->rows			= rows;
 
-			this->pPixelValue	= new double[columns * rows];
+			this->pLocation		= new DsmLocation[columns * rows];
 			
 		}	//	DsmInformation::DsmInformation()
 
@@ -269,10 +312,10 @@
 		{
 			logger.WriteLine("Destructor called for cleanup");  
 			
-			if (NULL != this->pPixelValue)
+			if (NULL != this->pLocation)
 			{
 				logger.WriteLine("Internal array is deallocated");  
-				delete [] pPixelValue; 
+				delete [] pLocation; 
 			}
 			else
 			{
@@ -440,7 +483,61 @@
 			return (this->row);
 			
 		}	//	Location::Row()	
+			
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: DsmLocation
+		// Function				: Value
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 27-02-2021
+		// Class description	: This class represents a specific location for DSM maps
+		// Function description	: This is a family of member functions that set the 
+		//							location and value (as int, long, float, double)
+		// Remarks         		: 
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			:	location (as DsmLocation)
+		//							value (as int, long, float or double)	
+		/////////////////////////////////////////////////////////////////////////////////	
+		void DsmLocation::Value(DsmLocation location, int value)
+		{
+			this->_Value(location, value);
+			
+		}	//	DsmLocation::Value()
 		
+		void DsmLocation::Value(DsmLocation location, long value)
+		{
+			this->_Value(location, value);
+			
+		}	//	DsmLocation::Value()
+		
+		void DsmLocation::Value(DsmLocation location, float value)
+		{
+			this->_Value(location, value);
+			
+		}	//	DsmLocation::Value()
+		
+		void DsmLocation::Value(DsmLocation location, double value)
+		{
+			this->_Value(location, value);
+			
+		}	//	DsmLocation::Value()
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: DsmLocation
+		// Function				: Value
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 27-02-2021
+		// Class description	: This class represents a specific location for DSM maps
+		// Function description	: This is a member functions that sets its value 
+		// Remarks         		: 
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			:	value (as double)	
+		/////////////////////////////////////////////////////////////////////////////////		
+		void DsmLocation::Value(double value)
+		{
+			this->value	= value;
+			
+		}	//  DsmLocation::Value()
+
 		/////////////////////////////////////////////////////////////////////////////////
 		// Class name			: DsmLocation
 		// Function				: Value
@@ -523,7 +620,7 @@ void DsmInformation::Rows(int rows)
     	logger.Write("x");
     	logger.Write(rows);
     	logger.WriteLine(")");
-        this->pPixelValue	= new double[this->Columns() * rows];   
+        this->pLocation		= new DsmLocation[this->Columns() * rows];   
         this->initialized	= true; 
     }
     
@@ -544,20 +641,22 @@ void DsmInformation::Columns(int columns)
     	logger.Write("x");
     	logger.Write(this->Rows());
     	logger.WriteLine(")");
-        this->pPixelValue	= new double[columns * this->Rows()];  
+        this->pLocation		= new DsmLocation[columns * this->Rows()];  
         this->initialized	= true; 
     }
     
 }   //  DsmInformation::Columns()
 
-double DsmInformation::PixelValue(int row, int column)
+double DsmInformation::Value(int column, int row)
 {
-    return (this->pPixelValue[row*this->Columns()+column]);
+    return ((this->pLocation[row*this->Columns()+column]).Value());
     
-}   //  DsmInformation::PixelValue()
+}   //  DsmInformation::Value()
 
-bool DsmInformation::PixelValue(int row, int column, double pixelValue)
+bool DsmInformation::Value(int column, int row, double value)
 {
+	DsmLocation	location(column, row);
+	
 	if (row > this->Rows())
 	{
 		logger << "Input row: " << row << " is greater than the maximum number of rows: " << this->Rows() << "\n";
@@ -569,12 +668,13 @@ bool DsmInformation::PixelValue(int row, int column, double pixelValue)
 		return false;
 	}
 	
-	this->pPixelValue[this->Columns() * row + column]	=  pixelValue;
-	logger << "Values of [" << column << "," << row << "] = " << pixelValue << "\n";
+	
+	(this->pLocation[this->Columns() * row + column]).Value(location, value);
+	logger << "Values of [" << column << "," << row << "] = " << value << "\n";
 	
 	return true;
 	
-}	//	DsmInformation::PixelValue()
+}	//	DsmInformation::Value()
 
 
 	/*
