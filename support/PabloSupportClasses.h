@@ -62,6 +62,8 @@
 		/*---- macros --------------------------------------------------------------*/
 		/*---- defines --------------------------------------------------------------*/
 		#define	DEFAULT_DSM_INFORMATION_FILE_NAME	"output/DsmInformation.txt"
+		#define	INVALID_COLUMN						-1
+		#define	INVALID_ROW							-1
 		/*---- data declarations ---------------------------------------------------*/		
 		/*---- function prototypes -------------------------------------------------*/	
 
@@ -117,44 +119,78 @@
 		// Class name		: Location
 		// Programmer name	: Pablo Daniel Jelsky
 		// Last update date	: 27-02-2021
-		// Description		: This class represents a specific location for DSM maps
+		// Description		: This class represents a specific location
 		// Remarks      	:
 		/////////////////////////////////////////////////////////////////////////////////
 		class Location
 		{
 			public:
-				double LocationValue(void);
-				void Walkable(bool walkable);
-				bool Walkable(void);
+				int	Column(void);
+				int Row(void);
 
 				friend ostream& operator << (ostream& ostream, const Location& location);
-				Location& operator = (const Location& location);
-				bool operator == (const Location& location);
-				bool operator != (const Location& location);
+				Location& operator = (Location& location);
+				bool operator == (Location& location);
+				bool operator != (Location& location);
 			
 				//	Default Constructor 
-//				Location(); 
+				Location(); 
 
 				//	Parametrized Constructors 
-				Location(int x, int y, int locationValue);
-				Location(int x, int y, long locationValue);
-				Location(int x, int y, float locationValue);
-				Location(int x, int y, double locationValue);
+				Location(int column, int row);
 		 
 				//	Destructor
 				~Location();
 
+			protected:
+				//	Protected member function
+				void 		_Location(int column, int row);
 			private:
-				//	Private member function
-				void 		_LocationValue(int x, int y, double locationValue);
 				//	Private variables
-				int			x;
-				int			y;
-				double		locationValue;
-				bool		walkable	= false;
+				int			column;
+				int			row;
 
 		};	//	class Location	
 		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name		: DsmLocation
+		// Programmer name	: Pablo Daniel Jelsky
+		// Last update date	: 27-02-2021
+		// Description		: This class represents a specific location for DSM maps
+		// Remarks      	: It is derived from Location class
+		/////////////////////////////////////////////////////////////////////////////////
+		class DsmLocation : public Location
+		{
+			public:
+				double Value(void);
+				void Walkable(bool walkable);
+				bool Walkable(void);
+
+				friend ostream& operator << (ostream& ostream, DsmLocation& location);
+				DsmLocation& operator = (DsmLocation& location);
+			
+				//	Default Constructor 
+//				DsmLocation(); 
+
+				//	Parametrized Constructors 
+				DsmLocation(DsmLocation location, int value);
+				DsmLocation(DsmLocation location, long value);
+				DsmLocation(DsmLocation location, float value);
+				DsmLocation(DsmLocation location, double value);
+		 
+				//	Destructor
+				~DsmLocation();
+
+			protected:
+				//	Protected member function
+				void 		_Value(DsmLocation location, double value);				
+			private:
+
+				//	Private variables
+				double		value;
+				bool		walkable	= false;
+
+		};	//	class DsmLocation	
 		
 		/////////////////////////////////////////////////////////////////////////////////
 		// Class name		: DsmInformation

@@ -85,41 +85,108 @@
 		
 		/////////////////////////////////////////////////////////////////////////////////
 		// Class name			: Location
+		// Function				: Default constructor
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 27-02-2021
+		// Class description	: This class represents a specific location
+		// Function description	: This constructor will create a non valid object
+		// Remarks         		: 
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: None
+		/////////////////////////////////////////////////////////////////////////////////
+		Location::Location()
+		{
+			this->_Location(INVALID_COLUMN, INVALID_ROW);
+			
+		}	//	Location::Location()
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: Location
+		// Function				: Parametrized constructor
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 27-02-2021
+		// Class description	: This class represents a specific location
+		// Function description	: This constructors take as parameter the location
+		//							(column, row)
+		// Remarks         		: 
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			:	column
+		//							row
+		/////////////////////////////////////////////////////////////////////////////////
+		Location::Location(int column, int row)
+		{
+			this->_Location(column, row);
+			
+		}	//	Location::Location()
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: Location
+		// Function				: Destructor
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 27-02-2021
+		// Class description	: This class represents a specific location
+		// Function description	: This destructor does not do anything as for today
+		// Remarks         		: 
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: None
+		/////////////////////////////////////////////////////////////////////////////////
+		Location::~Location()
+		{
+			
+		}	//	Location::~Location()
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: DsmLocation
 		// Function				: Parametrized constructors
 		// Programmer name		: Pablo Daniel Jelsky
 		// Last update date		: 27-02-2021
 		// Class description	: This class represents a specific location for DSM maps
 		// Function description	: This family of constructors take as parameter the 
-		//							location (x,y) and the location value
+		//							location (column,  row) and the location value
 		// Remarks         		: 
 		/////////////////////////////////////////////////////////////////////////////////
-		// Arguments			:	x (column)
-		//							y (row)
-		//							locationValue (as int, long, float or double)	
+		// Arguments			:	location (as DsmLocation)
+		//							value (as int, long, float or double)	
 		/////////////////////////////////////////////////////////////////////////////////
-		Location::Location(int x, int y, int locationValue)
+		DsmLocation::DsmLocation(DsmLocation location, int value)
 		{
-			this->_LocationValue(x, y, (double) locationValue);
+			this->_Value(location, (double) value);
 			
-		}	//	Logger::Location()
+		}	//	DsmLocation::DsmLocation()
 		
-		Location::Location(int x, int y, long locationValue)
+		DsmLocation::DsmLocation(DsmLocation location, long value)
 		{
-			this->_LocationValue(x, y, (double) locationValue);
+			this->_Value(location, (double) value);
 			
-		}	//	Logger::Location()
+		}	//	DsmLocation::DsmLocation()
 		
-		Location::Location(int x, int y, float locationValue)
+		DsmLocation::DsmLocation(DsmLocation location, float value)
 		{
-			this->_LocationValue(x, y, (double) locationValue);
+			this->_Value(location, (double) value);
 			
-		}	//	Logger::Location()
+		}	//	DsmLocation::DsmLocation()
 		
-		Location::Location(int x, int y, double locationValue)
+		DsmLocation::DsmLocation(DsmLocation location, double value)
 		{
-			this->_LocationValue(x, y, (double) locationValue);
+			this->_Value(location, (double) value);
 			
-		}	//	Logger::Location()
+		}	//	DsmLocation::DsmLocation()
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: DsmLocation
+		// Function				: Destructor
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 27-02-2021
+		// Class description	: This class represents a specific location for DSM maps
+		// Function description	: This destructor does not do anything as for today
+		// Remarks         		: 
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: None
+		/////////////////////////////////////////////////////////////////////////////////
+		DsmLocation::~DsmLocation()
+		{
+			
+		}	//	DsmLocation::~DsmLocation()
 
 		/////////////////////////////////////////////////////////////////////////////////
 		// Class name			: Logger
@@ -329,7 +396,7 @@
 		{
 			if (this->initialized == false && this->fileName == "")
 			{
-				this->initialized  = true;
+				this->initialized	= true;
 				this->fileName		= fileName;
 				this->outfile.open(fileName);	
 				
@@ -342,7 +409,41 @@
 		
 		/////////////////////////////////////////////////////////////////////////////////
 		// Class name			: Location
-		// Function				: LocationValue
+		// Function				: Column
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 27-02-2021
+		// Class description	: This class represents a specific location
+		// Function description	: This member function returns column location
+		// Remarks         		: Returns the column location
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: None	
+		/////////////////////////////////////////////////////////////////////////////////	
+		int Location::Column(void)
+		{
+			return (this->column);
+			
+		}	//	Location::Column()	
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: Location
+		// Function				: Row
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 27-02-2021
+		// Class description	: This class represents a specific location
+		// Function description	: This member function returns row location
+		// Remarks         		: Returns the row location
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: None	
+		/////////////////////////////////////////////////////////////////////////////////	
+		int Location::Row(void)
+		{
+			return (this->row);
+			
+		}	//	Location::Row()	
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: DsmLocation
+		// Function				: Value
 		// Programmer name		: Pablo Daniel Jelsky
 		// Last update date		: 27-02-2021
 		// Class description	: This class represents a specific location for DSM maps
@@ -351,14 +452,14 @@
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: None	
 		/////////////////////////////////////////////////////////////////////////////////	
-		double Location::LocationValue(void)
+		double DsmLocation::Value(void)
 		{
-			return (this->locationValue);
+			return (this->value);
 			
-		}	//	Location::LocationValue()		
+		}	//	DsmLocation::Value()		
 		
 		/////////////////////////////////////////////////////////////////////////////////
-		// Class name			: Location
+		// Class name			: DsmLocation
 		// Function				: Walkable
 		// Programmer name		: Pablo Daniel Jelsky
 		// Last update date		: 27-02-2021
@@ -370,14 +471,14 @@
 		// Arguments			: true, if the location is walkable, 
 		//							false, otherwise
 		/////////////////////////////////////////////////////////////////////////////////
-		void Location::Walkable(bool walkable)
+		void DsmLocation::Walkable(bool walkable)
 		{
 			this->walkable	= walkable;
 			
-		}	//	Location::Walkable()
+		}	//	DsmLocation::Walkable()
 		
 		/////////////////////////////////////////////////////////////////////////////////
-		// Class name			: Location
+		// Class name			: DsmLocation
 		// Function				: Walkable
 		// Programmer name		: Pablo Daniel Jelsky
 		// Last update date		: 27-02-2021
@@ -389,11 +490,11 @@
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: None	
 		/////////////////////////////////////////////////////////////////////////////////	
-		bool Location::Walkable(void)
+		bool DsmLocation::Walkable(void)
 		{
 			return (this->walkable);
 			
-		}	//	Location::Walkable()	
+		}	//	DsmLocation::Walkable()	
 		
 int DsmInformation::Rows(void)
 {
@@ -476,9 +577,6 @@ bool DsmInformation::PixelValue(int row, int column, double pixelValue)
 }	//	DsmInformation::PixelValue()
 
 
-
-
-		
 	/*
 		****************************************************************************
 		* PUBLIC CLASS OPERATOR DEFINITIONS
@@ -542,8 +640,27 @@ bool DsmInformation::PixelValue(int row, int column, double pixelValue)
 		
 		/////////////////////////////////////////////////////////////////////////////////
 		// Class name			: Location
-		// Function				: << operator (family of overloaded operators with
-		//							different types of arguments
+		// Function				: << operator
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 27-02-2021
+		// Class description	: This class represents a specific location
+		// Operator description	: This operator (<<) is used to overload the default << 
+		//							operator
+		// Remarks         		: 
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: Info to be sent to the logger file (string, integer,
+		//							long, float, double)
+		/////////////////////////////////////////////////////////////////////////////////
+		ostream& operator << (ostream& ostream, Location& location)
+		{
+         	ostream << "location [" << location.Column() << ", " << location.Row() << "]";
+         	return ostream;  
+         	
+		}	//	ostream& operator <<
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: DsmLocation
+		// Function				: << operator
 		// Programmer name		: Pablo Daniel Jelsky
 		// Last update date		: 27-02-2021
 		// Class description	: This class represents a specific location for DSM maps
@@ -554,9 +671,9 @@ bool DsmInformation::PixelValue(int row, int column, double pixelValue)
 		// Arguments			: Info to be sent to the logger file (string, integer,
 		//							long, float, double)
 		/////////////////////////////////////////////////////////////////////////////////
-		ostream& operator << (ostream& ostream, const Location& location)
+		ostream& operator << (ostream& ostream, DsmLocation& location)
 		{
-         	ostream << "location [" << location.x << ", " << location.y << "] = " << location.locationValue;
+         	ostream << "location [" << location.Column() << ", " << location.Row() << "] = " << location.Value();
          	return ostream;  
          	
 		}	//	ostream& operator <<
@@ -566,38 +683,58 @@ bool DsmInformation::PixelValue(int row, int column, double pixelValue)
 		// Function				: = operator (location assignment operator)
 		// Programmer name		: Pablo Daniel Jelsky
 		// Last update date		: 27-02-2021
-		// Class description	: This class represents a specific location for DSM maps
+		// Class description	: This class represents a specific location
 		// Operator description	: This operator (=) is used to assign a location to another
 		// Remarks         		: 
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: location
 		/////////////////////////////////////////////////////////////////////////////////
-		Location& Location::operator = (const Location& location)
+		Location& Location::operator = (Location& location)
 		{
 			if (this != &location)
-			{
-				this->_LocationValue(location.x, location.y, location.locationValue);
-				this->walkable	= location.walkable;
-			}
+				this->_Location(location.Column(), location.Row());
 			
 			return (*this);
          	
 		}	//	Location::operator =
 		
 		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: DsmLocation
+		// Function				: = operator (location assignment operator)
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 27-02-2021
+		// Class description	: This class represents a specific location for DSM maps
+		// Operator description	: This operator (=) is used to assign a location to another
+		// Remarks         		: 
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: location
+		/////////////////////////////////////////////////////////////////////////////////
+		DsmLocation& DsmLocation::operator = (DsmLocation& location)
+		{
+			if (this != &location)
+			{
+				this->_Value(location, location.Value());
+				this->walkable	= location.walkable;
+			}
+			
+			return (*this);
+         	
+		}	//	DsmLocation::operator =
+		
+		/////////////////////////////////////////////////////////////////////////////////
 		// Class name			: Location
 		// Function				: == operator (location equality operator)
 		// Programmer name		: Pablo Daniel Jelsky
 		// Last update date		: 27-02-2021
-		// Class description	: This class represents a specific location for DSM maps
+		// Class description	: This class represents a specific location
 		// Operator description	: This operator (==) is used to compare a location to another
 		// Remarks         		: 
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: location
 		/////////////////////////////////////////////////////////////////////////////////
-		bool Location::operator == (const Location& location)
+		bool Location::operator == (Location& location)
 		{
-			return ((this->x == location.x) && (this->y == location.y));
+			return ((this->Column() == location.Column()) && (this->Row() == location.Row()));
 			
 		}	//	bool Location::operator ==
 		
@@ -606,15 +743,15 @@ bool DsmInformation::PixelValue(int row, int column, double pixelValue)
 		// Function				: == operator (location inequality operator)
 		// Programmer name		: Pablo Daniel Jelsky
 		// Last update date		: 27-02-2021
-		// Class description	: This class represents a specific location for DSM maps
+		// Class description	: This class represents a specific location
 		// Operator description	: This operator (==) is used to compare a location to another
 		// Remarks         		: 
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: location
 		/////////////////////////////////////////////////////////////////////////////////
-		bool Location::operator != (const Location& location)
+		bool Location::operator != (Location& location)
 		{
-			return ((this->x != location.x) || (this->y != location.y));
+			return ((this->Column() != location.Column()) || (this->Row() != location.Row()));
 			
 		}	//	bool Location::operator !=
 
@@ -625,26 +762,44 @@ bool DsmInformation::PixelValue(int row, int column, double pixelValue)
 	*/	
 		/////////////////////////////////////////////////////////////////////////////////
 		// Class name			: Location
-		// Function				: _LocationValue
+		// Function				: _Location
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 27-02-2021
+		// Class description	: This class represents a specific location
+		// Function description	: This private member function takes as parameter the 
+		//							location (column, row) 
+		// Remarks         		: 
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			:	column
+		//							row
+		/////////////////////////////////////////////////////////////////////////////////	
+		void Location::_Location(int column, int row)
+		{
+			this->column	= column;
+			this->row		= row;
+			
+		}	//	Location::_Location()	
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: DsmLocation
+		// Function				: _Value
 		// Programmer name		: Pablo Daniel Jelsky
 		// Last update date		: 27-02-2021
 		// Class description	: This class represents a specific location for DSM maps
 		// Function description	: This private member function takes as parameter the 
-		//							location (x,y) and sets its location value
+		//							location (column, row) and sets its location value
 		// Remarks         		: 
 		/////////////////////////////////////////////////////////////////////////////////
-		// Arguments			:	x (column)
-		//							y (row)
-		//							locationValue	
+		// Arguments			:	location (as Location)
+		//							value (as double)	
 		/////////////////////////////////////////////////////////////////////////////////	
-		void Location::_LocationValue(int x, int y, double locationValue)
+		void DsmLocation::_Value(DsmLocation location, double value)
 		{
-			this->x				= x;
-			this->y				= y;
-			this->locationValue	= locationValue;
-			this->walkable		= false;
+			this->_Location(location.Column(), location.Row());
+			this->value		= value;
+			this->walkable	= false;
 			
-		}	//	Location::_LocationValue()	
+		}	//	DsmLocation::_Value()	
 
 
 
