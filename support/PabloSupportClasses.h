@@ -82,32 +82,33 @@
 		class Logger
 		{
 			public:
-				bool setFilename(string sFilename);
-				bool write(string sString);
-				bool write(int iInteger);
-				bool write(long lLong);
-				bool write(float fFloat);
-				bool write(double dDouble);
-				bool writeLine(string sLine);
+				bool SetFilename(string fileName);
+				bool Write(string loggerString);
+				bool Write(int loggerInteger);
+				bool Write(long loggerLong);
+				bool Write(float loggerFloat);
+				bool Write(double loggerDouble);
+				bool WriteLine(string loggerString);
 				
-				friend Logger& operator << (Logger& logger, const int& iInteger);
-				friend Logger& operator << (Logger& logger, const long& lLong);
-				friend Logger& operator << (Logger& logger, const float& fFloat);
-				friend Logger& operator << (Logger& logger, const double& dDouble);
-				friend Logger& operator << (Logger& logger, const string& sString);
+				friend Logger& operator << (Logger& logger, const int& loggerInteger);
+				friend Logger& operator << (Logger& logger, const long& loggerLong);
+				friend Logger& operator << (Logger& logger, const float& loggerFloat);
+				friend Logger& operator << (Logger& logger, const double& loggerDouble);
+				friend Logger& operator << (Logger& logger, const string& loggerString);
 			
 				//	Default Constructor 
 				Logger(); 
 
 				//	Parametrized Constructor 
-				Logger(string sFilename);
+				Logger(string fileName);
 		 
 				//	Destructor
 				~Logger();
 
 			private:
-				bool    	bInitialized 	= false;
-				string		sFilename		= "";
+				//	Private variables
+				bool    	initialized 	= false;
+				string		fileName		= "";
 				ofstream	outfile;
 
 		};	//	class Logger	
@@ -122,17 +123,17 @@
 		class Location
 		{
 			public:
-				
-				double walkable(void);
-				walkable(
+				double LocationValue(void);
+				void Walkable(bool walkable);
+				bool Walkable(void);
 
 				friend ostream& operator << (ostream& ostream, const Location& location);
 				Location& operator = (const Location& location);
-				Location& operator == (const Location& location);
-				Location& operator != (const Location& location);
+				bool operator == (const Location& location);
+				bool operator != (const Location& location);
 			
 				//	Default Constructor 
-				Location(); 
+//				Location(); 
 
 				//	Parametrized Constructors 
 				Location(int x, int y, int locationValue);
@@ -144,7 +145,9 @@
 				~Location();
 
 			private:
-				bool    	initialized	= false;
+				//	Private member function
+				void 		_LocationValue(int x, int y, double locationValue);
+				//	Private variables
 				int			x;
 				int			y;
 				double		locationValue;
@@ -165,23 +168,24 @@
 		class DsmInformation
 		{ 
 			public:
-				void rows(int rows);
-				void columns(int columns);
-				int rows(void);
-				int columns(void);
-				double pixelValue(int row, int column);
-				bool pixelValue(int row, int column, double pixelValue);
+				void Rows(int rows);
+				void Columns(int columns);
+				int Rows(void);
+				int Columns(void);
+				double PixelValue(int row, int column);
+				bool PixelValue(int row, int column, double pixelValue);
 
 				//	Default Constructor 
 				DsmInformation();
 
 				//	Parametrized Constructor 
-				DsmInformation(int iColumns, int iRows); 
+				DsmInformation(int columns, int rows); 
 
 				//	Destructor
 				~DsmInformation();
 				
 			private: 
+				//	Private variables
 				bool    		initialized = false;
 				double  		*pPixelValue = NULL; 
 				int     		columns = 0, rows = 0;

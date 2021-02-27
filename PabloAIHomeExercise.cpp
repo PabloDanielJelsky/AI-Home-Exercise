@@ -280,7 +280,7 @@ static void generate_png (void)
     * */
    pngwriter one(300,300,0,"one.png");
 
-   LoggerObject.writeLine("Generating one.png...");
+   LoggerObject.WriteLine("Generating one.png...");
 
    /* Purple rectangle (filled)
     * Make a purple filled retangle. Notice we are using
@@ -346,9 +346,9 @@ static void generate_png (void)
 
 
 
-   LoggerObject.writeLine(" done. Writing to disk...");
+   LoggerObject.WriteLine(" done. Writing to disk...");
    one.close();
-   LoggerObject.writeLine(" done.");
+   LoggerObject.WriteLine(" done.");
 }
 
 //	The Geospatial Data Abstraction Library (GDAL) is a computer software library for reading and writing raster and vector geospatial data formats
@@ -358,19 +358,19 @@ static void GdalDriverInitialization(void)
     //  Register all the GDAL drivers
     GDALAllRegister();
     
-    LoggerObject.writeLine("The following format drivers are configured and support output:");
+    LoggerObject.WriteLine("The following format drivers are configured and support output:");
     
     for(int iDriverFormat = 0; iDriverFormat < GDALGetDriverCount(); iDriverFormat++)
     {
-    	string		sString;
+    	string		loggerString;
         GDALDriverH hDriver = GDALGetDriver(iDriverFormat);
 
         if( GDALGetMetadataItem( hDriver, GDAL_DCAP_RASTER, nullptr) != nullptr &&
             (GDALGetMetadataItem( hDriver, GDAL_DCAP_CREATE, nullptr ) != nullptr
             || GDALGetMetadataItem( hDriver, GDAL_DCAP_CREATECOPY, nullptr ) != nullptr) )
         {
-        	sString	= "\t" + (string) GDALGetDriverShortName(hDriver) + ":  " + (string) GDALGetDriverLongName(hDriver) + "\n";
-        	LoggerObject << sString;
+        	loggerString	= "\t" + (string) GDALGetDriverShortName(hDriver) + ":  " + (string) GDALGetDriverLongName(hDriver) + "\n";
+        	LoggerObject << loggerString;
         }
     }
        
@@ -396,8 +396,8 @@ static void DsmInputFileAnalyze(char *pszFilename, class DsmInformation &DsmInfo
         LoggerObject << "Driver: " << poDataset->GetDriver()->GetDescription() << "/" <<  poDataset->GetDriver()->GetMetadataItem(GDAL_DMD_LONGNAME) << "\n";
         LoggerObject << "DSM file size is: " << poDataset->GetRasterXSize() << " columns by " << poDataset->GetRasterYSize() << " rows by " << poDataset->GetRasterCount() << " pixel" << "\n";
         
-        DsmInformationObject.rows(poDataset->GetRasterYSize());
-        DsmInformationObject.columns(poDataset->GetRasterXSize());
+        DsmInformationObject.Rows(poDataset->GetRasterYSize());
+        DsmInformationObject.Columns(poDataset->GetRasterXSize());
 
         {     	
 	        //  Fetching a Raster Band
@@ -456,7 +456,7 @@ static void DsmInputFileAnalyze(char *pszFilename, class DsmInformation &DsmInfo
  				
  				for (row = 0; row < nYSize; row++)
  					for (column = 0; column < nXSize; column++)
- 						DsmInformationObject.pixelValue(row, column, pafScanline[row * nXSize + column]);
+ 						DsmInformationObject.PixelValue(row, column, pafScanline[row * nXSize + column]);
  			
  			}
 	        
@@ -472,8 +472,8 @@ static void DsmOutputFileCreation(char *pszFilename, class DsmInformation &DsmIn
 	int	row, column;
 	int	fontSize	= 12;
 	
-	rows	= DsmInformationObject.rows();
-	columns	= DsmInformationObject.columns();
+	rows	= DsmInformationObject.Rows();
+	columns	= DsmInformationObject.Columns();
 
   /* one.png
     * This will be a 300x300 image with a black background, called one.png
@@ -483,7 +483,7 @@ static void DsmOutputFileCreation(char *pszFilename, class DsmInformation &DsmIn
 	for (row = 0; row < rows; row++)
 		for (column = 0; column < columns; column++)
 		{
-			switch ((int) DsmInformationObject.pixelValue(row, column))
+			switch ((int) DsmInformationObject.PixelValue(row, column))
 			{
 				case 3300:
 					LoggerObject << "[" << column << "," << row << "] = 3300\n";
@@ -502,7 +502,7 @@ static void DsmOutputFileCreation(char *pszFilename, class DsmInformation &DsmIn
 					outputFile.plot(column+1, rows - (row+1), 0, 0, 65535); 
 					break;
 				default:
-					LoggerObject << "[" << column << "," << row << "] = " << (int) DsmInformationObject.pixelValue(row, column) << "\n";
+					LoggerObject << "[" << column << "," << row << "] = " << (int) DsmInformationObject.PixelValue(row, column) << "\n";
 			}
 		}
 
@@ -556,7 +556,7 @@ bool DirectMovementWithVisibility(const class DsmInformation DsmInformationObjec
 
 int main()
 {
-	locationDsm				targetInitialLocation, targetLocation, targetObjectiveLocation, targetNextLocation;
+//	locationDsm				targetInitialLocation, targetLocation, targetObjectiveLocation, targetNextLocation;
 	const int				groundLevel = 3300;
 	long int				simulationSeconds = 0;
 	double					mTargetToObjectiveSlope;
@@ -575,13 +575,13 @@ int main()
     DsmOutputFileCreation(OUT_FILE, DsmInformationObject);
     
     //	Set initial target and target objective locations
-    targetLocation.x	= targetInitialLocation.x	= 0;
-    targetLocation.y	= targetInitialLocation.y	= 0;
-    targetObjectiveLocation.x						= 339;
-    targetObjectiveLocation.y						= 150;
+//    targetLocation.x	= targetInitialLocation.x	= 0;
+  //  targetLocation.y	= targetInitialLocation.y	= 0;
+  //  targetObjectiveLocation.x						= 339;
+  //  targetObjectiveLocation.y						= 150;
 
       
-    while (targetLocation != targetObjectiveLocation)
+//    while (targetLocation != targetObjectiveLocation)
     {
 /*
     	if (DirectMovementWithVisibility(DsmInformationObject, targetLocation, targetObjectiveLocation, &targetNextLocation, visibilityInMeters) == true)
