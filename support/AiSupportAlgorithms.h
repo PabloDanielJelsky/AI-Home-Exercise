@@ -38,7 +38,7 @@
 		#include <utility>	// for pairs
 		#include <set>		// for sets
 		#include <cstring>	// for memset
-		#include <list>		// for lists
+		/*---- library files -------------------------------------------------------*/
 		/*---- program files -------------------------------------------------------*/
 		#include "AiSupportAlgorithms_Ifc.h"
 		#include "AiSupportClasses.h"
@@ -91,7 +91,7 @@
 		bool _IsUnblocked(DsmInformation& dsmInformation, DsmLocation location);
 		bool _IsDestination(DsmLocation currentLocation, DsmLocation destinationLocation);
 		double _CalculateHValueForAiHomeExercise(DsmLocation currentLocation, DsmLocation destinationLocation);
-		void _TracePath(DsmInformation& dsmInformation, cell *pCellDetails, Location destinationLocation, Location* pTargetPath, int *pTargetPathSize, list <Location>& targetPathList);
+		void _TracePath(DsmInformation& dsmInformation, cell *pCellDetails, Location destinationLocation, int *pTargetPathSize, list <Location>& targetPathList, std::ofstream& csvTargetPathFile);
 	
 
 #endif	// __AI_SUPPORT_ALGORITHMS_H__

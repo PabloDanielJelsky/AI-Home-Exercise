@@ -34,6 +34,7 @@
 	*/
 		/*---- system and platform files -------------------------------------------*/
 		#include <list>		// for lists
+		/*---- library files -------------------------------------------------------*/
 		/*---- program files -------------------------------------------------------*/
 		#include "AiSupportClasses_Ifc.h"
 	
@@ -46,7 +47,7 @@
 		using namespace std;	
 		/*---- data declarations ---------------------------------------------------*/
 		/*---- function prototypes -------------------------------------------------*/
-		long AStarSearch(DsmInformation& dsmInformation, DsmLocation sourceLocation, DsmLocation destinationLocation, Location* pTargetPath, list <Location>& targetPathList);
+		long AStarSearch(DsmInformation& dsmInformation, DsmLocation sourceLocation, DsmLocation destinationLocation, list <Location>& targetPathList, string csvTargetPathFileName);
 	
 	/*
 		****************************************************************************

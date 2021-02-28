@@ -78,6 +78,7 @@
 		****************************************************************************
 	*/
 		/*---- system and platform files -------------------------------------------*/
+		/*---- library files -------------------------------------------------------*/
 		/*---- program files -------------------------------------------------------*/
 		#include "AiSupportAlgorithms.h"
 	
@@ -124,16 +125,18 @@
 		// Function description	: Finds the shortest path between a given source cell to a 
 		//							destination cell according to A* Search Algorithm
 		// Remarks         		: Returns the number of steps in the returning path and 
-		//							a pointer to the path
+		//							a list with the path
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: DSM map information (as DsmInformation) and 
 		//							source and destination locations (as DsmLocation)
+		//							and the CSV target path filen name
 		/////////////////////////////////////////////////////////////////////////////////
-		long AStarSearch(DsmInformation& dsmInformation, DsmLocation sourceLocation, DsmLocation destinationLocation, Location* pTargetPath, list <Location>& targetPathList)
+		long AStarSearch(DsmInformation& dsmInformation, DsmLocation sourceLocation, DsmLocation destinationLocation, list <Location>& targetPathList, string csvTargetPathFileName)
 		{
 			int	targetPathSize			= 0;
 			int	dsmQuantityOfColumns	= dsmInformation.Columns();
 			int	dsmQuantityOfRows		= dsmInformation.Columns();
+			
 			
 			// If the source is out of range
 			if (false == _IsValid(dsmInformation, sourceLocation)) 
@@ -173,6 +176,12 @@
 			cell *pCellDetails	= new cell[dsmQuantityOfColumns * dsmQuantityOfRows];
 		 
 			int row, column;
+			
+			//	Create the .csv target path file
+			std::ofstream csvTargetPathFile;
+      		csvTargetPathFile.open (csvTargetPathFileName);
+      		//	Create the header
+      		csvTargetPathFile << "Column, Row, Step\n";
 		 
 			for (row = 0; row < dsmQuantityOfRows; row++) 
 			{
@@ -267,6 +276,7 @@
 							break;
 						default:
 							printf("The direction %d is not a valid one\n", direction);
+							csvTargetPathFile.close();
 							return FAIL;
 							
 					}	//	switch()
@@ -282,15 +292,14 @@
 						    // Set the Parent of the destination cell
 						    pCellDetails[temporalDsmLocation.Row() * dsmQuantityOfColumns + temporalDsmLocation.Column()].parentLocation.Modify(column, row);
 						    printf("The destination cell is found\n");
-						    _TracePath(dsmInformation, pCellDetails, destinationLocation, pTargetPath, &targetPathSize, targetPathList);
+						    _TracePath(dsmInformation, pCellDetails, destinationLocation, &targetPathSize, targetPathList, csvTargetPathFile);
 						    foundDest	= true;
-						    
-						    printf ("Last point %d, %d\n", pTargetPath[20].Column(), pTargetPath[20].Row());
 						    
 							//	Deallocate the dynamic arrays created in this function
 							delete [] pClosedList;
 							delete [] pCellDetails;
 							
+							csvTargetPathFile.close();
 						    return (targetPathSize);
 						}
 						// If the successor is already on the closed
@@ -338,6 +347,7 @@
 			delete [] pClosedList;
 			delete [] pCellDetails;
 		 
+		 	csvTargetPathFile.close();
 			return (targetPathSize);
 		}
 
@@ -441,13 +451,15 @@
 		// Last update date		: 27-02-2021
 		// Module description	: This module is a graph traversal and path search algorithm
 		// Function description	: Traces the path from the source to destination
-		// Remarks         		: Returns the target path and the target path size until now
+		// Remarks         		: Returns a list with the  target path and the target 
+		//							path size until now
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			:  DSM map information (as DsmInformation),  
 		//							pointer to cell details (as struct cell)
-		//							and destination location (as DsmLocation)
+		//							, destination location (as DsmLocation),
+		//							and the CSV target path file
 		/////////////////////////////////////////////////////////////////////////////////	
-		void _TracePath(DsmInformation& dsmInformation, cell *pCellDetails, Location destinationLocation, Location* pTargetPath, int *pTargetPathSize, list <Location>& targetPathList)
+		void _TracePath(DsmInformation& dsmInformation, cell *pCellDetails, Location destinationLocation, int *pTargetPathSize, list <Location>& targetPathList, std::ofstream& csvTargetPathFile)
 		{
 			int	dsmQuantityOfColumns	= dsmInformation.Columns();
 			int	dsmQuantityOfRows		= dsmInformation.Columns();
@@ -477,21 +489,9 @@
 
 				targetPathSize++;
 				*pTargetPathSize	= targetPathSize;
-				printf("-> (%d, %d) (%d) ", p.Column(), p.Row(), targetPathSize);
-				
-				if (targetPathSize > 1)
-				{
-					pTargetPath = (Location *) realloc(pTargetPath, targetPathSize * sizeof(Location));
-					if (NULL == pTargetPath)
-					{
-						printf("Memory Re-allocation Failed\n");
-						exit(1);
-					}			
-				}
-				pTargetPath[targetPathSize-1].Modify(p.Column(), p.Row());
+//				printf("-> (%d, %d) (%d) ", p.Column(), p.Row(), targetPathSize);
+				csvTargetPathFile << p.Column() << "," << p.Row() << "," << targetPathSize << "\n";
 				targetPathList.push_back(p);
-				printf ("Last point1 %d, %d\n", p.Column(), p.Row());
-				printf ("Last point2 %d, %d\n", pTargetPath[0].Column(), pTargetPath[0].Row());
 			}
 		 
 			return;
@@ -524,5 +524,3 @@
 		****************************************************************************
 	*/	
 	
-
-
