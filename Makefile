@@ -31,8 +31,8 @@ default: PabloAIHomeExercise
 # To create the PabloAIHomeExercise. executable file count we need the object files
 # PabloAIHomeExercise.o, PabloSupportClasses.o, and pngwriter.o:
 #
-PabloAIHomeExercise:  PabloAIHomeExercise.o PabloSupportClasses.o pngwriter.o 
-	$(CC) $(CFLAGS) -o PabloAIHomeExercise. $(OBJ_DIR)PabloAIHomeExercise.o $(OBJ_DIR)PabloSupportClasses.o $(OBJ_DIR)pngwriter.o $(LIBRARIES)
+PabloAIHomeExercise:  PabloAIHomeExercise.o PabloSupportAlgorithms.o PabloSupportClasses.o pngwriter.o 
+	$(CC) $(CFLAGS) -o PabloAIHomeExercise. $(OBJ_DIR)PabloAIHomeExercise.o $(OBJ_DIR)PabloSupportAlgorithms.o $(OBJ_DIR)PabloSupportClasses.o $(OBJ_DIR)pngwriter.o $(LIBRARIES)
 
 # To create the object file PabloAIHomeExercise.o, we need the source
 # file PabloAIHomeExercise.cpp:
@@ -40,12 +40,19 @@ PabloAIHomeExercise:  PabloAIHomeExercise.o PabloSupportClasses.o pngwriter.o
 PabloAIHomeExercise.o:  PabloAIHomeExercise.cpp
 	$(CC) $(CFLAGS) -c PabloAIHomeExercise.cpp -I$(INC_DIR) -o $(OBJ_DIR)PabloAIHomeExercise.o 
 
+# To create the object file PabloSupportAlgorithms.o, we need the source
+# file PabloSupportAlgorithms.cpp:
+#
+PabloSupportAlgorithms.o: $(SUPPORT_DIR)PabloSupportAlgorithms.cpp
+	$(CC) $(CFLAGS) -c $(SUPPORT_DIR)PabloSupportAlgorithms.cpp -o $(OBJ_DIR)PabloSupportAlgorithms.o
+
 # To create the object file PabloSupportClasses.o, we need the source
 # file PabloSupportClasses.cpp:
 #
 PabloSupportClasses.o: $(SUPPORT_DIR)PabloSupportClasses.cpp
 	$(CC) $(CFLAGS) -c $(SUPPORT_DIR)PabloSupportClasses.cpp -o $(OBJ_DIR)PabloSupportClasses.o
 	
+
 # To create the object file PabloAIHomeExercise.o, we need the source
 # file pngwriter.cc:
 pngwriter.o:  $(SUPPORT_DIR)pngwriter.cc

@@ -12,6 +12,8 @@
 //
 // Copyright:		
 //
+// Remarks:			
+//
 //	DEVELOPMENT HISTORY:
 //
 //	Date		Author					Release		Change Id	Description of change
@@ -59,6 +61,18 @@
 		/*---- data declarations ---------------------------------------------------*/		
 		/*---- function prototypes -------------------------------------------------*/	
 
+	/*
+		****************************************************************************
+		* PUBLIC FUNCTION DEFINITIONS
+		****************************************************************************
+	*/
+	
+	/*
+		****************************************************************************
+		* PRIVATE FUNCTION DEFINITIONS
+		****************************************************************************
+	*/	
+	
 	/*
 		****************************************************************************
 		* PUBLIC CLASS CONSTRUCTORS AND DESTRUCTORS DEFINITIONS
@@ -452,6 +466,24 @@
 		
 		/////////////////////////////////////////////////////////////////////////////////
 		// Class name			: Location
+		// Function				: Modify
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 27-02-2021
+		// Class description	: This class represents a specific location
+		// Function description	: This member function modifies the location
+		// Remarks         		: 
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			:	column
+		//							row
+		/////////////////////////////////////////////////////////////////////////////////
+		void Location::Modify(int column, int row)
+		{
+			this->_Location(column, row);
+			
+		}	//	Location::Modify()
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: Location
 		// Function				: Column
 		// Programmer name		: Pablo Daniel Jelsky
 		// Last update date		: 27-02-2021
@@ -655,8 +687,7 @@ double DsmInformation::Value(int column, int row)
 
 bool DsmInformation::Value(int column, int row, double value)
 {
-	DsmLocation	location(column, row);
-	
+
 	if (row > this->Rows())
 	{
 		logger << "Input row: " << row << " is greater than the maximum number of rows: " << this->Rows() << "\n";
@@ -669,12 +700,42 @@ bool DsmInformation::Value(int column, int row, double value)
 	}
 	
 	
-	(this->pLocation[this->Columns() * row + column]).Value(location, value);
-	logger << "Values of [" << column << "," << row << "] = " << value << "\n";
+	(this->pLocation[this->Columns() * row + column]).Value(value);
+	logger << "[" << column << "," << row << "] set to " << value << "\n";
 	
 	return true;
 	
 }	//	DsmInformation::Value()
+
+bool DsmInformation::Walkable(int column, int row, bool walkable)
+{
+	if (row > this->Rows())
+	{
+		logger << "Input row: " << row << " is greater than the maximum number of rows: " << this->Rows() << "\n";
+		return false;
+	} 
+	if (column > this->Columns())
+	{
+		logger << "Input column: " << column << " is greater than the maximum number of columns: " << this->Columns() << "\n";
+		return false;
+	}
+	
+	
+	(this->pLocation[this->Columns() * row + column]).Walkable(walkable);
+	if (walkable == true)
+		logger << "[" << column << "," << row << "] set to true\n";
+	else
+		logger << "[" << column << "," << row << "] set to false\n";
+	
+	return true;
+	
+}	//	DsmInformation::Walkable()
+
+bool DsmInformation::Walkable(int column, int row)
+{
+    return ((this->pLocation[row*this->Columns()+column]).Walkable());
+    
+}   //  DsmInformation::Walkable()
 
 
 	/*

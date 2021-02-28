@@ -257,6 +257,9 @@ static void irqtime_account_process_tick(struct task_struct *p, int user_tick,
 					 struct rq *rq, int ticks)
 */
 
+#include <cstdlib>
+
+#include "support/PabloSupportAlgorithms.h"
 #include "support/PabloSupportClasses.h"
 #include "support/pngwriter.h"
 
@@ -267,8 +270,9 @@ static void irqtime_account_process_tick(struct task_struct *p, int user_tick,
 #include "/usr/include/gdal/cpl_string.h"
 
 
-#define DSM_FILE        "../Input/cage6.tif"
-#define OUT_FILE        "output/cage6.png"
+#define DSM_FILE        	"../Input/cage6.tif"
+#define OUT_FILE        	"output/cage6.png"
+#define TARGET_PATH_FILE	"output/cage6_with_TargetPath.png"
 
 //	Logger support object created to log all the relevant events of this simulation
 class Logger	LoggerObject("output/PabloAIHomeExercise.txt");
@@ -488,6 +492,7 @@ static void DsmOutputFileCreation(char *pszFilename, class DsmInformation &DsmIn
 				case 3300:
 					LoggerObject << "[" << column << "," << row << "] = 3300\n";
 					outputFile.plot(column+1, rows - (row+1), 0, 0, 0); 
+					DsmInformationObject.Walkable(column, row, true);
 					break;
 				case 3325:
 					LoggerObject << "[" << column << "," << row << "] = 3325\n";
@@ -538,6 +543,128 @@ void plot_text_utf8_blend(char * face_path, int fontsize,
 
 }	//	DsmOutputFileCreation()
 
+
+static void DsmOutputFileCreationWithTargetPath(char *pszFilename, class DsmInformation &DsmInformationObject, list <Location>& targetPathList, int targetPathSize)
+{
+	int	rows, columns;
+	int	row, column;
+	int	fontSize	= 12;
+	int	targetStep;
+	int xfrom, yfrom, xto, yto;
+	Location	locationTemporal;
+	
+	rows	= DsmInformationObject.Rows();
+	columns	= DsmInformationObject.Columns();
+
+  /* one.png
+    * This will be a 300x300 image with a black background, called one.png
+    * */	
+	pngwriter outputFile(columns, rows, 0, pszFilename);
+	
+	for (row = 0; row < rows; row++)
+		for (column = 0; column < columns; column++)
+		{
+			switch ((int) DsmInformationObject.Value(column, row))
+			{
+				case 3300:
+					LoggerObject << "[" << column << "," << row << "] = 3300\n";
+					outputFile.plot(column+1, rows - (row+1), 0, 0, 0); 
+					DsmInformationObject.Walkable(column, row, true);
+					break;
+				case 3325:
+					LoggerObject << "[" << column << "," << row << "] = 3325\n";
+					outputFile.plot(column+1, rows - (row+1), 65535, 0, 0); 
+					break;
+				case 3335:
+					LoggerObject << "[" << column << "," << row << "] = 3335\n";
+					outputFile.plot(column+1, rows - (row+1), 0, 65535, 0); 
+					break;
+				case 3370:
+					LoggerObject << "[" << column << "," << row << "] = 3370\n";
+					outputFile.plot(column+1, rows - (row+1), 0, 0, 65535); 
+					break;
+				default:
+					LoggerObject << "[" << column << "," << row << "] = " << (int) DsmInformationObject.Value(column, row) << "\n";
+			}
+		}
+/*
+	printf ("Target path size = %d\n", targetPathSize);
+	printf ("Last point %d, %d\n", pTargetPath[20].Column(), pTargetPath[20].Row());
+	xfrom	= pTargetPath[0].Column()+1;
+	xto		= pTargetPath[targetPathSize-1].Column()+1;
+	yfrom	= pTargetPath[0].Row()+1;
+	yto		= pTargetPath[targetPathSize-1].Row()+1;
+	outputFile.line(1, 1, 20, 20, 0, 65535, 4000);	
+*/		
+		
+    
+	locationTemporal	= targetPathList.front();
+	targetPathList.pop_front();
+	xfrom				= locationTemporal.Column()+1;
+	yfrom				= rows - (locationTemporal.Row()+1);
+	
+	for (list <Location>::iterator it = targetPathList.begin(); it != targetPathList.end(); ++it)
+	{
+		xto				= (*it).Column()+1;
+		yto				= rows - ((*it).Row()+1);
+		
+		printf ("G%d, %d, %d ", xfrom, yfrom, targetStep);
+				
+		//	void line(int xfrom, int yfrom, int xto, int yto, int red, int green,int  blue);
+		outputFile.line(xfrom, yfrom, xto, yto, 0, 65535, 4000);
+		
+		xfrom			= xto;
+		yfrom			= yto;		
+	}
+/*
+	for (targetStep = 0; targetStep < targetPathSize-1; targetStep++)
+	{
+		
+		xfrom	= pTargetPath[targetStep].Column()+1;
+		xto		= pTargetPath[targetStep+1].Column()+1;
+		yfrom	= pTargetPath[targetStep].Row()+1;
+		yto		= pTargetPath[targetStep+1].Row()+1;
+		
+		printf ("G%d, %d, %d ", xfrom, yfrom, targetStep);
+				
+		//	void line(int xfrom, int yfrom, int xto, int yto, int red, int green,int  blue);
+		outputFile.line(xfrom, yfrom, xto, yto, 0, 65535, 4000);
+	}
+*/
+
+   /*Change the text information in the PNG header
+    * */
+
+   outputFile.settext((const char *) pszFilename, (const char *) "Pablo Daniel Jelsky", (const char *) "'cage6.tif' GTiff file with target path", (const char *) "PabloAIHomeExercise");
+ /*
+ void settext(	const char * title, const char * author,
+
+			const char * description, const char * software);
+ 
+ */  
+   /* Set text */
+   //This is the text that says PNG in pink, rotated.
+   outputFile.plot_text_utf8("/usr/share/fonts/truetype/ubuntu/Ubuntu-M.ttf", fontSize , 1, rows-(2*fontSize) , 0.0, "'cage6.tif' GTiff file with target path'", 65535 , 65535 , 65535);
+/*
+void plot_text_utf8_blend(char * face_path, int fontsize, 
+
+					  int x_start, int y_start, double angle, char * text,
+
+ 					  double opacity, 
+
+					  int red, int green, int blue);
+*/
+
+
+
+
+   LoggerObject << "Finished creating " << (string) pszFilename << " file...\n";
+
+   outputFile.close();
+
+}	//	DsmOutputFileCreation()
+
+
 /*
 bool DirectMovementWithVisibility(const class DsmInformation DsmInformationObject, const locationDsm currentLocation, const locationDsm objectivelocation, locationDsm *nextLocation_ptr, const int visibility)
 {
@@ -563,7 +690,16 @@ int main()
 	double					bTargetToObjectiveYCoordinatateWhileXIsZero;
 	int						visibilityInMeters = 5;
 	
+	long					targetPathSize;
+	
+	Location				temporalLocation;
+	
+	class Location*			pTargetPath = (class Location *) malloc (1 * sizeof(class Location));
+	
+	list <Location> targetPathList;
+	
     class DsmInformation    DsmInformationObject;
+    class DsmLocation		sourceLocation(0,0), destinationLocation(300,200);
      
     //  GDAL driver initialization
     GdalDriverInitialization();
@@ -591,7 +727,19 @@ int main()
     	
     	simulationSeconds++;	
     }	
+    targetPathSize	= AStarSearch(DsmInformationObject, sourceLocation, destinationLocation, pTargetPath, targetPathList);
+    cout << endl << targetPathSize << endl;
+    printf ("Last point %d, %d\n", pTargetPath[20].Column(), pTargetPath[20].Row());
+    temporalLocation = targetPathList.front();
+    printf ("Last point3 %d, %d\n", temporalLocation.Column(), temporalLocation.Row());
+     temporalLocation = targetPathList.back();
+    printf ("Last point4 %d, %d\n", temporalLocation.Column(), temporalLocation.Row());
+     temporalLocation = targetPathList.back();
+    printf ("Last point5 %d, %d\n", temporalLocation.Column(), temporalLocation.Row());
     
+    //	Create the output file with target path
+    DsmOutputFileCreationWithTargetPath(TARGET_PATH_FILE, DsmInformationObject, targetPathList, targetPathSize);
+ //   free(pTargetPath);
    
  //   generate_png();
     

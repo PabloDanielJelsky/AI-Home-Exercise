@@ -14,6 +14,8 @@
 //
 //	DEVELOPMENT HISTORY:
 //
+// Remarks:			
+//
 //	Date		Author					Release		Change Id	Description of change
 //	----------- -----------------------	-----------	----------- ---------------------
 //	24-02-2021	Pablo Daniel Jelsky		01			00			Initial
@@ -127,6 +129,7 @@
 		class Location
 		{
 			public:
+				void Modify(int column, int row);
 				int	Column(void);
 				int Row(void);
 
@@ -146,11 +149,11 @@
 
 			protected:
 				//	Protected member function
-				void 		_Location(int column, int row);
+				void _Location(int column, int row);
 			private:
 				//	Private variables
-				int			column;
-				int			row;
+				int	column;
+				int	row;
 
 		};	//	class Location	
 		
@@ -191,12 +194,12 @@
 
 			protected:
 				//	Protected member function
-				void 		_Value(DsmLocation location, double value);				
+				void _Value(DsmLocation location, double value);				
 			private:
 
 				//	Private variables
-				double		value;
-				bool		walkable	= false;
+				double	value;
+				bool	walkable	= false;
 
 		};	//	class DsmLocation	
 		
@@ -218,6 +221,8 @@
 				int Columns(void);
 				double Value(int column, int row);
 				bool Value(int column, int row, double value);
+				bool Walkable(int column, int row, bool walkable);
+				bool Walkable(int column, int row);
 
 				//	Default Constructor 
 				DsmInformation();
