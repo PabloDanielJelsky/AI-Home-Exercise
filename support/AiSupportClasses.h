@@ -6,7 +6,7 @@
 //
 // Version:			01.01
 //
-// Description:		Support classes for the AI home excercise interface file
+// Description:		Support classes for the AI home excercise include file
 //
 // Author:			Pablo Daniel Jelsky
 //
@@ -36,7 +36,7 @@
 		/*---- system and platform files -------------------------------------------*/
 		#include <string>
 		/*---- program files -------------------------------------------------------*/
-		#include "AiSupportClassesIfc.h"
+		#include "AiSupportClasses_Ifc.h"
 	
 	/*
 		****************************************************************************

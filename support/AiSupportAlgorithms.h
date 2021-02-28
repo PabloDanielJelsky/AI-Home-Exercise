@@ -40,7 +40,7 @@
 		#include <cstring>	// for memset
 		#include <list>		// for lists
 		/*---- program files -------------------------------------------------------*/
-		#include "AiSupportAlgorithmsIfc.h"
+		#include "AiSupportAlgorithms_Ifc.h"
 		#include "AiSupportClasses.h"
 	
 	/*
