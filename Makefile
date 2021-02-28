@@ -18,7 +18,7 @@ CFLAGS          = -g -Wall
 LIBRARIES       = -lgdal -lpng -lfreetype
 OBJ_DIR         = objects/
 SUPPORT_DIR     = support/
-INC_DIR         = /usr/include/freetype2
+INC_DIR         = -I support -I /usr/include/freetype2 
 
 
 # typing 'make' will invoke the first target entry in the file 
@@ -29,34 +29,34 @@ INC_DIR         = /usr/include/freetype2
 default: PabloAIHomeExercise
 
 # To create the PabloAIHomeExercise. executable file count we need the object files
-# PabloAIHomeExercise.o, PabloSupportClasses.o, and pngwriter.o:
+# PabloAIHomeExercise.o, AiSupportAlgorithms.o AiSupportClasses.o, and pngwriter.o:
 #
-PabloAIHomeExercise:  PabloAIHomeExercise.o PabloSupportAlgorithms.o PabloSupportClasses.o pngwriter.o 
-	$(CC) $(CFLAGS) -o PabloAIHomeExercise. $(OBJ_DIR)PabloAIHomeExercise.o $(OBJ_DIR)PabloSupportAlgorithms.o $(OBJ_DIR)PabloSupportClasses.o $(OBJ_DIR)pngwriter.o $(LIBRARIES)
+PabloAIHomeExercise:  PabloAIHomeExercise.o AiSupportAlgorithms.o AiSupportClasses.o pngwriter.o 
+	$(CC) $(CFLAGS) -o PabloAIHomeExercise. $(OBJ_DIR)PabloAIHomeExercise.o $(OBJ_DIR)AiSupportAlgorithms.o $(OBJ_DIR)AiSupportClasses.o $(OBJ_DIR)pngwriter.o $(LIBRARIES)
 
 # To create the object file PabloAIHomeExercise.o, we need the source
 # file PabloAIHomeExercise.cpp:
 #
 PabloAIHomeExercise.o:  PabloAIHomeExercise.cpp
-	$(CC) $(CFLAGS) -c PabloAIHomeExercise.cpp -I$(INC_DIR) -o $(OBJ_DIR)PabloAIHomeExercise.o 
+	$(CC) $(CFLAGS) -c PabloAIHomeExercise.cpp $(INC_DIR) -o $(OBJ_DIR)PabloAIHomeExercise.o 
 
-# To create the object file PabloSupportAlgorithms.o, we need the source
-# file PabloSupportAlgorithms.cpp:
+# To create the object file AiSupportAlgorithms.o, we need the source
+# file AiSupportAlgorithms.cpp:
 #
-PabloSupportAlgorithms.o: $(SUPPORT_DIR)PabloSupportAlgorithms.cpp
-	$(CC) $(CFLAGS) -c $(SUPPORT_DIR)PabloSupportAlgorithms.cpp -o $(OBJ_DIR)PabloSupportAlgorithms.o
+AiSupportAlgorithms.o: $(SUPPORT_DIR)AiSupportAlgorithms.cpp
+	$(CC) $(CFLAGS) -c $(SUPPORT_DIR)AiSupportAlgorithms.cpp $(INC_DIR)-o $(OBJ_DIR)AiSupportAlgorithms.o
 
-# To create the object file PabloSupportClasses.o, we need the source
-# file PabloSupportClasses.cpp:
+# To create the object file AiSupportClasses.o, we need the source
+# file AiSupportClasses.cpp:
 #
-PabloSupportClasses.o: $(SUPPORT_DIR)PabloSupportClasses.cpp
-	$(CC) $(CFLAGS) -c $(SUPPORT_DIR)PabloSupportClasses.cpp -o $(OBJ_DIR)PabloSupportClasses.o
+AiSupportClasses.o: $(SUPPORT_DIR)AiSupportClasses.cpp
+	$(CC) $(CFLAGS) -c $(SUPPORT_DIR)AiSupportClasses.cpp $(INC_DIR) -o $(OBJ_DIR)AiSupportClasses.o
 	
 
-# To create the object file PabloAIHomeExercise.o, we need the source
+# To create the object file pngwriter.o, we need the source
 # file pngwriter.cc:
 pngwriter.o:  $(SUPPORT_DIR)pngwriter.cc
-	$(CC) $(CFLAGS) -c $(SUPPORT_DIR)pngwriter.cc -I$(INC_DIR) -o $(OBJ_DIR)pngwriter.o
+	$(CC) $(CFLAGS) -c $(SUPPORT_DIR)pngwriter.cc $(INC_DIR) -o $(OBJ_DIR)pngwriter.o
 
 # To start over from scratch, type 'make clean'.  This
 # removes the executable file, as well as old .o object
