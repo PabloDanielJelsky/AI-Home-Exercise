@@ -2,11 +2,11 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// File:			AiSupportAlgorithms.h
+// File:			PabloSupportAlgorithms.h
 //
 // Version:			01.00
 //
-// Description:		Support algorithms for the AI home excercise include file
+// Description:		Support algorithms for the AI home excercise interface file
 //
 // Author:			Pablo Daniel Jelsky
 //
@@ -24,8 +24,8 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef __AI_SUPPORT_ALGORITHMS_H__
-#define	__AI_SUPPORT_ALGORITHMS_H__
+#ifndef __PABLO_AI_SUPPORT_ALGORITHMS_H__
+#define	__PABLO_AI_SUPPORT_ALGORITHMS_H__
 
 	/*
 		****************************************************************************
@@ -40,17 +40,19 @@
 		#include <cstring>	// for memset
 		#include <list>		// for lists
 		/*---- program files -------------------------------------------------------*/
-		#include "AiSupportAlgorithmsIfc.h"
-		#include "AiSupportClasses.h"
+		#include "PabloSupportClasses.h"
 	
 	/*
 		****************************************************************************
-		* INTERNAL REFERENCE    
+		* EXTERNAL REFERENCE    
 		****************************************************************************
 	*/
 		/*---- name spaces declarations --------------------------------------------*/
 		using namespace std;		
-		
+		/*---- data declarations ---------------------------------------------------*/
+		/*---- function prototypes -------------------------------------------------*/
+		long AStarSearch(DsmInformation& dsmInformation, DsmLocation sourceLocation, DsmLocation destinationLocation, Location* pTargetPath, list <Location>& targetPathList);
+	
 	/*
 		****************************************************************************
 		* PUBLIC DECLARATIONS 
@@ -92,6 +94,8 @@
 		bool _IsDestination(DsmLocation currentLocation, DsmLocation destinationLocation);
 		double _CalculateHValueForAiHomeExercise(DsmLocation currentLocation, DsmLocation destinationLocation);
 		void _TracePath(DsmInformation& dsmInformation, cell *pCellDetails, Location destinationLocation, Location* pTargetPath, int *pTargetPathSize, list <Location>& targetPathList);
+
+
 	
 
-#endif	// __AI_SUPPORT_ALGORITHMS_H__
+#endif	// __PABLO_AI_SUPPORT_ALGORITHMS_H__

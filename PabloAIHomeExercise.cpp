@@ -259,10 +259,9 @@ static void irqtime_account_process_tick(struct task_struct *p, int user_tick,
 
 #include <cstdlib>
 
-#include "AiSupportAlgorithmsIfc.h"
-#include "pngwriter.h"
-
-
+#include "support/PabloSupportAlgorithms.h"
+#include "support/PabloSupportClasses.h"
+#include "support/pngwriter.h"
 
 #include "/usr/include/gdal/gdal.h"
 #include "/usr/include/gdal/gdal_priv.h"
