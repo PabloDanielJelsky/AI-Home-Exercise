@@ -65,17 +65,22 @@
 		/*---- context -------------------------------------------------------------*/
 		/*---- macros --------------------------------------------------------------*/
 		/*---- defines --------------------------------------------------------------*/
+		#define	NUMBER_OF_AGENTS	2
 		#define DSM_FILE        	"../Input/cage6.tif"
 		#define OUT_FILE        	"output/cage6.png"
 		#define TARGET_PATH_FILE	"output/cage6_with_TargetPath.png"		
+		#define AGENT1_PATH_FILE	"output/cage6_with_Agent1Path.png"	
+		#define AGENT2_PATH_FILE	"output/cage6_with_Agent2Path.png"	
+		
 		/*---- data declarations ---------------------------------------------------*/	
+		typedef enum {PERSON_TYPE_TARGET, PERSON_TYPE_AGENT1, PERSON_TYPE_AGENT2} personType;
 		//	Logger support object created to log all the relevant events of this simulation
 		class Logger				LoggerObject("output/PabloAIHomeExercise.txt");
 		/*---- function prototypes -------------------------------------------------*/	
 		static void GdalDriverInitialization(void);
 		static void DsmInputFileAnalyze(char *pszFilename, class DsmInformation &DsmInformationObject);
 		static void DsmOutputFileCreation(char *pszFilename, class DsmInformation &DsmInformationObject);
-		static void DsmOutputFileCreationWithTargetPath(char *pszFilename, class DsmInformation &DsmInformationObject, list <Location>& targetPathList, int targetPathSize);
+		static void DsmOutputFileCreationWithPath(personType typeOfPerson, char *pszFilename, class DsmInformation &DsmInformationObject, list <Location>& pathList, int pathSize);
 
 
 	/*
@@ -279,14 +284,37 @@
 
 	}	//	DsmOutputFileCreation()
 
-
-	static void DsmOutputFileCreationWithTargetPath(char *pszFilename, class DsmInformation &DsmInformationObject, list <Location>& targetPathList, int targetPathSize)
+	static void DsmOutputFileCreationWithPath(personType typeOfPerson, char *pszFilename, class DsmInformation &DsmInformationObject, list <Location>& pathList, int pathSize)
 	{
 		int	rows, columns;
 		int	row, column;
 		int	fontSize	= 12;
 		int	targetStep;
 		int xfrom, yfrom, xto, yto;
+		int	redLine, greenLine, blueLine;
+		
+		switch (typeOfPerson)
+		{
+			case PERSON_TYPE_TARGET:
+				redLine		= 0;
+				greenLine	= 65535;
+				blueLine	= 65535;
+				break;
+			case PERSON_TYPE_AGENT1:
+				redLine		= 65535;
+				greenLine	= 0;
+				blueLine	= 65535;
+				break;
+			case PERSON_TYPE_AGENT2:
+				redLine		= 65535;
+				greenLine	= 65535;
+				blueLine	= 0;
+				break;
+			default:
+				redLine		= 65535;
+				greenLine	= 65535;
+				blueLine	= 65535;
+		}
 		Location	locationTemporal;
 		
 		rows	= DsmInformationObject.Rows();
@@ -324,8 +352,8 @@
 				}
 			}
 		
-		locationTemporal	= targetPathList.front();
-		targetPathList.pop_front();
+		locationTemporal	= pathList.front();
+		pathList.pop_front();
 		xfrom				= locationTemporal.Column()+1;
 		yfrom				= rows - (locationTemporal.Row()+1);
 		
@@ -333,14 +361,15 @@
 		
 		//	outputFile.triangle(xfrom, yfrom, xfrom + 2, yfrom - 1, xfrom + 1, yfrom, 0, 65535, 4000);
 
+
+
 		int loop = 0;
-		for (list <Location>::iterator it = targetPathList.begin(); it != targetPathList.end(); ++it, loop++)
+		for (list <Location>::iterator it = pathList.begin(); it != pathList.end(); ++it, loop++)
 		{
 			xto				= (*it).Column()+1;
 			yto				= rows - ((*it).Row()+1);
 				
-			//	void line(int xfrom, int yfrom, int xto, int yto, int red, int green,int  blue);
-			outputFile.line(xfrom, yfrom, xto, yto, 0, 65535, 4000);
+			outputFile.line(xfrom, yfrom, xto, yto, redLine, greenLine, blueLine);
 			
 			xfrom			= xto;
 			yfrom			= yto;	
@@ -374,7 +403,7 @@
 	   /*Change the text information in the PNG header
 		* */
 
-	   outputFile.settext((const char *) pszFilename, (const char *) "Pablo Daniel Jelsky", (const char *) "'cage6.tif' GTiff file with target path", (const char *) "PabloAIHomeExercise");
+	   outputFile.settext((const char *) pszFilename, (const char *) "Pablo Daniel Jelsky", (const char *) "'cage6.tif' GTiff file with path", (const char *) "PabloAIHomeExercise");
 	 /*
 	 void settext(	const char * title, const char * author,
 
@@ -383,7 +412,7 @@
 	 */  
 	   /* Set text */
 	   //This is the text that says PNG in pink, rotated.
-	   outputFile.plot_text_utf8("/usr/share/fonts/truetype/ubuntu/Ubuntu-M.ttf", fontSize , 1, rows-(2*fontSize) , 0.0, "'cage6.tif' GTiff file with target path'", 65535 , 65535 , 65535);
+	   outputFile.plot_text_utf8("/usr/share/fonts/truetype/ubuntu/Ubuntu-M.ttf", fontSize , 1, rows-(2*fontSize) , 0.0, "'cage6.tif' GTiff file with path'", 65535 , 65535 , 65535);
 	/*
 	void plot_text_utf8_blend(char * face_path, int fontsize, 
 
@@ -401,7 +430,7 @@
 
 	   outputFile.close();
 
-	}	//	DsmOutputFileCreation()
+	}	//	DsmOutputFileCreationWithPath()
 
 
 int main()
@@ -412,11 +441,14 @@ int main()
 	double					mTargetToObjectiveSlope;
 	double					bTargetToObjectiveYCoordinatateWhileXIsZero;
 	int						visibilityInMeterstemporalLocation = 5;
-	long					targetPathSize;
-	list <Location> 		targetPathList;
+
 	
     class DsmInformation    DsmInformationObject;
-    class DsmLocation		sourceLocation(0,0), destinationLocation(300,200);
+    
+	long					targetPathSize, agent1PathSize, agent2PathSize;
+	list <Location> 		targetPathList, agent1PathList, agent2PathList;
+    class DsmLocation		targetInitialLocation(0,0), targetObjectiveLocation(200, 200), targetLocation;
+    class DsmLocation		agent1InitialLocation(10,0), agent1ObjectiveLocation(200, 200), agent1Location;
      
     //  GDAL driver initialization
     GdalDriverInitialization();
@@ -426,31 +458,51 @@ int main()
     
     //	Create the output file
     DsmOutputFileCreation(OUT_FILE, DsmInformationObject);
-    
+   
+ 
     //	Set initial target and target objective locations
-//    targetLocation.x	= targetInitialLocation.x	= 0;
-  //  targetLocation.y	= targetInitialLocation.y	= 0;
-  //  targetObjectiveLocation.x						= 339;
-  //  targetObjectiveLocation.y						= 150;
-
-      
-//    while (targetLocation != targetObjectiveLocation)
+	targetLocation	= targetInitialLocation;
+	targetPathSize	= AStarSearch(A_START_SEARCH_4_PIXELS_MOVEMENT, false, DsmInformationObject, targetInitialLocation, targetObjectiveLocation, targetPathList, "output/TargetPath.csv");
+	list <Location>::iterator it = targetPathList.begin();
+	
+	simulationSeconds	= 0;
+	while (targetLocation != targetObjectiveLocation)
     {
-/*
-    	if (DirectMovementWithVisibility(DsmInformationObject, targetLocation, targetObjectiveLocation, &targetNextLocation, visibilityInMeters) == true)
-    	{
-    	}
-*/    
-    	
-    	simulationSeconds++;	
+    	targetLocation.Modify((*it).Column(), (*it).Row());
+ //    	cout << "[" << targetLocation.Column() << ", " << targetLocation.Row() << ", " << simulationSeconds << "]";
+   
+   		simulationSeconds++;
+    	++it;	
+//    	if (it != targetPathList.end())
+//    		cout << " => ";
     }	
-    targetPathSize	= AStarSearch(DsmInformationObject, sourceLocation, destinationLocation, targetPathList, "output/TargetPath.csv");
+
+
+    //	Create the output file with target path
+    DsmOutputFileCreationWithPath(PERSON_TYPE_TARGET, TARGET_PATH_FILE, DsmInformationObject, targetPathList, targetPathSize);
+
+    //	Set initial target and target objective locations
+	agent1Location	= agent1InitialLocation;
+	agent1PathSize = AStarSearch(A_START_SEARCH_12_PIXELS_MOVEMENT, true, DsmInformationObject, agent1InitialLocation, agent1ObjectiveLocation, agent1PathList, "output/Agent1Path.csv");
+	list <Location>::iterator it1 = agent1PathList.begin();
+	
+	simulationSeconds	= 0;
+	while (agent1Location != agent1ObjectiveLocation)
+    {
+    	agent1Location.Modify((*it1).Column(), (*it1).Row());
+ //    	cout << "[" << targetLocation.Column() << ", " << targetLocation.Row() << ", " << simulationSeconds << "]";
+   
+   		simulationSeconds++;
+    	++it1;	
+//    	if (it != targetPathList.end())
+//    		cout << " => ";
+    }	
     
     //	Create the output file with target path
-    DsmOutputFileCreationWithTargetPath(TARGET_PATH_FILE, DsmInformationObject, targetPathList, targetPathSize);
- //   free(pTargetPath);
-   
- //   generate_png();
+    DsmOutputFileCreationWithPath(PERSON_TYPE_AGENT1, AGENT1_PATH_FILE, DsmInformationObject, agent1PathList, agent1PathSize);
     
-	return 0;
-}
+	return EXIT_SUCCESS;
+	
+}	//	main()
+
+

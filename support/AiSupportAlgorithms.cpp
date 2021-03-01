@@ -127,16 +127,22 @@
 		// Remarks         		: Returns the number of steps in the returning path and 
 		//							a list with the path
 		/////////////////////////////////////////////////////////////////////////////////
-		// Arguments			: DSM map information (as DsmInformation) and 
+		// Arguments			: Type of pixel movement (4, 8, 12 pixels per cycle),
+		//							possibility of not moving (staying at place) (as moving),
+		//							DSM map information (as DsmInformation) and 
 		//							source and destination locations (as DsmLocation)
 		//							and the CSV target path filen name
 		/////////////////////////////////////////////////////////////////////////////////
-		long AStarSearch(DsmInformation& dsmInformation, DsmLocation sourceLocation, DsmLocation destinationLocation, list <Location>& targetPathList, string csvTargetPathFileName)
+		long AStarSearch(aStarSearchPixelsMovementType typeOfPixelMovement, bool possibilityOfNotMoving, DsmInformation& dsmInformation, DsmLocation sourceLocation, DsmLocation destinationLocation, 
+				list <Location>& targetPathList, string csvTargetPathFileName)
 		{
-			int	targetPathSize			= 0;
-			int	dsmQuantityOfColumns	= dsmInformation.Columns();
-			int	dsmQuantityOfRows		= dsmInformation.Columns();
+			int	targetPathSize					= 0;
+			int	dsmQuantityOfColumns			= dsmInformation.Columns();
+			int	dsmQuantityOfRows				= dsmInformation.Columns();
 			
+			//	To store the first enumerator, and the last one, depending in the quantity of pixels per each movement
+			directionEnumerator	directionFirst	= (true == possibilityOfNotMoving) ? DIRECTION_SAME_PLACE : DIRECTION_NORTH;
+			directionEnumerator directionLast;
 			
 			// If the source is out of range
 			if (false == _IsValid(dsmInformation, sourceLocation)) 
@@ -165,7 +171,95 @@
 				printf("We are already at the destination\n");
 				return FAIL;
 			}
-		 
+			
+			switch (typeOfPixelMovement)
+			{
+				case A_START_SEARCH_4_PIXELS_MOVEMENT:
+					/*
+						 Generating all the 4 successor of this cell
+				 
+									N 
+									| 
+									|
+							  W----Cell----E
+									| 
+									|
+									S
+				 
+							Cell-->Popped Cell		(column, row)
+							N -->  North			(column, row-1)
+							S -->  South			(column, row+1)
+							E -->  East				(column+1, row)
+							W -->  West				(column-1, row)
+					*/	
+					
+					//	Implying exactly moving 1 pixel each time
+					directionLast	= DIRECTION_WEST;
+					break;
+				case A_START_SEARCH_8_PIXELS_MOVEMENT:	
+					/*
+						 Generating all the 8 successor of this cell
+				 
+							N.W		N		N.E
+								|	|	  | 
+								  |	|  |
+							  W----Cell----E
+								  |	|  |
+								|	|	  |
+							S.W		S		S.E
+				 
+							Cell-->Popped Cell		(column, row)
+							N -->  North			(column, row-1)
+							S -->  South			(column, row+1)
+							E -->  East				(column+1, row)
+							W -->  West				(column-1, row)
+							N.E--> North-East  		(column+1, row-1)
+							N.W--> North-West  		(column-1, row-1)
+							S.E--> South-East  		(column+1, row+1)
+							S.W--> South-West  		(column-1, row+1)
+					*/	
+					//	Implying moving to all adjacent pixels each time
+					directionLast	= DIRECTION_SOUTH_WEST;
+					break;
+				case A_START_SEARCH_12_PIXELS_MOVEMENT:
+					/*
+						 Generating all the 12 successor of this cell
+						 
+						 
+						 			N
+						 			|
+									|
+							N.W		N		N.E
+								|	|	  | 
+								  |	|  |
+						W----W----Cell----E----E
+								  |	|  |
+								|	|	  |
+							S.W		S		S.E
+									|
+									|
+									S											 
+							Cell-->Popped Cell		(column, row)
+							N -->  North			(column, row-1)
+							S -->  South			(column, row+1)
+							E -->  East				(column+1, row)
+							W -->  West				(column-1, row)
+							N.E--> North-East  		(column+1, row-1)
+							N.W--> North-West  		(column-1, row-1)
+							S.E--> South-East  		(column+1, row+1)
+							S.W--> South-West  		(column-1, row+1)
+							N.N--> North-North		(column, row-2)
+							S.S--> South-South		(column, row+2)
+							E.E--> East-East		(column+2, row)
+							W.W--> West-West		(column-2, row)
+					*/	
+					//	Implying moving up to two pixels each time
+					directionLast	= DIRECTION_WEST_WEST;
+					break;
+				default:
+					break;
+			}
+	 
 			// Create a closed list and initialise it to false which
 			// means that no cell has been included yet This closed
 			// list is implemented as a boolean 2D array
@@ -231,40 +325,27 @@
 				row													= p.second.second;
 				pClosedList[row * dsmQuantityOfColumns + column]	= true;
 		 
-				/*
-					 Generating all the 4 successor of this cell
-			 
-								N 
-								| 
-								|
-						  W----Cell----E
-								| 
-								|
-								S
-			 
-						Cell-->Popped Cell		(column, row)
-						N -->  North			(column, row-1)
-						S -->  South			(column, row+1)
-						E -->  East				(column+1, row)
-						W -->  West				((column-1, row)
-				*/
 		 
 				// To store the 'g', 'h' and 'f' of the 8 successors
-				double gNew, hNew, fNew;
-
-				for (int direction = (int) DIRECTION_NORTH; direction <= (int) DIRECTION_WEST; direction++)
-				{
+				double 				gNew, hNew, fNew;
+				
+				for (int direction = (int) directionFirst; direction <= (int) directionLast; direction++)
+				{		
 					DsmLocation temporalDsmLocation;
 					
 					switch (direction)
 					{
+						case DIRECTION_SAME_PLACE:
+							// Stay at the same place, do NOT do anything
+							temporalDsmLocation.Modify(column, row);
+							break;
 						case DIRECTION_NORTH:
 							//----------- 1st Successor (North) ------------
-							temporalDsmLocation.Modify(column, row-1);
+							temporalDsmLocation.Modify(column, row - 1);
 							break;
 						case DIRECTION_SOUTH:
 							//----------- 2nd Successor (South) ------------
-							temporalDsmLocation.Modify(column, row+1);
+							temporalDsmLocation.Modify(column, row + 1);
 							break;
 						case DIRECTION_EAST:
 							//----------- 3rd Successor (East) ------------
@@ -274,14 +355,45 @@
 							//----------- 4th Successor (West) ------------
 							temporalDsmLocation.Modify(column - 1, row);
 							break;
+						case DIRECTION_NORTH_EAST:
+							//----------- 5th Successor (North-East) ------------
+							temporalDsmLocation.Modify(column + 1, row - 1);
+							break;
+						case DIRECTION_NORTH_WEST:
+							//----------- 6th Successor (North-West) ------------
+							temporalDsmLocation.Modify(column - 1, row - 1);
+							break;
+						case DIRECTION_SOUTH_EAST:
+							//----------- 7th Successor (South-East) ------------
+							temporalDsmLocation.Modify(column + 1, row + 1);
+							break;
+						case DIRECTION_SOUTH_WEST:
+							//----------- 8th Successor (South-West) ------------
+							temporalDsmLocation.Modify(column - 1, row + 1);
+							break;
+						case DIRECTION_NORTH_NORTH:
+							//----------- 9th Successor (North-North) ------------
+							temporalDsmLocation.Modify(column, row - 2);
+							break;
+						case DIRECTION_SOUTH_SOUTH:
+							//----------- 10th Successor (South-South) ------------
+							temporalDsmLocation.Modify(column, row + 2);
+							break;
+						case DIRECTION_EAST_EAST:
+							//----------- 11th Successor (East-East) ------------
+							temporalDsmLocation.Modify(column + 2, row);
+							break;
+						case DIRECTION_WEST_WEST:
+							//----------- 12th Successor (West-West) ------------
+							temporalDsmLocation.Modify(column - 2, row);
+							break;
 						default:
 							printf("The direction %d is not a valid one\n", direction);
 							csvTargetPathFile.close();
 							return FAIL;
 							
 					}	//	switch()
- 
-	 
+					
 					// Only process this cell if this is a valid one
 					if (_IsValid(dsmInformation, temporalDsmLocation)) 
 					{
@@ -289,58 +401,59 @@
 						// current successor
 						if (_IsDestination(temporalDsmLocation, destinationLocation)) 
 						{
-						    // Set the Parent of the destination cell
-						    pCellDetails[temporalDsmLocation.Row() * dsmQuantityOfColumns + temporalDsmLocation.Column()].parentLocation.Modify(column, row);
-						    printf("The destination cell is found\n");
-						    _TracePath(dsmInformation, pCellDetails, destinationLocation, &targetPathSize, targetPathList, csvTargetPathFile);
-						    foundDest	= true;
-						    
+							// Set the Parent of the destination cell
+							pCellDetails[temporalDsmLocation.Row() * dsmQuantityOfColumns + temporalDsmLocation.Column()].parentLocation.Modify(column, row);
+							printf("The destination cell is found\n");
+							_TracePath(dsmInformation, pCellDetails, destinationLocation, &targetPathSize, targetPathList, csvTargetPathFile);
+							foundDest	= true;
+							
 							//	Deallocate the dynamic arrays created in this function
 							delete [] pClosedList;
 							delete [] pCellDetails;
 							
 							csvTargetPathFile.close();
-						    return (targetPathSize);
+							return (targetPathSize);
 						}
 						// If the successor is already on the closed
 						// list or if it is blocked, then ignore it.
 						// Else do the following
 						else if (false == pClosedList[temporalDsmLocation.Row() * dsmQuantityOfColumns + temporalDsmLocation.Column()]
-						         && true == _IsUnblocked(dsmInformation, temporalDsmLocation)) 
+								 && true == _IsUnblocked(dsmInformation, temporalDsmLocation)) 
 						{
-						    gNew	= pCellDetails[row * dsmQuantityOfColumns + column].g + 1.0;
-						    hNew	= _CalculateHValueForAiHomeExercise(temporalDsmLocation, destinationLocation);
-						    fNew	= gNew + hNew;
+							gNew	= pCellDetails[row * dsmQuantityOfColumns + column].g + 1.0;
+							hNew	= _CalculateHValueForAiHomeExercise(temporalDsmLocation, destinationLocation);
+							fNew	= gNew + hNew;
 			 
-						    // If it isn’t on the open list, add it to
-						    // the open list. Make the current square
-						    // the parent of this square. Record the
-						    // f, g, and h costs of the square cell
-						    //                OR
-						    // If it is on the open list already, check
-						    // to see if this path to that square is
-						    // better, using 'f' cost as the measure.
-						    if (pCellDetails[temporalDsmLocation.Row() * dsmQuantityOfColumns + temporalDsmLocation.Column()].f == FLT_MAX
-						        || pCellDetails[temporalDsmLocation.Row() * dsmQuantityOfColumns + temporalDsmLocation.Column()].f > fNew) {
-						        openList.insert(make_pair(fNew, make_pair(temporalDsmLocation.Column(), temporalDsmLocation.Row())));
+							// If it isn’t on the open list, add it to
+							// the open list. Make the current square
+							// the parent of this square. Record the
+							// f, g, and h costs of the square cell
+							//                OR
+							// If it is on the open list already, check
+							// to see if this path to that square is
+							// better, using 'f' cost as the measure.
+							if (pCellDetails[temporalDsmLocation.Row() * dsmQuantityOfColumns + temporalDsmLocation.Column()].f == FLT_MAX
+								|| pCellDetails[temporalDsmLocation.Row() * dsmQuantityOfColumns + temporalDsmLocation.Column()].f > fNew) 
+							{
+								openList.insert(make_pair(fNew, make_pair(temporalDsmLocation.Column(), temporalDsmLocation.Row())));
 			 
-						        // Update the details of this cell
-						        pCellDetails[temporalDsmLocation.Row() * dsmQuantityOfColumns + temporalDsmLocation.Column()].f	= fNew;
-						        pCellDetails[temporalDsmLocation.Row() * dsmQuantityOfColumns + temporalDsmLocation.Column()].g = gNew;
-						        pCellDetails[temporalDsmLocation.Row() * dsmQuantityOfColumns + temporalDsmLocation.Column()].h = hNew;
-						        pCellDetails[temporalDsmLocation.Row() * dsmQuantityOfColumns + temporalDsmLocation.Column()].parentLocation.Modify(column, row);
-						    }
+								// Update the details of this cell
+								pCellDetails[temporalDsmLocation.Row() * dsmQuantityOfColumns + temporalDsmLocation.Column()].f	= fNew;
+								pCellDetails[temporalDsmLocation.Row() * dsmQuantityOfColumns + temporalDsmLocation.Column()].g = gNew;
+								pCellDetails[temporalDsmLocation.Row() * dsmQuantityOfColumns + temporalDsmLocation.Column()].h = hNew;
+								pCellDetails[temporalDsmLocation.Row() * dsmQuantityOfColumns + temporalDsmLocation.Column()].parentLocation.Modify(column, row);
+							}
 						}
 					}
 				}
-			}	
-			 
+			}
+
 			// When the destination cell is not found and the open
 			// list is empty, then we conclude that we failed to
 			// reach the destination cell. This may happen when 
 			// there is no way to destination cell (due to
 			// blockages)
-			if (foundDest == false)
+			if (false == foundDest)
 				printf("Failed to find the Destination Cell\n");
 				
 			//	Deallocate the dynamic arrays created in this function

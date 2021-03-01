@@ -69,7 +69,11 @@
 		#define	FAIL	-1
 		#define	FLT_MAX	99999999999
 		/*---- data declarations ---------------------------------------------------*/	
-		typedef enum {DIRECTION_NORTH, DIRECTION_SOUTH, DIRECTION_EAST, DIRECTION_WEST } directionEnumerator;
+		typedef enum {DIRECTION_SAME_PLACE, 
+						DIRECTION_NORTH, DIRECTION_SOUTH, DIRECTION_EAST, DIRECTION_WEST,
+						DIRECTION_NORTH_EAST, DIRECTION_NORTH_WEST, DIRECTION_SOUTH_EAST, DIRECTION_SOUTH_WEST,
+						DIRECTION_NORTH_NORTH, DIRECTION_SOUTH_SOUTH, DIRECTION_EAST_EAST, DIRECTION_WEST_WEST
+					} directionEnumerator;
 
 		// Creating a shortcut for pair<int, pair<int, int>> type
 		typedef pair <double, pair<int, int> > pPair;

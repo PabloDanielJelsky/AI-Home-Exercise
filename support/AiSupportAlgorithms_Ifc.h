@@ -45,9 +45,13 @@
 	*/
 		/*---- name spaces declarations --------------------------------------------*/
 		using namespace std;	
+		/*---- defines --------------------------------------------------------------*/
+		/*---- enums --------------------------------------------------------------*/
+		typedef enum { A_START_SEARCH_4_PIXELS_MOVEMENT, A_START_SEARCH_8_PIXELS_MOVEMENT, A_START_SEARCH_12_PIXELS_MOVEMENT } aStarSearchPixelsMovementType;
 		/*---- data declarations ---------------------------------------------------*/
 		/*---- function prototypes -------------------------------------------------*/
-		long AStarSearch(DsmInformation& dsmInformation, DsmLocation sourceLocation, DsmLocation destinationLocation, list <Location>& targetPathList, string csvTargetPathFileName);
+		long AStarSearch(aStarSearchPixelsMovementType typeOfPixelMovement, bool possibilityOfNotMoving, DsmInformation& dsmInformation, 
+						DsmLocation sourceLocation, DsmLocation destinationLocation, list <Location>& targetPathList, string csvTargetPathFileName);
 	
 	/*
 		****************************************************************************
