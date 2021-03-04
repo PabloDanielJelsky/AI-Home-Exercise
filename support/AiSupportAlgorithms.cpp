@@ -134,7 +134,7 @@
 		//							and the CSV target path filen name
 		/////////////////////////////////////////////////////////////////////////////////
 		long AStarSearch(aStarSearchPixelsMovementType typeOfPixelMovement, bool possibilityOfNotMoving, DsmInformation& dsmInformation, DsmLocation sourceLocation, DsmLocation destinationLocation, 
-				list <Location>& targetPathList, string csvTargetPathFileName)
+				list <Location>& targetPathList, string csvTargetPathFilename)
 		{
 			int	targetPathSize					= 0;
 			int	dsmQuantityOfColumns			= dsmInformation.Columns();
@@ -273,7 +273,7 @@
 			
 			//	Create the .csv target path file
 			std::ofstream csvTargetPathFile;
-      		csvTargetPathFile.open (csvTargetPathFileName);
+      		csvTargetPathFile.open (csvTargetPathFilename);
       		//	Create the header
       		csvTargetPathFile << "Column, Row, Step\n";
 		 
@@ -509,7 +509,7 @@
 		bool _IsUnblocked(DsmInformation& dsmInformation, DsmLocation location)
 		{
 			// Returns true if the cell is not blocked else false
-			return (dsmInformation.Walkable(location.Column(), location.Row()));
+			return (true == dsmInformation.Obstacle(location.Column(), location.Row())) ? false : true;
 			
 		}	//	_IsUnblocked()
 		

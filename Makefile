@@ -29,16 +29,22 @@ INC_DIR         = -I support -I /usr/include/freetype2
 default: PabloAIHomeExercise
 
 # To create the PabloAIHomeExercise. executable file count we need the object files
-# PabloAIHomeExercise.o, AiSupportAlgorithms.o AiSupportClasses.o, and pngwriter.o:
+# PabloAIHomeExercise.o, AiModel.o, AiSupportAlgorithms.o AiSupportClasses.o, and pngwriter.o:
 #
-PabloAIHomeExercise:  PabloAIHomeExercise.o AiSupportAlgorithms.o AiSupportClasses.o pngwriter.o 
-	$(CC) $(CFLAGS) -o PabloAIHomeExercise. $(OBJ_DIR)PabloAIHomeExercise.o $(OBJ_DIR)AiSupportAlgorithms.o $(OBJ_DIR)AiSupportClasses.o $(OBJ_DIR)pngwriter.o $(LIBRARIES)
+PabloAIHomeExercise:  PabloAIHomeExercise.o AiModel.o AiSupportAlgorithms.o AiSupportClasses.o pngwriter.o 
+	$(CC) $(CFLAGS) -o PabloAIHomeExercise. $(OBJ_DIR)AiModel.o $(OBJ_DIR)PabloAIHomeExercise.o $(OBJ_DIR)AiSupportAlgorithms.o $(OBJ_DIR)AiSupportClasses.o $(OBJ_DIR)pngwriter.o $(LIBRARIES)
 
 # To create the object file PabloAIHomeExercise.o, we need the source
 # file PabloAIHomeExercise.cpp:
 #
 PabloAIHomeExercise.o:  PabloAIHomeExercise.cpp
 	$(CC) $(CFLAGS) -c PabloAIHomeExercise.cpp $(INC_DIR) -o $(OBJ_DIR)PabloAIHomeExercise.o 
+	
+# To create the object file AiModel.o, we need the source
+# file AiModel.cpp:
+#
+AiModel.o: $(SUPPORT_DIR)AiModel.cpp
+	$(CC) $(CFLAGS) -c $(SUPPORT_DIR)AiModel.cpp $(INC_DIR) -o $(OBJ_DIR)AiModel.o 
 
 # To create the object file AiSupportAlgorithms.o, we need the source
 # file AiSupportAlgorithms.cpp:

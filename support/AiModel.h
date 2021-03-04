@@ -2,30 +2,30 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// File:			AiSupportAlgorithms_Ifc.h
+// File:			AiModel.h
 //
 // Version:			01.00
 //
-// Description:		Support algorithms for the AI home excercise interface file
+// Description:		Model classes the AI home excercise include file
 //
 // Author:			Pablo Daniel Jelsky
 //
 // Copyright:		
 //
-// Remarks:			The A* algorithm was adapted from https://www.geeksforgeeks.org/a-search-algorithm/
+// Remarks:			In this module the objective is to create model classes that will be instantiated as agents or targets
 //
 //	DEVELOPMENT HISTORY:
 //
 //	Date		Author					Release		Change Id	Description of change
 //	----------- -----------------------	-----------	----------- ---------------------
-//	27-02-2021	Pablo Daniel Jelsky		01			00			Initial
+//	02-03-2021	Pablo Daniel Jelsky		01			00			Initial
 //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef __AI_SUPPORT_ALGORITHMS_IFC_H__
-#define	__AI_SUPPORT_ALGORITHMS_IFC_H__
+#ifndef __AI_MODEL_H__
+#define	__AI_MODEL_H__
 
 	/*
 		****************************************************************************
@@ -33,26 +33,24 @@
 		****************************************************************************
 	*/
 		/*---- system and platform files -------------------------------------------*/
-		#include <list>		// for lists
 		/*---- library files -------------------------------------------------------*/
+		#include "/usr/include/gdal/gdal.h"
+		#include "/usr/include/gdal/gdal_priv.h"
+		#include "/usr/include/gdal/gdal_utils.h"
+		#include "/usr/include/gdal/cpl_conv.h"
+		#include "/usr/include/gdal/cpl_string.h"
+		#include "pngwriter.h"	
 		/*---- program files -------------------------------------------------------*/
-		#include "AiSupportClasses_Ifc.h"
-	
+		#include "AiModel_Ifc.h"
+		
 	/*
 		****************************************************************************
-		* EXTERNAL REFERENCE    
+		* INTERNAL REFERENCE    
 		****************************************************************************
 	*/
 		/*---- name spaces declarations --------------------------------------------*/
-		using namespace std;	
-		/*---- defines --------------------------------------------------------------*/
-		/*---- enums --------------------------------------------------------------*/
-		typedef enum { A_START_SEARCH_4_PIXELS_MOVEMENT, A_START_SEARCH_8_PIXELS_MOVEMENT, A_START_SEARCH_12_PIXELS_MOVEMENT } aStarSearchPixelsMovementType;
-		/*---- data declarations ---------------------------------------------------*/
-		/*---- function prototypes -------------------------------------------------*/
-		long AStarSearch(aStarSearchPixelsMovementType typeOfPixelMovement, bool possibilityOfNotMoving, DsmInformation& dsmInformation, 
-						DsmLocation sourceLocation, DsmLocation destinationLocation, list <Location>& targetPathList, string csvTargetPathFilename);
-	
+		using namespace std;		
+		
 	/*
 		****************************************************************************
 		* PUBLIC DECLARATIONS 
@@ -60,4 +58,20 @@
 	*/
 		/*---- data declarations ---------------------------------------------------*/
 	
-#endif	// __AI_SUPPORT_ALGORITHMS_IFC_H__
+	/*
+		****************************************************************************
+		* PRIVATE DECLARATIONS  
+		****************************************************************************
+	*/	
+		/*---- context -------------------------------------------------------------*/
+		/*---- macros --------------------------------------------------------------*/
+		/*---- defines --------------------------------------------------------------*/
+
+		/*---- data declarations ---------------------------------------------------*/	
+		// Creating a shortcut for pair<int, pair<int, int>> type
+		
+		/*---- function prototypes -------------------------------------------------*/	
+
+	
+
+#endif	// __AI_MODEL_H__

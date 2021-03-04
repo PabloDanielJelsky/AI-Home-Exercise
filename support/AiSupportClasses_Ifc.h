@@ -20,6 +20,8 @@
 //	----------- -----------------------	-----------	----------- ---------------------
 //	24-02-2021	Pablo Daniel Jelsky		01			00			Initial
 //	27-02-2021	Pablo Daniel Jelsky		01			01			Working with Logger, Location, DsmLocation and DsmInformation classes
+//	01-03-2021	Pablo Daniel Jelsky		01			02			Added LineOfSight() member function to DsmInformation class and added template use
+//	02-03-2021	Pablo Daniel Jelsky		01			03			Added Graphic class
 //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -38,6 +40,12 @@
 		#include <fstream> 
 		#include <string>		
 		/*---- library files -------------------------------------------------------*/
+		#include "/usr/include/gdal/gdal.h"
+		#include "/usr/include/gdal/gdal_priv.h"
+		#include "/usr/include/gdal/gdal_utils.h"
+		#include "/usr/include/gdal/cpl_conv.h"
+		#include "/usr/include/gdal/cpl_string.h"
+		#include "pngwriter.h"
 		/*---- program files -------------------------------------------------------*/
 	
 	/*
@@ -45,11 +53,14 @@
 		* EXTERNAL REFERENCE    
 		****************************************************************************
 	*/
+		//	Template declaration
 		/*---- name spaces declarations --------------------------------------------*/
+		using namespace std;
 		/*---- defines --------------------------------------------------------------*/
 		/*---- enums --------------------------------------------------------------*/
+		typedef enum {GRAPHIC_TYPE_PNG, GRAPHIC_TYPE_GEOTIFF} graphicType;
+		typedef enum {COLOR_RED, COLOR_GREEN, COLOR_BLUE, COLOR_WHITE, COLOR_BLACK, COLOR_YELLOW, COLOR_CYAN, COLOR_MAGENTA} color;
 		/*---- data declarations ---------------------------------------------------*/
-		using namespace std;
 		/*---- function prototypes -------------------------------------------------*/
 	
 	/*
@@ -76,12 +87,9 @@
 		class Logger
 		{
 			public:
-				bool SetFilename(string fileName);
-				bool Write(string loggerString);
-				bool Write(int loggerInteger);
-				bool Write(long loggerLong);
-				bool Write(float loggerFloat);
-				bool Write(double loggerDouble);
+				bool Filename(string filename);
+				template <class GenericType> 
+				bool Write(GenericType loggerGenericType);
 				bool WriteLine(string loggerString);
 				
 				friend Logger& operator << (Logger& logger, const int& loggerInteger);
@@ -92,17 +100,15 @@
 			
 				//	Default Constructor 
 				Logger(); 
-
 				//	Parametrized Constructor 
-				Logger(string fileName);
-		 
+				Logger(string filename);
 				//	Destructor
 				~Logger();
 
 			private:
 				//	Private variables
 				bool    	initialized 	= false;
-				string		fileName		= "";
+				string		filename		= "";
 				ofstream	outfile;
 
 		};	//	class Logger	
@@ -120,6 +126,8 @@
 				void Modify(int column, int row);
 				int	Column(void);
 				int Row(void);
+				double LineIntercept(Location point);
+				double LineSlope(Location point);
 
 				friend ostream& operator << (ostream& ostream, const Location& location);
 				Location& operator = (Location& location);
@@ -128,10 +136,8 @@
 			
 				//	Default Constructor 
 				Location(); 
-
 				//	Parametrized Constructors 
 				Location(int column, int row);
-		 
 				//	Destructor
 				~Location();
 
@@ -155,28 +161,22 @@
 		class DsmLocation : public Location
 		{
 			public:
-				void Value(DsmLocation location, int value);
-				void Value(DsmLocation location, long value);
-				void Value(DsmLocation location, float value);
-				void Value(DsmLocation location, double value);
+				template <class GenericType> 
+				void Value(DsmLocation location, GenericType genericTypeValue);
 				void Value(double value);
 				double Value(void);
-				void Walkable(bool walkable);
-				bool Walkable(void);
+				void Obstacle(bool theLocationIsAnObstacle);
+				bool Obstacle(void);
 
 				friend ostream& operator << (ostream& ostream, DsmLocation& location);
 				DsmLocation& operator = (DsmLocation& location);
 			
 				//	Default Constructor 
 				DsmLocation(); 
-
 				//	Parametrized Constructors 
 				DsmLocation(int column, int row);
-				DsmLocation(int column, int row, int value);
-				DsmLocation(int column, int row, long value);
-				DsmLocation(int column, int row, float value);
-				DsmLocation(int column, int row, double value);
-		 
+				template <class GenericType> 
+				DsmLocation(int column, int row, GenericType genericTypeValue);
 				//	Destructor
 				~DsmLocation();
 
@@ -187,7 +187,7 @@
 
 				//	Private variables
 				double	value;
-				bool	walkable	= false;
+				bool	obstacle	= false;
 
 		};	//	class DsmLocation	
 		
@@ -209,15 +209,14 @@
 				int Columns(void);
 				double Value(int column, int row);
 				bool Value(int column, int row, double value);
-				bool Walkable(int column, int row, bool walkable);
-				bool Walkable(int column, int row);
+				bool Obstacle(int column, int row, bool theLocationIsAnObstacle);
+				bool Obstacle(int column, int row);
+				bool LineOfSight(Location pointA, Location pointB);
 
 				//	Default Constructor 
 				DsmInformation();
-
 				//	Parametrized Constructor 
 				DsmInformation(int columns, int rows); 
-
 				//	Destructor
 				~DsmInformation();
 				
@@ -227,8 +226,73 @@
 				DsmLocation		*pLocation		= NULL; 
 				int     		columns = 0, rows = 0;
 				class Logger	logger;
+				//	Private member functions
+
 				
 		};  //  class DsmInformation
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name		: Graphic
+		// Programmer name	: Pablo Daniel Jelsky
+		// Last update date	: 02-03-2021
+		// Description		: This class represents a graphic
+		// Remarks      	: Currently supported formats (.png and GeoTIFF)
+		/////////////////////////////////////////////////////////////////////////////////
+		class Graphic
+		{
+			public:
+				bool Create(graphicType typeOfGraphic);
+				void Filename(string filename);
+				void Columns(int columns);
+				int Columns(void);
+				void Rows(int rows);
+				int Rows(void);
+				
+				bool Line(class Location from, class Location to, color lineColor);
+			
+				//	Default Constructor 
+				Graphic(); 
+				//	Parametrized Constructors 
+				Graphic(int columns, int rows);
+				//	Destructor
+				~Graphic();
+
+			protected:
+				//	Protected member function
+				
+			private:
+				void _Update(void);
+				
+				//	Private variables
+				bool			initialized 			= false;
+/*
+				string			fileHeaderTitle 		= "";
+				string			fileHeaderAuthor		= "";
+				string			fileHeaderDescription	= "";
+				string			fileHeaderSoftware		= "";
+				string			fileTextFont			= "/usr/share/fonts/truetype/ubuntu/Ubuntu-M.ttf";
+				int				fileTextFontSize		= 12;
+				class Location	fileText(0,0);
+				color			fileTextColor			= COLOR_WHITE;
+*/
+				string			filename				= "";
+				int				columns;
+				int				rows;
+				
+				//	PNGWriter object for .png graphic file
+				class pngwriter	*pPngObject				= NULL;
+				//	GDAL objects for GeoTIFF graphic file
+				/* declare pointer variables that will hold memory
+				   * addresses (or "point to") for two GDALDataset
+				   * objects, one for the grib file and one for the
+				   * output Geotiff.
+				   */
+ 				GDALDataset 	*geotiffDataset			= NULL;
+				GDALDriver 		*driverGeotiff			= NULL;			//	also declare pointers for Geotiff
+				GDALRasterBand	*geotiffBand			= NULL;			//	and raster band object(s)
+ 
+
+		};	//	class Graphic	
 		
 	/*
 		****************************************************************************

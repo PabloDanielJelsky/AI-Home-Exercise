@@ -20,6 +20,8 @@
 //	----------- -----------------------	-----------	----------- ---------------------
 //	24-02-2021	Pablo Daniel Jelsky		01			00			Initial
 //	27-02-2021	Pablo Daniel Jelsky		01			01			Working with Logger, Location, DsmLocation and DsmInformation classes
+//	01-03-2021	Pablo Daniel Jelsky		01			02			Added LineOfSight() member function to DsmInformation class and added template use
+//	02-03-2021	Pablo Daniel Jelsky		01			03			Added Graphic class
 //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -60,7 +62,17 @@
 		#define	INVALID_COLUMN						-1
 		#define	INVALID_ROW							-1
 		#define INVALID_DSM_VALUE					-1
-		/*---- data declarations ---------------------------------------------------*/		
+		#define	MAXIMUM_COLOR						65535
+		#define	NO_COLOR							0
+		/*---- data declarations ---------------------------------------------------*/	
+		typedef struct
+		{
+			int	red;
+			int	green;
+			int	blue;
+			
+		}	rgb;
+			
 		/*---- function prototypes -------------------------------------------------*/	
 
 	

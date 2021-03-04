@@ -20,6 +20,8 @@
 //	----------- -----------------------	-----------	----------- ---------------------
 //	24-02-2021	Pablo Daniel Jelsky		01			00			Initial
 //	27-02-2021	Pablo Daniel Jelsky		01			01			Working with Logger, Location, DsmLocation and DsmInformation classes
+//	01-03-2021	Pablo Daniel Jelsky		01			02			Added LineOfSight() member function to DsmInformation class and added template use
+//	02-03-2021	Pablo Daniel Jelsky		01			03			Added Graphic class
 //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -59,7 +61,20 @@
 		/*---- context -------------------------------------------------------------*/
 		/*---- macros --------------------------------------------------------------*/
 		/*---- defines --------------------------------------------------------------*/
-		/*---- data declarations ---------------------------------------------------*/		
+		/*---- data declarations ---------------------------------------------------*/	
+		/*---- data definitions ---------------------------------------------------*/
+		static rgb colorToRgb [] = 
+		{
+			{MAXIMUM_COLOR, NO_COLOR, NO_COLOR},			// COLOR_RED
+			{NO_COLOR, MAXIMUM_COLOR, NO_COLOR},			// COLOR_GREEN
+			{NO_COLOR, NO_COLOR, MAXIMUM_COLOR},			// COLOR_BLUE
+			{MAXIMUM_COLOR, MAXIMUM_COLOR, MAXIMUM_COLOR},	// COLOR_WHITE
+			{NO_COLOR, NO_COLOR, NO_COLOR},					// COLOR_BLACK
+			{MAXIMUM_COLOR, MAXIMUM_COLOR, NO_COLOR},		// COLOR_YELLOW
+			{NO_COLOR, MAXIMUM_COLOR, MAXIMUM_COLOR},		// COLOR_CYAN
+			{MAXIMUM_COLOR, NO_COLOR, MAXIMUM_COLOR}		// COLOR_MAGENTA
+		};
+		
 		/*---- function prototypes -------------------------------------------------*/	
 
 	/*
@@ -95,7 +110,7 @@
 		Logger::Logger() 
 		{ 
 			this->initialized	= false;
-			this->fileName		= "";
+			this->filename		= "";
 			
 		}	//	Logger::Logger() 
 		
@@ -151,7 +166,6 @@
 			
 		}	//	Location::~Location()
 		
-		
 		/////////////////////////////////////////////////////////////////////////////////
 		// Class name			: DsmLocation
 		// Function				: Default constructors
@@ -200,36 +214,16 @@
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			:	column
 		//							row
-		//							value (as int, long, float or double)	
+		//							value
 		/////////////////////////////////////////////////////////////////////////////////
-		DsmLocation::DsmLocation(int column, int row, int value)
+		template <class GenericType> 
+		DsmLocation::DsmLocation(int column, int row, GenericType genericTypeValue)
 		{
 			this->_Location(column, row);
-			this->value	= (double) value;
+			this->value	= (double) genericTypeValue;
 			
 		}	//	DsmLocation::DsmLocation()
-		
-		DsmLocation::DsmLocation(int column, int row, long value)
-		{
-			this->_Location(column, row);
-			this->value	= (double) value;
 			
-		}	//	DsmLocation::DsmLocation()
-		
-		DsmLocation::DsmLocation(int column, int row, float value)
-		{
-			this->_Location(column, row);
-			this->value	= (double) value;
-			
-		}	//	DsmLocation::DsmLocation()
-		
-		DsmLocation::DsmLocation(int column, int row, double value)
-		{
-			this->_Location(column, row);
-			this->value	= (double) value;
-			
-		}	//	DsmLocation::DsmLocation()
-		
 		/////////////////////////////////////////////////////////////////////////////////
 		// Class name			: DsmLocation
 		// Function				: Destructor
@@ -260,9 +254,9 @@
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: Log file name (string)
 		/////////////////////////////////////////////////////////////////////////////////
-		Logger::Logger(string fileName) 
+		Logger::Logger(string filename) 
 		{ 
-			this->SetFilename(fileName);	
+			this->Filename(filename);	
 			
 		}	//	Logger::Logger()      
 
@@ -301,7 +295,7 @@
 		/////////////////////////////////////////////////////////////////////////////////
 		DsmInformation::DsmInformation() 
 		{ 
-			logger.SetFilename(DEFAULT_DSM_INFORMATION_FILE_NAME);
+			logger.Filename(DEFAULT_DSM_INFORMATION_FILE_NAME);
 			logger.WriteLine("Default Constructor called"); 
 			this->initialized	= false; 
 			this->columns		= 0;
@@ -339,6 +333,48 @@
 			
 		}	//	DsmInformation::~DsmInformation()
 		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: Graphic
+		// Function				: Default constructor
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 26-02-2021
+		// Class description	: This class represents a graphic
+		// Function description	:
+		// Remarks         		: Currently supported formats (.png and GeoTIFF)
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: None
+		/////////////////////////////////////////////////////////////////////////////////
+		Graphic::Graphic() 
+		{ 
+			this->initialized	= false; 
+			this->columns		= 0;
+			this->rows			= 0;
+			
+			if (NULL == pPngObject)
+				pPngObject	= new pngwriter(0, 0, 0, "");
+			
+		}	//	Graphic::Graphic()
+
+		//	Parametrized Constructor 
+		Graphic::Graphic(int columns, int rows) 
+		{ 
+			this->initialized	= true;
+			this->columns		= columns;
+			this->rows			= rows;
+			
+			if (NULL == pPngObject)
+				pPngObject	= new pngwriter(columns, rows, 0, "");
+			
+		}	//	Graphic::Graphic()
+
+		//	Destructor
+		Graphic::~Graphic() 
+		{
+			if (NULL != pPngObject)
+				delete pPngObject;
+			
+		}	//	Graphic::~Graphic()
+		
 	/*
 		****************************************************************************
 		* PUBLIC CLASS MEMBER FUNCTION DEFINITIONS
@@ -346,8 +382,7 @@
 	*/
 		/////////////////////////////////////////////////////////////////////////////////
 		// Class name			: Logger
-		// Function				: Write (family ofmember functions with
-		//							different types of arguments
+		// Function				: Write 
 		// Programmer name		: Pablo Daniel Jelsky
 		// Last update date		: 26-02-2021
 		// Class description	: This class gives support for logging in a text file all
@@ -357,55 +392,15 @@
 		//							different types of arguments) into the logger file
 		// Remarks         		: Returns false, if the object was not initialized
 		/////////////////////////////////////////////////////////////////////////////////
-		// Arguments			: Info to be sent to the logger file (string, integer,
-		//							long, float, double)
+		// Arguments			: Info to be sent to the logger file
 		/////////////////////////////////////////////////////////////////////////////////		
-		bool Logger::Write(string loggerString)
+		template <class GenericType> 
+		bool Logger::Write(GenericType loggerGenericType)
 		{
 			if (this->initialized == false)
 				return false;
 				
-			this->outfile << loggerString;
-			return true;
-				
-		}	//	Logger::Write()
-
-		bool Logger::Write(int loggerInteger)
-		{
-			if (this->initialized == false)
-				return false;
-				
-			this->outfile << loggerInteger;
-			return true;
-			
-		}	//	Logger::Write()
-
-		bool Logger::Write(long loggerLong)
-		{
-			if (this->initialized == false)
-				return false;
-				
-			this->outfile << loggerLong;
-			return true;
-			
-		}	//	Logger::Write()
-
-		bool Logger::Write(float loggerFloat)
-		{
-			if (this->initialized == false)
-				return false;
-				
-			this->outfile << loggerFloat;
-			return true;
-			
-		}	//	Logger::Write()
-
-		bool Logger::Write(double loggerDouble)
-		{
-			if (this->initialized == false)
-				return false;
-				
-			this->outfile << loggerDouble;
+			this->outfile << loggerGenericType;
 			return true;
 			
 		}	//	Logger::Write()
@@ -437,7 +432,7 @@
 
 		/////////////////////////////////////////////////////////////////////////////////
 		// Class name			: Logger
-		// Function				: SetFilename
+		// Function				: Filename
 		// Programmer name		: Pablo Daniel Jelsky
 		// Last update date		: 26-02-2021
 		// Class description	: This class gives support for logging in a text file all
@@ -450,20 +445,20 @@
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: Log file name (string)
 		/////////////////////////////////////////////////////////////////////////////////	
-		bool Logger::SetFilename(string fileName)
+		bool Logger::Filename(string filename)
 		{
-			if (this->initialized == false && this->fileName == "")
+			if (this->initialized == false && this->filename == "")
 			{
 				this->initialized	= true;
-				this->fileName		= fileName;
-				this->outfile.open(fileName);	
+				this->filename		= filename;
+				this->outfile.open(filename);	
 				
 				return true; 
 			}
 			else
 				return false;
 			
-		}	//	Logger::SetFilename()	
+		}	//	Logger::Filename()	
 		
 		/////////////////////////////////////////////////////////////////////////////////
 		// Class name			: Location
@@ -516,6 +511,47 @@
 			return (this->row);
 			
 		}	//	Location::Row()	
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: Location
+		// Function				: LineIntercept
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 02-03-2021
+		// Class description	: This class represents a specific location
+		// Function description	: This member function returns the line intercept point
+		//							given 2 points
+		// Remarks         		: Returns the line intercept point
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: 	
+		/////////////////////////////////////////////////////////////////////////////////	
+		double Location::LineIntercept(Location point)
+		{
+			double	intercept	= (this->Row() - (this->LineSlope(point) * this->Column()));
+		
+			return intercept;
+			
+		}	//	Location::LineIntercept()
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: Location
+		// Function				: LineSlope
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 02-03-2021
+		// Class description	: This class represents a specific location
+		// Function description	: This member function returns the line slope
+		//							given 2 points
+		// Remarks         		: Returns the line slope
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: 	
+		/////////////////////////////////////////////////////////////////////////////////	
+		double Location::LineSlope(Location point)
+		{
+			double	slope		= (this->Row() - point.Row()) / (this->Column() - point.Column());
+			
+			return slope;
+			
+		}	//	Location::LineSlope()		
+		
 			
 		/////////////////////////////////////////////////////////////////////////////////
 		// Class name			: DsmLocation
@@ -523,37 +559,20 @@
 		// Programmer name		: Pablo Daniel Jelsky
 		// Last update date		: 27-02-2021
 		// Class description	: This class represents a specific location for DSM maps
-		// Function description	: This is a family of member functions that set the 
-		//							location and value (as int, long, float, double)
+		// Function description	: This is a member function that sets the 
+		//							location and value
 		// Remarks         		: 
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			:	location (as DsmLocation)
-		//							value (as int, long, float or double)	
+		//							value	
 		/////////////////////////////////////////////////////////////////////////////////	
-		void DsmLocation::Value(DsmLocation location, int value)
+		template <class GenericType> 
+		void DsmLocation::Value(DsmLocation location, GenericType genericTypeValue)
 		{
-			this->_Value(location, value);
+			this->_Value(location, genericTypeValue);
 			
 		}	//	DsmLocation::Value()
-		
-		void DsmLocation::Value(DsmLocation location, long value)
-		{
-			this->_Value(location, value);
-			
-		}	//	DsmLocation::Value()
-		
-		void DsmLocation::Value(DsmLocation location, float value)
-		{
-			this->_Value(location, value);
-			
-		}	//	DsmLocation::Value()
-		
-		void DsmLocation::Value(DsmLocation location, double value)
-		{
-			this->_Value(location, value);
-			
-		}	//	DsmLocation::Value()
-		
+				
 		/////////////////////////////////////////////////////////////////////////////////
 		// Class name			: DsmLocation
 		// Function				: Value
@@ -590,155 +609,463 @@
 		
 		/////////////////////////////////////////////////////////////////////////////////
 		// Class name			: DsmLocation
-		// Function				: Walkable
+		// Function				: Obstacle
 		// Programmer name		: Pablo Daniel Jelsky
 		// Last update date		: 27-02-2021
 		// Class description	: This class represents a specific location for DSM maps
-		// Function description	: This member function sets the walkability
+		// Function description	: This member function defines if the location is an obstacle
 		//							of the location
 		// Remarks         		: 
 		/////////////////////////////////////////////////////////////////////////////////
-		// Arguments			: true, if the location is walkable, 
+		// Arguments			: true, if the location is an obstacle, 
 		//							false, otherwise
 		/////////////////////////////////////////////////////////////////////////////////
-		void DsmLocation::Walkable(bool walkable)
+		void DsmLocation::Obstacle(bool theLocationIsAnObstacle)
 		{
-			this->walkable	= walkable;
+			this->obstacle	= theLocationIsAnObstacle;
 			
-		}	//	DsmLocation::Walkable()
+		}	//	DsmLocation::Obstacle()
 		
 		/////////////////////////////////////////////////////////////////////////////////
 		// Class name			: DsmLocation
-		// Function				: Walkable
+		// Function				: Obstacle
 		// Programmer name		: Pablo Daniel Jelsky
 		// Last update date		: 27-02-2021
 		// Class description	: This class represents a specific location for DSM maps
-		// Function description	: This member function returns the walkability
-		//							of the location
-		// Remarks         		: Returns true, if the location is walkable
+		// Function description	: This member function returns if the location is an
+		//							obstacle
+		// Remarks         		: Returns true, if the location is an obstacle
 		//							false, otherwise
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: None	
 		/////////////////////////////////////////////////////////////////////////////////	
-		bool DsmLocation::Walkable(void)
+		bool DsmLocation::Obstacle(void)
 		{
-			return (this->walkable);
+			return this->obstacle;
 			
-		}	//	DsmLocation::Walkable()	
+		}	//	DsmLocation::Obstacle()	
 		
-int DsmInformation::Rows(void)
-{
-    return (this->rows);
-    
-}   //  DsmInformation::Rows()
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: DsmInformation
+		// Function				: LineOfSight
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 01-03-2021
+		// Class description	: This class represents all the needed info for DSM maps
+		// Function description	: This member function returns the visibility between
+		//							two location (line of sight = LOS)
+		// Remarks         		: Returns true, if the locations are visible between them
+		//							false, otherwise
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: pointA and pointB (as Location)
+		/////////////////////////////////////////////////////////////////////////////////	
+		bool DsmInformation::LineOfSight(Location pointA, Location pointB)
+		{
+			double	slope, intercept;
+			int		column, row;
+			
+			slope		= pointA.LineSlope(pointB);
+			intercept	= pointA.LineIntercept(pointB);
+			
+			if (pointA.Column() == pointB.Column())
+			{
+				//	Both points are vertical one to the other
+			}
+			else if (pointA.Column() > pointB.Column())
+			{
+				for (column = pointB.Column(); column <= pointA.Column(); column++)
+				{
+					row	= (int) (slope * column) + intercept;
+					if (false == this->Obstacle(column, row))
+						return false;
+				}
+			}
+			else
+			{
+				for (column = pointA.Column(); column <= pointB.Column(); column++)
+				{
+					row	= (int) (slope * column) + intercept;
+					if (false == this->Obstacle(column, row))
+						return false;
+				}
+			}
+			
+			return true;
+			
+		}	//	DsmInformation::LineOfSight()
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: DsmInformation
+		// Function				: Rows
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 01-03-2021
+		// Class description	: This class represents all the needed info for DSM maps
+		// Function description	: This member function returns DSM map number of rows
+		// Remarks         		: 
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: None
+		/////////////////////////////////////////////////////////////////////////////////	
+		int DsmInformation::Rows(void)
+		{
+			return (this->rows);
+			
+		}   //  DsmInformation::Rows()
  
-int DsmInformation::Columns(void)
-{
-    return (this->columns);
-    
-}   //  DsmInformation::Columns()
+ 		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: DsmInformation
+		// Function				: Columns
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 01-03-2021
+		// Class description	: This class represents all the needed info for DSM maps
+		// Function description	: This member function returns DSM map number of columns
+		// Remarks         		: 
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: None
+		/////////////////////////////////////////////////////////////////////////////////	
+		int DsmInformation::Columns(void)
+		{
+			return (this->columns);
+			
+		}   //  DsmInformation::Columns()
 
-void DsmInformation::Rows(int rows)
-{
-	logger.Write("Called rows(");
-	logger.Write(rows);
-	logger.WriteLine(")");
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: DsmInformation
+		// Function				: Rows
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 01-03-2021
+		// Class description	: This class represents all the needed info for DSM maps
+		// Function description	: This member function sets the DSM map number of rows
+		// Remarks         		: If also the columns are initialized, creates the
+		//							internal array
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: Number of rows
+		/////////////////////////////////////////////////////////////////////////////////	
+		void DsmInformation::Rows(int rows)
+		{
+			logger.Write("Called rows(");
+			logger.Write(rows);
+			logger.WriteLine(")");
 
-    this->rows	= rows;
-    
-    if (this->initialized == false && this->Columns() != 0)
-    {
-    	logger.Write("Initializing internal array (");
-    	logger.Write(this->Columns());
-    	logger.Write("x");
-    	logger.Write(rows);
-    	logger.WriteLine(")");
-        this->pLocation		= new DsmLocation[this->Columns() * rows];   
-        this->initialized	= true; 
-    }
-    
-}   //  DsmInformation::Rows()
+			this->rows	= rows;
+			
+			if (this->initialized == false && this->Columns() != 0)
+			{
+				logger.Write("Initializing internal array (");
+				logger.Write(this->Columns());
+				logger.Write("x");
+				logger.Write(rows);
+				logger.WriteLine(")");
+				this->pLocation		= new DsmLocation[this->Columns() * rows];   
+				this->initialized	= true; 
+			}
+			
+		}   //  DsmInformation::Rows()
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: DsmInformation
+		// Function				: Columns
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 01-03-2021
+		// Class description	: This class represents all the needed info for DSM maps
+		// Function description	: This member function sets the DSM map number of columns
+		// Remarks         		: If also the rows are initialized, creates the
+		//							internal array
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: Number of columns
+		/////////////////////////////////////////////////////////////////////////////////
+		void DsmInformation::Columns(int columns)
+		{
+			logger.Write("Called columns(");
+			logger.Write(columns);
+			logger.WriteLine(")");
+			
+			this->columns	= columns;
+			
+			if (this->initialized == false && this->Rows() != 0)
+			{
+				logger.Write("Initializing internal array (");
+				logger.Write(columns);
+				logger.Write("x");
+				logger.Write(this->Rows());
+				logger.WriteLine(")");
+				this->pLocation		= new DsmLocation[columns * this->Rows()];  
+				this->initialized	= true; 
+			}
+			
+		}   //  DsmInformation::Columns()
 
-void DsmInformation::Columns(int columns)
-{
-	logger.Write("Called columns(");
-	logger.Write(columns);
-	logger.WriteLine(")");
-	
-    this->columns	= columns;
-    
-    if (this->initialized == false && this->Rows() != 0)
-    {
-    	logger.Write("Initializing internal array (");
-    	logger.Write(columns);
-    	logger.Write("x");
-    	logger.Write(this->Rows());
-    	logger.WriteLine(")");
-        this->pLocation		= new DsmLocation[columns * this->Rows()];  
-        this->initialized	= true; 
-    }
-    
-}   //  DsmInformation::Columns()
+ 		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: DsmInformation
+		// Function				: Value
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 01-03-2021
+		// Class description	: This class represents all the needed info for DSM maps
+		// Function description	: This member function returns the value of the column/row
+		// Remarks         		: 
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: column and row
+		/////////////////////////////////////////////////////////////////////////////////	
+		double DsmInformation::Value(int column, int row)
+		{
+			return ((this->pLocation[row*this->Columns()+column]).Value());
+			
+		}   //  DsmInformation::Value()
+		
+ 		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: DsmInformation
+		// Function				: Value
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 01-03-2021
+		// Class description	: This class represents all the needed info for DSM maps
+		// Function description	: This member function sets the value of the column/row
+		// Remarks         		: 
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: column, row and value to be set
+		/////////////////////////////////////////////////////////////////////////////////	
+		bool DsmInformation::Value(int column, int row, double value)
+		{
 
-double DsmInformation::Value(int column, int row)
-{
-    return ((this->pLocation[row*this->Columns()+column]).Value());
-    
-}   //  DsmInformation::Value()
+			if (row > this->Rows())
+			{
+				logger << "Input row: " << row << " is greater than the maximum number of rows: " << this->Rows() << "\n";
+				return false;
+			} 
+			if (column > this->Columns())
+			{
+				logger << "Input column: " << column << " is greater than the maximum number of columns: " << this->Columns() << "\n";
+				return false;
+			}
+			
+			
+			(this->pLocation[this->Columns() * row + column]).Value(value);
+			logger << "[" << column << "," << row << "] set to " << value << "\n";
+			
+			return true;
+			
+		}	//	DsmInformation::Value()
 
-bool DsmInformation::Value(int column, int row, double value)
-{
+ 		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: DsmInformation
+		// Function				: Obstacle
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 01-03-2021
+		// Class description	: This class represents all the needed info for DSM maps
+		// Function description	: This member function defines location as an obstacle
+		// Remarks         		: 
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: column, row and boolean deciding if the location could
+		//							is an obstacle
+		/////////////////////////////////////////////////////////////////////////////////	
+		bool DsmInformation::Obstacle(int column, int row, bool theLocationIsAnObstacle)
+		{
+			if (row > this->Rows())
+			{
+				logger << "Input row: " << row << " is greater than the maximum number of rows: " << this->Rows() << "\n";
+				return false;
+			} 
+			if (column > this->Columns())
+			{
+				logger << "Input column: " << column << " is greater than the maximum number of columns: " << this->Columns() << "\n";
+				return false;
+			}
+			
+			
+			(this->pLocation[this->Columns() * row + column]).Obstacle(theLocationIsAnObstacle);
+			if (true == theLocationIsAnObstacle)
+				logger << "[" << column << "," << row << "] was set to be an obstacle\n";
+			else
+				logger << "[" << column << "," << row << "] was set not to be an obstacle\n";
+			
+			return true;
+			
+		}	//	DsmInformation::Obstacle()
+		
+ 		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: DsmInformation
+		// Function				: Obstacle
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 01-03-2021
+		// Class description	: This class represents all the needed info for DSM maps
+		// Function description	: This member function returns if the location is an
+		//							obstacle or not
+		// Remarks         		: Returns true, if the location is an obstacle,
+		//							false otherwise
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: column, row 
+		/////////////////////////////////////////////////////////////////////////////////
+		bool DsmInformation::Obstacle(int column, int row)
+		{
+			return ((this->pLocation[row*this->Columns()+column]).Obstacle());
+			
+		}   //  DsmInformation::Obstacle()
+		
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: Graphic
+		// Function				: Create
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 03-03-2021
+		// Class description	: This class represents a graphic
+		// Function description	: This member function creates the graphic with the 
+		//							pre-inserted information
+		// Remarks         		: Returns true, if it succeeded creating the graphic file,
+		//							false otherwise
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: graphic type
+		/////////////////////////////////////////////////////////////////////////////////	
+		bool Graphic::Create(graphicType typeOfGraphic)
+		{
+			if (false == this->initialized)
+				return false;
+				
+			switch (typeOfGraphic)
+			{
+				case GRAPHIC_TYPE_PNG:
+					{
+						class Location from(3,3);
+						class Location to(100, 100);
+						this->Line(from, to, COLOR_WHITE);
+						//	Close the instance of the class, and write the image to disk.
+						(*pPngObject).close();
+					}
+					break;
+					
+				case GRAPHIC_TYPE_GEOTIFF:
+					//	close out GeoTIFF dataset
+					GDALClose(this->geotiffDataset);
+					break;
+				default:
+					return false;
+			}
+				
+			return true;
+			
+		}   //  Graphic::Create()		
 
-	if (row > this->Rows())
-	{
-		logger << "Input row: " << row << " is greater than the maximum number of rows: " << this->Rows() << "\n";
-		return false;
-	} 
-	if (column > this->Columns())
-	{
-		logger << "Input column: " << column << " is greater than the maximum number of columns: " << this->Columns() << "\n";
-		return false;
-	}
-	
-	
-	(this->pLocation[this->Columns() * row + column]).Value(value);
-	logger << "[" << column << "," << row << "] set to " << value << "\n";
-	
-	return true;
-	
-}	//	DsmInformation::Value()
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: Graphic
+		// Function				: Rows
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 01-03-2021
+		// Class description	: This class represents a graphic
+		// Function description	: This member function returns the graphic number of rows
+		// Remarks         		: 
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: None
+		/////////////////////////////////////////////////////////////////////////////////	
+		int Graphic::Rows(void)
+		{
+			return this->rows;
+			
+		}   //  Graphic::Rows()
+ 
+ 		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: Graphic
+		// Function				: Columns
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 01-03-2021
+		// Class description	: This class represents a graphic
+		// Function description	: This member function returns the graphic of columns
+		// Remarks         		: 
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: None
+		/////////////////////////////////////////////////////////////////////////////////	
+		int Graphic::Columns(void)
+		{
+			return this->columns;
+			
+		}   //  Graphic::Columns()
 
-bool DsmInformation::Walkable(int column, int row, bool walkable)
-{
-	if (row > this->Rows())
-	{
-		logger << "Input row: " << row << " is greater than the maximum number of rows: " << this->Rows() << "\n";
-		return false;
-	} 
-	if (column > this->Columns())
-	{
-		logger << "Input column: " << column << " is greater than the maximum number of columns: " << this->Columns() << "\n";
-		return false;
-	}
-	
-	
-	(this->pLocation[this->Columns() * row + column]).Walkable(walkable);
-	if (walkable == true)
-		logger << "[" << column << "," << row << "] set to true\n";
-	else
-		logger << "[" << column << "," << row << "] set to false\n";
-	
-	return true;
-	
-}	//	DsmInformation::Walkable()
-
-bool DsmInformation::Walkable(int column, int row)
-{
-    return ((this->pLocation[row*this->Columns()+column]).Walkable());
-    
-}   //  DsmInformation::Walkable()
-
-
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: Graphic
+		// Function				: Rows
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 01-03-2021
+		// Class description	: This class represents a graphic
+		// Function description	: This member function sets the graphic number of rows
+		// Remarks         		: 
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: Number of rows
+		/////////////////////////////////////////////////////////////////////////////////	
+		void Graphic::Rows(int rows)
+		{
+			this->rows	= rows;
+			
+			if (this->initialized == false && this->Columns() != 0 && this->filename != "")
+			{
+				this->initialized	= true; 
+				this->_Update();
+			}
+				
+		}   //  Graphic::Rows()
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: Graphic
+		// Function				: Columns
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 01-03-2021
+		// Class description	: This class represents a graphic
+		// Function description	: This member function sets the graphic number of columns
+		// Remarks         		: 
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: Number of columns
+		/////////////////////////////////////////////////////////////////////////////////
+		void Graphic::Columns(int columns)
+		{
+			this->columns	= columns;
+			
+			if (this->initialized == false && this->Rows() != 0 && this->filename != "")
+			{
+				this->initialized	= true; 
+				this->_Update();
+			}
+			
+		}   //  Graphic::Columns()
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: Graphic
+		// Function				: Filename
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 01-03-2021
+		// Class description	: This class represents a graphic
+		// Function description	: This member function sets the graphic file name
+		// Remarks         		: 
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: graphic file name
+		/////////////////////////////////////////////////////////////////////////////////
+		void Graphic::Filename(string filename)
+		{
+			this->filename	= filename;
+			
+			if (this->initialized == false && this->Rows() != 0 && this->Columns() != 0)
+			{
+				this->initialized	= true; 
+				this->_Update();
+			}
+			
+		}   //  Graphic::Filename()
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: Graphic
+		// Function				: Type
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 01-03-2021
+		// Class description	: This class represents a graphic
+		// Function description	: This member function sets the graphic type
+		// Remarks         		: Currently supported formats (.png and GeoTIFF)
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: graphic file type
+		/////////////////////////////////////////////////////////////////////////////////
+		bool Graphic::Line(class Location from, class Location to, color lineColor)
+		{
+			if (false == this->initialized)
+				return false;
+				
+			(*this->pPngObject).line(from.Column(), from.Row(), to.Column(), to.Row(), colorToRgb[lineColor].red, colorToRgb[lineColor].green, colorToRgb[lineColor].blue);
+			return true;
+			
+		}   //  Graphic::Line()
+		
 	/*
 		****************************************************************************
 		* PUBLIC CLASS OPERATOR DEFINITIONS
@@ -767,6 +1094,7 @@ bool DsmInformation::Walkable(int column, int row)
 			return logger;
 			
 		}	//	Logger& operator <<
+
 
 		Logger& operator << (Logger& logger, const int& loggerInteger)
 		{
@@ -799,7 +1127,7 @@ bool DsmInformation::Walkable(int column, int row)
 			return logger;
 			
 		}	//	Logger& operator <<
-		
+	
 		/////////////////////////////////////////////////////////////////////////////////
 		// Class name			: Location
 		// Function				: << operator
@@ -875,8 +1203,8 @@ bool DsmInformation::Walkable(int column, int row)
 		{
 			if (this != &location)
 			{
-				this->_Value(location, location.Value());
-				this->walkable	= location.walkable;
+				this->Value(location, location.Value());
+				this->Obstacle(location.Obstacle());
 			}
 			
 			return (*this);
@@ -896,7 +1224,7 @@ bool DsmInformation::Walkable(int column, int row)
 		/////////////////////////////////////////////////////////////////////////////////
 		bool Location::operator == (Location& location)
 		{
-			return ((this->Column() == location.Column()) && (this->Row() == location.Row()));
+			return (this->Column() == location.Column()) && (this->Row() == location.Row());
 			
 		}	//	bool Location::operator ==
 		
@@ -913,7 +1241,7 @@ bool DsmInformation::Walkable(int column, int row)
 		/////////////////////////////////////////////////////////////////////////////////
 		bool Location::operator != (Location& location)
 		{
-			return ((this->Column() != location.Column()) || (this->Row() != location.Row()));
+			return (this->Column() != location.Column()) || (this->Row() != location.Row());
 			
 		}	//	bool Location::operator !=
 
@@ -958,10 +1286,49 @@ bool DsmInformation::Walkable(int column, int row)
 		void DsmLocation::_Value(DsmLocation location, double value)
 		{
 			this->_Location(location.Column(), location.Row());
-			this->value		= value;
-			this->walkable	= false;
+			this->Value(value);
+			this->Obstacle(false);
 			
 		}	//	DsmLocation::_Value()	
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: Graphic
+		// Function				: _Update
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 03-03-2021
+		// Class description	: This class represents a graphic
+		// Function description	: This private member function updates the output graphic
+		//							file that is being created
+		// Remarks         		: Currently supported formats (.png and GeoTIFF)
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: None
+		/////////////////////////////////////////////////////////////////////////////////	
+		void Graphic::_Update(void)
+		{
+			string	pngFilename		= this->filename + ".png";
+			string	geoTiffFilename	= this->filename + ".tif";
+			
+			if (false == this->initialized)
+				return;
+				
+			//	Update .png graphic file
+			(*this->pPngObject).resize(this->Columns(), this->Rows());
+			(*this->pPngObject).pngwriter_rename(pngFilename.c_str());
+			//	Update GeoTIFF graphic file
+				/* create GDAL driver object whose Create() method will be used
+				   * to create Geotiff writer object. Get geotransform using
+				   * 6-element array from above. Read projection from GRIB
+				   * file and use SetProjection() method to set the projection
+				   * of the Geotiff object.
+				   */
+ 			this->driverGeotiff 	= GetGDALDriverManager()->GetDriverByName("GTiff");
+  			this->geotiffDataset	= this->driverGeotiff->Create(geoTiffFilename.c_str(), this->Columns(), this->Rows(), 1, GDT_Float32, NULL);
+
+			
+		}	//	Graphic::_Update()	
+		
+
+		
 
 
 

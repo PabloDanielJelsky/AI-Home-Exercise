@@ -39,8 +39,7 @@
 		#include "/usr/include/gdal/cpl_string.h"
 		#include "pngwriter.h"
 		/*---- program files -------------------------------------------------------*/
-		#include "AiSupportAlgorithms_Ifc.h"
-
+		#include "AiModel_Ifc.h"
 	/*
 		****************************************************************************
 		* EXTERNAL REFERENCE    
@@ -129,7 +128,7 @@
 		poDataset = (GDALDataset *) GDALOpen(pszFilename, GA_ReadOnly);
 		if (NULL == poDataset)
 		{
-		    LoggerObject << (string) pszFilename << " file could not be opened...\n";
+		    LoggerObject << pszFilename << " file could not be opened...\n";
 		}
 		else
 		{
@@ -233,19 +232,22 @@
 					case 3300:
 						LoggerObject << "[" << column << "," << row << "] = 3300\n";
 						outputFile.plot(column+1, rows - (row+1), 0, 0, 0); 
-						DsmInformationObject.Walkable(column, row, true);
+						DsmInformationObject.Obstacle(column, row, false);
 						break;
 					case 3325:
 						LoggerObject << "[" << column << "," << row << "] = 3325\n";
 						outputFile.plot(column+1, rows - (row+1), 65535, 0, 0); 
+						DsmInformationObject.Obstacle(column, row, true);
 						break;
 					case 3335:
 						LoggerObject << "[" << column << "," << row << "] = 3335\n";
 						outputFile.plot(column+1, rows - (row+1), 0, 65535, 0); 
+						DsmInformationObject.Obstacle(column, row, true);
 						break;
 					case 3370:
 						LoggerObject << "[" << column << "," << row << "] = 3370\n";
 						outputFile.plot(column+1, rows - (row+1), 0, 0, 65535); 
+						DsmInformationObject.Obstacle(column, row, true);
 						break;
 					default:
 						LoggerObject << "[" << column << "," << row << "] = " << (int) DsmInformationObject.Value(column, row) << "\n";
@@ -333,19 +335,22 @@
 					case 3300:
 						LoggerObject << "[" << column << "," << row << "] = 3300\n";
 						outputFile.plot(column+1, rows - (row+1), 0, 0, 0); 
-						DsmInformationObject.Walkable(column, row, true);
+						DsmInformationObject.Obstacle(column, row, false);
 						break;
 					case 3325:
 						LoggerObject << "[" << column << "," << row << "] = 3325\n";
 						outputFile.plot(column+1, rows - (row+1), 65535, 0, 0); 
+						DsmInformationObject.Obstacle(column, row, true);
 						break;
 					case 3335:
 						LoggerObject << "[" << column << "," << row << "] = 3335\n";
 						outputFile.plot(column+1, rows - (row+1), 0, 65535, 0); 
+						DsmInformationObject.Obstacle(column, row, true);
 						break;
 					case 3370:
 						LoggerObject << "[" << column << "," << row << "] = 3370\n";
 						outputFile.plot(column+1, rows - (row+1), 0, 0, 65535); 
+						DsmInformationObject.Obstacle(column, row, true);
 						break;
 					default:
 						LoggerObject << "[" << column << "," << row << "] = " << (int) DsmInformationObject.Value(column, row) << "\n";
@@ -500,6 +505,26 @@ int main()
     
     //	Create the output file with target path
     DsmOutputFileCreationWithPath(PERSON_TYPE_AGENT1, AGENT1_PATH_FILE, DsmInformationObject, agent1PathList, agent1PathSize);
+    
+    Location pointA(0,0);
+    Location pointB(10,10);
+    Location pointC(0,0);
+    Location pointD(150,150);
+    
+    if (DsmInformationObject.LineOfSight(pointA, pointB) == true)
+    	cout << "true\n";
+    else
+    	cout << "false\n";
+    	
+    if (DsmInformationObject.LineOfSight(pointC, pointD) == true)
+    	cout << "true\n";
+    else
+    	cout << "false\n";
+   
+   class Model	model(DSM_FILE, "Agent1");
+   model.GraphicCreation(GRAPHIC_TYPE_PNG, "test");
+   model.GraphicCreation(GRAPHIC_TYPE_GEOTIFF, "test");
+    	
     
 	return EXIT_SUCCESS;
 	
