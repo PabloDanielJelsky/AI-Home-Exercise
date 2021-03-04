@@ -59,9 +59,6 @@
 		/*---- macros --------------------------------------------------------------*/
 		/*---- defines --------------------------------------------------------------*/
 		#define	DEFAULT_DSM_INFORMATION_FILE_NAME	"output/DsmInformation.txt"
-		#define	INVALID_COLUMN						-1
-		#define	INVALID_ROW							-1
-		#define INVALID_DSM_ELEVATION				-999999999
 		#define	MAXIMUM_COLOR						65535
 		#define	NO_COLOR							0
 		/*---- data declarations ---------------------------------------------------*/	

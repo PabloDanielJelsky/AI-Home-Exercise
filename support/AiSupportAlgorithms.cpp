@@ -284,7 +284,7 @@
 				    pCellDetails[row * dsmQuantityOfColumns + column].f		= FLT_MAX;
 				    pCellDetails[row * dsmQuantityOfColumns + column].g		= FLT_MAX;
 				    pCellDetails[row * dsmQuantityOfColumns + column].h		= FLT_MAX;
-				    pCellDetails[row * dsmQuantityOfColumns + column].parentLocation.Modify(INVALID_COLUMN, INVALID_ROW);
+				    pCellDetails[row * dsmQuantityOfColumns + column].parentLocation.Modify(AI_SUPPORT_CLASSES_INVALID_COLUMN, AI_SUPPORT_CLASSES_INVALID_ROW);
 				}
 			}
 		 
@@ -509,7 +509,7 @@
 		bool _IsUnblocked(DsmInformation& dsmInformation, DsmLocation location)
 		{
 			// Returns true if the cell is not blocked else false
-			return (true == dsmInformation.Obstacle(location.Column(), location.Row())) ? false : true;
+			return ((true == dsmInformation.Obstacle(location.Column(), location.Row())) ? false : true);
 			
 		}	//	_IsUnblocked()
 		

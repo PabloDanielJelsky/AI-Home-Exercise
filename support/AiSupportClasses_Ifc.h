@@ -57,6 +57,9 @@
 		/*---- name spaces declarations --------------------------------------------*/
 		using namespace std;
 		/*---- defines --------------------------------------------------------------*/
+		#define	AI_SUPPORT_CLASSES_INVALID_COLUMN			-1
+		#define	AI_SUPPORT_CLASSES_INVALID_ROW				-1
+		#define AI_SUPPORT_CLASSES_INVALID_DSM_ELEVATION	-999999999
 		/*---- enums --------------------------------------------------------------*/
 		typedef enum {GRAPHIC_TYPE_PNG, GRAPHIC_TYPE_GEOTIFF} graphicType;
 		typedef enum {COLOR_RED, COLOR_GREEN, COLOR_BLUE, COLOR_WHITE, COLOR_BLACK, COLOR_YELLOW, COLOR_CYAN, COLOR_MAGENTA} color;
@@ -211,6 +214,8 @@
 				bool Elevation(int column, int row, double elevation);
 				bool Obstacle(int column, int row, bool theLocationIsAnObstacle);
 				bool Obstacle(int column, int row);
+				void GroundLevel(double groundLevelElevation);
+				double GroundLevel(void);
 				bool LineOfSight(Location pointA, Location pointB);
 
 				//	Default Constructor 
@@ -222,9 +227,11 @@
 				
 			private: 
 				//	Private variables
-				bool    		initialized		= false;
-				DsmLocation		*pLocation		= NULL; 
-				int     		columns = 0, rows = 0;
+				bool    		initialized				= false;
+				DsmLocation		*pLocation				= NULL; 
+				int     		columns 				= AI_SUPPORT_CLASSES_INVALID_COLUMN;
+				int				rows 					= AI_SUPPORT_CLASSES_INVALID_ROW;
+				double			groundLevelElevation	= AI_SUPPORT_CLASSES_INVALID_DSM_ELEVATION;
 				class Logger	logger;
 				//	Private member functions
 

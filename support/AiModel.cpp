@@ -350,6 +350,7 @@
 					int             nBlockXSize, nBlockYSize;
 					int             bGotMin, bGotMax;
 					double          adfMinMax[2];
+					
 					poBand = this->poDataset->GetRasterBand(1);
 					poBand->GetBlockSize(&nBlockXSize, &nBlockYSize);
 					this->logger << "\nDSM file block is " << nBlockXSize << " by " << nBlockYSize << " type is " << GDALGetDataTypeName(poBand->GetRasterDataType()) 
@@ -361,7 +362,9 @@
 					if (!(bGotMin && bGotMax))
 					{
 					    GDALComputeRasterMinMax((GDALRasterBandH)poBand, TRUE, adfMinMax);
-					    this->logger << "\t\tMinimum = " << adfMinMax[0] << ", maximum = " << adfMinMax[1] << "\n";
+					    this->dsmMapInfo.GroundLevel(adfMinMax[0]);
+					    this->logger << "\t\tMinimum elevation = " << adfMinMax[0] << ", maximum elevation = " << adfMinMax[1] << "\n";
+					    this->logger << "\t\tDSM map ground level set to " << this->dsmMapInfo.GroundLevel() << "\n";
 					}
 					if (poBand->GetOverviewCount() > 0)
 					{

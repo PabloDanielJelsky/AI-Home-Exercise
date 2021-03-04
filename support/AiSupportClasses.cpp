@@ -127,7 +127,7 @@
 		/////////////////////////////////////////////////////////////////////////////////
 		Location::Location()
 		{
-			this->_Location(INVALID_COLUMN, INVALID_ROW);
+			this->_Location(AI_SUPPORT_CLASSES_INVALID_COLUMN, AI_SUPPORT_CLASSES_INVALID_ROW);
 			
 		}	//	Location::Location()
 		
@@ -179,8 +179,8 @@
 		/////////////////////////////////////////////////////////////////////////////////
 		DsmLocation::DsmLocation()
 		{
-			this->_Location(INVALID_COLUMN, INVALID_ROW);
-			this->elevation	= INVALID_DSM_ELEVATION;
+			this->_Location(AI_SUPPORT_CLASSES_INVALID_COLUMN, AI_SUPPORT_CLASSES_INVALID_ROW);
+			this->elevation	= AI_SUPPORT_CLASSES_INVALID_DSM_ELEVATION;
 			
 		}	//	DsmLocation::DsmLocation()
 		
@@ -199,7 +199,7 @@
 		DsmLocation::DsmLocation(int column, int row)
 		{
 			this->_Location(column, row);
-			this->elevation	= INVALID_DSM_ELEVATION;
+			this->elevation	= AI_SUPPORT_CLASSES_INVALID_DSM_ELEVATION;
 			
 		}	//	DsmLocation::DsmLocation()
 		
@@ -323,12 +323,12 @@
 			
 			if (NULL != this->pLocation)
 			{
-				logger.WriteLine("Internal array is deallocated");  
+				logger.WriteLine("Internal array of locations is deallocated");  
 				delete [] pLocation; 
 			}
 			else
 			{
-				logger.WriteLine("The internal array was NOT initialized and therefore there is no need to deallocate it");
+				logger.WriteLine("The internal array of locations was NOT initialized and therefore there is no need to deallocate it");
 			}
 			
 		}	//	DsmInformation::~DsmInformation()
@@ -898,6 +898,41 @@
 			
 		}   //  DsmInformation::Obstacle()
 		
+ 		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: DsmInformation
+		// Function				: GroundLevel
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 04-03-2021
+		// Class description	: This class represents all the needed info for DSM maps
+		// Function description	: This member function sets the elevation of the
+		//							ground level of this DSM map
+		// Remarks         		: 
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: DSM map ground level
+		/////////////////////////////////////////////////////////////////////////////////
+		void DsmInformation::GroundLevel(double groundLevelElevation)
+		{
+			this->groundLevelElevation	= groundLevelElevation;
+			
+		}   //  DsmInformation::GroundLevel()
+		
+ 		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: DsmInformation
+		// Function				: GroundLevel
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 04-03-2021
+		// Class description	: This class represents all the needed info for DSM maps
+		// Function description	: This member function returns the ground level elevation
+		//							of the DSM map
+		// Remarks         		: 
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: None
+		/////////////////////////////////////////////////////////////////////////////////
+		double DsmInformation::GroundLevel(void)
+		{
+			return this->groundLevelElevation;
+			
+		}	//	DsmInformation::GroundLevel()
 		
 		/////////////////////////////////////////////////////////////////////////////////
 		// Class name			: Graphic
