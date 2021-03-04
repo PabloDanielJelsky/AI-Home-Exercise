@@ -1,3 +1,7 @@
 *.py
 *.R
 *.
+/include
+/objects
+/libraries
+/output
