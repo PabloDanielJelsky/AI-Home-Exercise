@@ -400,7 +400,7 @@
 		 				
 		 				for (row = 0; row < nYSize; row++)
 		 					for (column = 0; column < nXSize; column++)
-		 						this->dsmMapInfo.Value(column, row, this->pafScanline[row * nXSize + column]);
+		 						this->dsmMapInfo.Elevation(column, row, this->pafScanline[row * nXSize + column]);
 		 			
 		 			}
 				}

@@ -192,15 +192,15 @@
 	//	                        pafScanline, nXSize, 1, GDT_Float32,
 	//	                        0, 0 );        
 	 //           printf ("First cell = %d\n", pafScanline[0];
-	 //           std::cout << "First cell value = " << pafScanline[0] << "\n\n";
-	 			LoggerObject << "First cell value = " << pafScanline[0] << "\n";
+	 //           std::cout << "First cell elevation = " << pafScanline[0] << "\n\n";
+	 			LoggerObject << "First cell elevation = " << pafScanline[0] << "\n";
 	 			
 	 			{
 	 				int	column, row;
 	 				
 	 				for (row = 0; row < nYSize; row++)
 	 					for (column = 0; column < nXSize; column++)
-	 						DsmInformationObject.Value(column, row, pafScanline[row * nXSize + column]);
+	 						DsmInformationObject.Elevation(column, row, pafScanline[row * nXSize + column]);
 	 			
 	 			}
 			    
@@ -227,7 +227,7 @@
 		for (row = 0; row < rows; row++)
 			for (column = 0; column < columns; column++)
 			{
-				switch ((int) DsmInformationObject.Value(column, row))
+				switch ((int) DsmInformationObject.Elevation(column, row))
 				{
 					case 3300:
 						LoggerObject << "[" << column << "," << row << "] = 3300\n";
@@ -250,7 +250,7 @@
 						DsmInformationObject.Obstacle(column, row, true);
 						break;
 					default:
-						LoggerObject << "[" << column << "," << row << "] = " << (int) DsmInformationObject.Value(column, row) << "\n";
+						LoggerObject << "[" << column << "," << row << "] = " << (int) DsmInformationObject.Elevation(column, row) << "\n";
 				}
 			}
 
@@ -330,7 +330,7 @@
 		for (row = 0; row < rows; row++)
 			for (column = 0; column < columns; column++)
 			{
-				switch ((int) DsmInformationObject.Value(column, row))
+				switch ((int) DsmInformationObject.Elevation(column, row))
 				{
 					case 3300:
 						LoggerObject << "[" << column << "," << row << "] = 3300\n";
@@ -353,7 +353,7 @@
 						DsmInformationObject.Obstacle(column, row, true);
 						break;
 					default:
-						LoggerObject << "[" << column << "," << row << "] = " << (int) DsmInformationObject.Value(column, row) << "\n";
+						LoggerObject << "[" << column << "," << row << "] = " << (int) DsmInformationObject.Elevation(column, row) << "\n";
 				}
 			}
 		

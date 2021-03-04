@@ -180,7 +180,7 @@
 		DsmLocation::DsmLocation()
 		{
 			this->_Location(INVALID_COLUMN, INVALID_ROW);
-			this->value	= INVALID_DSM_VALUE;
+			this->elevation	= INVALID_DSM_ELEVATION;
 			
 		}	//	DsmLocation::DsmLocation()
 		
@@ -199,7 +199,7 @@
 		DsmLocation::DsmLocation(int column, int row)
 		{
 			this->_Location(column, row);
-			this->value	= INVALID_DSM_VALUE;
+			this->elevation	= INVALID_DSM_ELEVATION;
 			
 		}	//	DsmLocation::DsmLocation()
 		
@@ -214,13 +214,13 @@
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			:	column
 		//							row
-		//							value
+		//							elevation
 		/////////////////////////////////////////////////////////////////////////////////
 		template <class GenericType> 
-		DsmLocation::DsmLocation(int column, int row, GenericType genericTypeValue)
+		DsmLocation::DsmLocation(int column, int row, GenericType genericTypeElevation)
 		{
 			this->_Location(column, row);
-			this->value	= (double) genericTypeValue;
+			this->elevation	= (double) genericTypeElevation;
 			
 		}	//	DsmLocation::DsmLocation()
 			
@@ -555,57 +555,57 @@
 			
 		/////////////////////////////////////////////////////////////////////////////////
 		// Class name			: DsmLocation
-		// Function				: Value
+		// Function				: Elevation
 		// Programmer name		: Pablo Daniel Jelsky
 		// Last update date		: 27-02-2021
 		// Class description	: This class represents a specific location for DSM maps
 		// Function description	: This is a member function that sets the 
-		//							location and value
+		//							location and elevation
 		// Remarks         		: 
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			:	location (as DsmLocation)
-		//							value	
+		//							elevation	
 		/////////////////////////////////////////////////////////////////////////////////	
 		template <class GenericType> 
-		void DsmLocation::Value(DsmLocation location, GenericType genericTypeValue)
+		void DsmLocation::Elevation(DsmLocation location, GenericType genericTypeElevation)
 		{
-			this->_Value(location, genericTypeValue);
+			this->_Elevation(location, genericTypeElevation);
 			
-		}	//	DsmLocation::Value()
+		}	//	DsmLocation::Elevation()
 				
 		/////////////////////////////////////////////////////////////////////////////////
 		// Class name			: DsmLocation
-		// Function				: Value
+		// Function				: Elevation
 		// Programmer name		: Pablo Daniel Jelsky
 		// Last update date		: 27-02-2021
 		// Class description	: This class represents a specific location for DSM maps
-		// Function description	: This is a member functions that sets its value 
+		// Function description	: This is a member functions that sets its elevation 
 		// Remarks         		: 
 		/////////////////////////////////////////////////////////////////////////////////
-		// Arguments			:	value (as double)	
+		// Arguments			:	elevation (as double)	
 		/////////////////////////////////////////////////////////////////////////////////		
-		void DsmLocation::Value(double value)
+		void DsmLocation::Elevation(double elevation)
 		{
-			this->value	= value;
+			this->elevation	= elevation;
 			
-		}	//  DsmLocation::Value()
+		}	//  DsmLocation::Elevation()
 
 		/////////////////////////////////////////////////////////////////////////////////
 		// Class name			: DsmLocation
-		// Function				: Value
+		// Function				: Elevation
 		// Programmer name		: Pablo Daniel Jelsky
 		// Last update date		: 27-02-2021
 		// Class description	: This class represents a specific location for DSM maps
-		// Function description	: This member function returns the location value
-		// Remarks         		: Returns the location value
+		// Function description	: This member function returns the location elevation
+		// Remarks         		: Returns the location elevation
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: None	
 		/////////////////////////////////////////////////////////////////////////////////	
-		double DsmLocation::Value(void)
+		double DsmLocation::Elevation(void)
 		{
-			return (this->value);
+			return (this->elevation);
 			
-		}	//	DsmLocation::Value()		
+		}	//	DsmLocation::Elevation()		
 		
 		/////////////////////////////////////////////////////////////////////////////////
 		// Class name			: DsmLocation
@@ -795,33 +795,33 @@
 
  		/////////////////////////////////////////////////////////////////////////////////
 		// Class name			: DsmInformation
-		// Function				: Value
+		// Function				: Elevation
 		// Programmer name		: Pablo Daniel Jelsky
 		// Last update date		: 01-03-2021
 		// Class description	: This class represents all the needed info for DSM maps
-		// Function description	: This member function returns the value of the column/row
+		// Function description	: This member function returns the elevation of the column/row
 		// Remarks         		: 
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: column and row
 		/////////////////////////////////////////////////////////////////////////////////	
-		double DsmInformation::Value(int column, int row)
+		double DsmInformation::Elevation(int column, int row)
 		{
-			return ((this->pLocation[row*this->Columns()+column]).Value());
+			return ((this->pLocation[row*this->Columns()+column]).Elevation());
 			
-		}   //  DsmInformation::Value()
+		}   //  DsmInformation::Elevation()
 		
  		/////////////////////////////////////////////////////////////////////////////////
 		// Class name			: DsmInformation
-		// Function				: Value
+		// Function				: Elevation
 		// Programmer name		: Pablo Daniel Jelsky
 		// Last update date		: 01-03-2021
 		// Class description	: This class represents all the needed info for DSM maps
-		// Function description	: This member function sets the value of the column/row
+		// Function description	: This member function sets the elevation of the column/row
 		// Remarks         		: 
 		/////////////////////////////////////////////////////////////////////////////////
-		// Arguments			: column, row and value to be set
+		// Arguments			: column, row and elevation to be set
 		/////////////////////////////////////////////////////////////////////////////////	
-		bool DsmInformation::Value(int column, int row, double value)
+		bool DsmInformation::Elevation(int column, int row, double elevation)
 		{
 
 			if (row > this->Rows())
@@ -836,12 +836,12 @@
 			}
 			
 			
-			(this->pLocation[this->Columns() * row + column]).Value(value);
-			logger << "[" << column << "," << row << "] set to " << value << "\n";
+			(this->pLocation[this->Columns() * row + column]).Elevation(elevation);
+			logger << "[" << column << "," << row << "] elevation set to " << elevation << "\n";
 			
 			return true;
 			
-		}	//	DsmInformation::Value()
+		}	//	DsmInformation::Elevation()
 
  		/////////////////////////////////////////////////////////////////////////////////
 		// Class name			: DsmInformation
@@ -1163,7 +1163,7 @@
 		/////////////////////////////////////////////////////////////////////////////////
 		ostream& operator << (ostream& ostream, DsmLocation& location)
 		{
-         	ostream << "location [" << location.Column() << ", " << location.Row() << "] = " << location.Value();
+         	ostream << "location [" << location.Column() << ", " << location.Row() << "] = " << location.Elevation();
          	return ostream;  
          	
 		}	//	ostream& operator <<
@@ -1203,7 +1203,7 @@
 		{
 			if (this != &location)
 			{
-				this->Value(location, location.Value());
+				this->Elevation(location, location.Elevation());
 				this->Obstacle(location.Obstacle());
 			}
 			
@@ -1272,24 +1272,24 @@
 		
 		/////////////////////////////////////////////////////////////////////////////////
 		// Class name			: DsmLocation
-		// Function				: _Value
+		// Function				: _Elevation
 		// Programmer name		: Pablo Daniel Jelsky
 		// Last update date		: 27-02-2021
 		// Class description	: This class represents a specific location for DSM maps
 		// Function description	: This private member function takes as parameter the 
-		//							location (column, row) and sets its location value
+		//							location (column, row) and sets its elevation
 		// Remarks         		: 
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			:	location (as Location)
-		//							value (as double)	
+		//							elevation (as double)	
 		/////////////////////////////////////////////////////////////////////////////////	
-		void DsmLocation::_Value(DsmLocation location, double value)
+		void DsmLocation::_Elevation(DsmLocation location, double elevation)
 		{
 			this->_Location(location.Column(), location.Row());
-			this->Value(value);
+			this->Elevation(elevation);
 			this->Obstacle(false);
 			
-		}	//	DsmLocation::_Value()	
+		}	//	DsmLocation::_Elevation()	
 		
 		/////////////////////////////////////////////////////////////////////////////////
 		// Class name			: Graphic

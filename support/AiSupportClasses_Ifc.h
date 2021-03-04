@@ -162,9 +162,9 @@
 		{
 			public:
 				template <class GenericType> 
-				void Value(DsmLocation location, GenericType genericTypeValue);
-				void Value(double value);
-				double Value(void);
+				void Elevation(DsmLocation location, GenericType genericTypeElevation);
+				void Elevation(double elevation);
+				double Elevation(void);
 				void Obstacle(bool theLocationIsAnObstacle);
 				bool Obstacle(void);
 
@@ -176,17 +176,17 @@
 				//	Parametrized Constructors 
 				DsmLocation(int column, int row);
 				template <class GenericType> 
-				DsmLocation(int column, int row, GenericType genericTypeValue);
+				DsmLocation(int column, int row, GenericType genericTypeElevation);
 				//	Destructor
 				~DsmLocation();
 
 			protected:
 				//	Protected member function
-				void _Value(DsmLocation location, double value);				
+				void _Elevation(DsmLocation location, double elevation);				
 			private:
 
 				//	Private variables
-				double	value;
+				double	elevation;
 				bool	obstacle	= false;
 
 		};	//	class DsmLocation	
@@ -207,8 +207,8 @@
 				void Columns(int columns);
 				int Rows(void);
 				int Columns(void);
-				double Value(int column, int row);
-				bool Value(int column, int row, double value);
+				double Elevation(int column, int row);
+				bool Elevation(int column, int row, double elevation);
 				bool Obstacle(int column, int row, bool theLocationIsAnObstacle);
 				bool Obstacle(int column, int row);
 				bool LineOfSight(Location pointA, Location pointB);
