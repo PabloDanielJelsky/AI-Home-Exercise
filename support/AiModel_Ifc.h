@@ -10,7 +10,7 @@
 //
 // Author:			Pablo Daniel Jelsky <PabloDanielJelsky@Gmail.com>
 //
-// Copyright:		
+// Copyright:
 //
 // Remarks:			In this module the objective is to create model classes that will be instantiated as agents or targets
 //
@@ -95,6 +95,7 @@
 		class Model
 		{ 
 			public:
+				//	Public member functions
 				bool GraphicOpen(string filename, string description = "");
 				bool GraphicPreparation(bool clearPreviousGraphic);
 				bool GraphicText(class Location from, string text, 
@@ -105,7 +106,7 @@
 					double angle = 0.0			//	angle is the text angle in degrees
 					);
 				bool GraphicClose(graphicType typeOfGraphic);
-				int FindPath(aStarSearchPixelsMovementType typeOfPixelMovement, bool possibilityOfNotMoving, string csvModelPathFilename);
+				int FindPath(string csvModelPathFilename);
 				bool CurrentLocation(Location currentLocation);
 				Location& CurrentLocation(void);
 				bool DestinationLocation(Location destinationLocation);
@@ -121,15 +122,23 @@
 
 			protected:
 				//	Protected member functions
-
+				void _Initialize(string geoTiffFilename, string modelName);
+				bool _AStarAlgorithmConfiguration(aStarSearchPixelsMovementType aStarSearchPixelsMovementTypeForFindPath, bool possibilityOfNotMoving);
+				void _GdalDriverInitialization(void);
+				bool _DsmInputFileRaster(void);
+				
+				//	Protected variables
+				aStarSearchPixelsMovementType					aStarSearchPixelsMovementTypeForFindPath 	= A_START_SEARCH_4_PIXELS_MOVEMENT;
+				bool 											aStartSearchPixelsCouldStayOnPlace			= false;
+				
 			private: 
 				//	Private variables
-				bool    										initialized		= false;
+				bool    										initialized									= false;
 				string											geoTiffFilename;
 				string											modelName;
 				class DsmInformation							dsmMapInfo;
-				GDALDataset  									*poDataset		= NULL;
-				float 											*pafScanline	= NULL;
+				GDALDataset  									*poDataset									= NULL;
+				float 											*pafScanline								= NULL;
 				class Location									currentLocation, destinationLocation;
 				unordered_map <int, AI_SUPPORT_CLASSES_color>	elevationColor;
 				list <class Location>							pathList;
@@ -137,8 +146,6 @@
 				class Logger									logger;
 				
 				//	Private member functions
-				void _GdalDriverInitialization(void);
-				bool _DsmInputFileRaster(void);
 
 		};  //  class Model
 		
@@ -156,6 +163,7 @@
 				//	Default Constructor 
 				Target(); 
 				//	Parametrized Constructors 
+				Target(string geoTiffFilename, string modelName);
 				//	Destructor
 				~Target();
 
@@ -180,6 +188,7 @@
 				//	Default Constructor 
 				Agent(); 
 				//	Parametrized Constructors 
+				Agent(string geoTiffFilename, string modelName);
 				//	Destructor
 				~Agent();
 

@@ -10,11 +10,11 @@
 //
 // Author:			Pablo Daniel Jelsky <PabloDanielJelsky@Gmail.com>
 //
-// Copyright:		
+// Copyright:
 //
 //	DEVELOPMENT HISTORY:
 //
-// Remarks:			
+// Remarks:
 //
 //	Date		Author					Release		Change Id	Description of change
 //	----------- -----------------------	-----------	----------- ---------------------
@@ -121,11 +121,13 @@
 		class Logger
 		{
 			public:
+				//	Public member functions
 				bool Filename(string filename);
 				template <class GenericType> 
 				bool Write(GenericType loggerGenericType);
 				bool WriteLine(string loggerString);
 				
+				//	Operators
 				friend Logger& operator << (Logger& logger, const int& loggerInteger);
 				friend Logger& operator << (Logger& logger, const long& loggerLong);
 				friend Logger& operator << (Logger& logger, const float& loggerFloat);
@@ -157,12 +159,14 @@
 		class Location
 		{
 			public:
+				//	Public member functions
 				void Modify(int column, int row);
 				int	Column(void);
 				int Row(void);
 				double LineIntercept(Location point);
 				double LineSlope(Location point);
 
+				//	Operators
 				friend ostream& operator << (ostream& ostream, const Location& location);
 				Location& operator = (Location& location);
 				bool operator == (Location& location);
@@ -195,6 +199,7 @@
 		class DsmLocation : public Location
 		{
 			public:
+				//	Public member functions
 				template <class GenericType> 
 				void Elevation(DsmLocation location, GenericType genericTypeElevation);
 				void Elevation(double elevation);
@@ -202,6 +207,7 @@
 				void Obstacle(bool theLocationIsAnObstacle);
 				bool Obstacle(void);
 
+				//	Operators
 				friend ostream& operator << (ostream& ostream, DsmLocation& location);
 				DsmLocation& operator = (DsmLocation& location);
 			
@@ -237,13 +243,17 @@
 		class DsmInformation
 		{ 
 			public:
+				//	Public member functions
 				void Rows(int rows);
 				void Columns(int columns);
 				int Rows(void);
 				int Columns(void);
+				bool IsInDsmMap(Location location);
+				double Elevation(Location location);
 				double Elevation(int column, int row);
 				bool Elevation(int column, int row, double elevation);
 				bool Obstacle(int column, int row, bool theLocationIsAnObstacle);
+				bool Obstacle(Location location);
 				bool Obstacle(int column, int row);
 				void GroundLevel(double groundLevelElevation);
 				double GroundLevel(void);
@@ -256,6 +266,9 @@
 				DsmInformation(int columns, int rows); 
 				//	Destructor
 				~DsmInformation();
+				
+			protected:
+				//	Protected member functions
 				
 			private: 
 				//	Private variables
@@ -279,6 +292,7 @@
 		class Graphic
 		{
 			public:
+				//	Public member functions
 				bool Open(string filename, string description = "", string author = "Pablo Daniel Jelsky", string software = "AI Home Exercise");
 				bool Close(graphicType typeOfGraphic);
 				bool Filename(string filename);
@@ -286,7 +300,6 @@
 				int Columns(void);
 				void Rows(int rows);
 				int Rows(void);
-				bool LocationIsInGraphic(Location location);
 				bool Point(class Location point, AI_SUPPORT_CLASSES_color pixelColor);					//	for .png files
 				bool Point(class Location point, int elevation);										//	for GeoTIFF files
 				bool Line(class Location from, class Location to, AI_SUPPORT_CLASSES_color lineColor);
@@ -309,20 +322,8 @@
 				//	Protected member function
 				
 			private:
-				void _Update(void);
-				
 				//	Private variables
 				bool			initialized 			= false;
-/*
-				string			fileHeaderTitle 		= "";
-				string			fileHeaderAuthor		= "";
-				string			fileHeaderDescription	= "";
-				string			fileHeaderSoftware		= "";
-				string			fileTextFont			= "/usr/share/fonts/truetype/ubuntu/Ubuntu-M.ttf";
-				int				fileTextFontSize		= 12;
-				class Location	fileText(0,0);
-				color			fileTextColor			= COLOR_WHITE;
-*/
 				string			filename				= "";
 				int				columns;
 				int				rows;
@@ -339,6 +340,10 @@
 				GDALDriver 		*driverGeotiff			= NULL;			//	also declare pointers for Geotiff
 				GDALRasterBand	*geotiffBand			= NULL;			//	and raster band object(s)
 				float			*pafWriteDspMap			= NULL;
+				
+				//	Private member functions
+				void _Update(void);
+				bool _IsInGraphic(Location location);
 
 		};	//	class Graphic
 		

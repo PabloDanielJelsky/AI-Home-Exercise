@@ -10,7 +10,7 @@
 //
 // Author:			Pablo Daniel Jelsky <PabloDanielJelsky@Gmail.com>
 //
-// Copyright:		
+// Copyright:
 //
 // Remarks:			The A* algorithm was adapted from https://www.geeksforgeeks.org/a-search-algorithm/
 //
@@ -158,28 +158,28 @@
 			if (false == _IsValid(dsmInformation, sourceLocation)) 
 			{
 				printf("Source is invalid\n");
-				return FAIL ;
+				return EXIT_FAILURE;
 			}
 		 
 			// If the destination is out of range
 			if (false == _IsValid(dsmInformation, destinationLocation)) 
 			{
 				printf("Destination is invalid\n");
-				return FAIL ;
+				return EXIT_FAILURE;
 			}
 		 
 			// Either the source or the destination is blocked
 			if (false == _IsUnblocked(dsmInformation, sourceLocation) || false == _IsUnblocked(dsmInformation, destinationLocation)) 
 			{
 				printf("Source or the destination is not in 'ground' level\n");
-				return FAIL;
+				return EXIT_FAILURE;
 			}
 		 
 			// If the destination cell is the same as source cell
 			if (true == _IsDestination(sourceLocation, destinationLocation)) 
 			{
 				printf("We are already at the destination\n");
-				return FAIL;
+				return EXIT_FAILURE;
 			}
 			
 			switch (typeOfPixelMovement)
@@ -274,8 +274,8 @@
 			// means that no cell has been included yet This closed
 			// list is implemented as a boolean 2D array
 			bool *pClosedList	= new bool[dsmQuantityOfColumns * dsmQuantityOfRows];
-			memset(pClosedList, false, *pClosedList);
-		 
+			memset(pClosedList, false, sizeof(*pClosedList) * dsmQuantityOfColumns * dsmQuantityOfRows);
+			
 			// Declare a 2D array of structure to hold the details of that cell
 			cell *pCellDetails	= new cell[dsmQuantityOfColumns * dsmQuantityOfRows];
 		 
@@ -285,25 +285,26 @@
 			std::ofstream csvTargetPathFile;
       		csvTargetPathFile.open (csvTargetPathFilename);
       		//	Create the header
-      		csvTargetPathFile << "Column, Row, Step\n";
+      		csvTargetPathFile << "Column, Row, Step, Elevation\n";
 		 
 			for (row = 0; row < dsmQuantityOfRows; row++) 
 			{
 				for (column = 0; column < dsmQuantityOfColumns; column++) 
 				{
-				    pCellDetails[row * dsmQuantityOfColumns + column].f		= FLT_MAX;
-				    pCellDetails[row * dsmQuantityOfColumns + column].g		= FLT_MAX;
-				    pCellDetails[row * dsmQuantityOfColumns + column].h		= FLT_MAX;
-				    pCellDetails[row * dsmQuantityOfColumns + column].parentLocation.Modify(AI_SUPPORT_CLASSES_INVALID_COLUMN, AI_SUPPORT_CLASSES_INVALID_ROW);
+				    pCellDetails[(row * dsmQuantityOfColumns) + column].f		= FLT_MAX;
+				    pCellDetails[(row * dsmQuantityOfColumns) + column].g		= FLT_MAX;
+				    pCellDetails[(row * dsmQuantityOfColumns) + column].h		= FLT_MAX;
+				    pCellDetails[(row * dsmQuantityOfColumns) + column].parentLocation.Modify(AI_SUPPORT_CLASSES_INVALID_COLUMN, AI_SUPPORT_CLASSES_INVALID_ROW);
 				}
 			}
 		 
 			// Initialising the parameters of the starting node
-			row = sourceLocation.Row(), column = sourceLocation.Column();
-			pCellDetails[row * dsmQuantityOfColumns + column].f				= 0.0;
-			pCellDetails[row * dsmQuantityOfColumns + column].g				= 0.0;
-			pCellDetails[row * dsmQuantityOfColumns + column].h				= 0.0;
-			pCellDetails[row * dsmQuantityOfColumns + column].parentLocation.Modify(column, row);
+			row 																= sourceLocation.Row();
+			column 																= sourceLocation.Column();
+			pCellDetails[(row * dsmQuantityOfColumns) + column].f				= 0.0;
+			pCellDetails[(row * dsmQuantityOfColumns) + column].g				= 0.0;
+			pCellDetails[(row * dsmQuantityOfColumns) + column].h				= 0.0;
+			pCellDetails[(row * dsmQuantityOfColumns) + column].parentLocation.Modify(column, row);
 		 
 			/*
 			 Create an open list having information as-
@@ -322,8 +323,11 @@
 			// We set this boolean value as false as initially
 			// the destination is not reached.
 			bool foundDest = false;
+			
+			// To store the 'g', 'h' and 'f' of the successors
+			double 	gNew, hNew, fNew;
 		 
-			while (!openList.empty()) 
+			while (false == openList.empty()) 
 			{
 				pPair p = *openList.begin();
 		 
@@ -331,88 +335,98 @@
 				openList.erase(openList.begin());
 		 
 				// Add this vertex to the closed list
-				column												= p.second.first;
-				row													= p.second.second;
-				pClosedList[row * dsmQuantityOfColumns + column]	= true;
+				column															= p.second.first;
+				row																= p.second.second;
+				pClosedList[(row * dsmQuantityOfColumns) + column]				= true;
 		 
-		 
-				// To store the 'g', 'h' and 'f' of the 8 successors
-				double 				gNew, hNew, fNew;
-				
 				for (int direction = (int) directionFirst; direction <= (int) directionLast; direction++)
 				{		
-					DsmLocation temporalDsmLocation;
+					Location	temporalDsmLocation;
+					double		distanceBetweenSuccessorAndCurrentCell;
 					
 					switch (direction)
 					{
 						case DIRECTION_SAME_PLACE:
 							// Stay at the same place, do NOT do anything
 							temporalDsmLocation.Modify(column, row);
+							distanceBetweenSuccessorAndCurrentCell	= 0;
 							break;
 						case DIRECTION_NORTH:
 							//----------- 1st Successor (North) ------------
 							temporalDsmLocation.Modify(column, row + 1);
+							distanceBetweenSuccessorAndCurrentCell	= 1;
 							break;
 						case DIRECTION_SOUTH:
 							//----------- 2nd Successor (South) ------------
 							temporalDsmLocation.Modify(column, row - 1);
+							distanceBetweenSuccessorAndCurrentCell	= 1;
 							break;
 						case DIRECTION_EAST:
 							//----------- 3rd Successor (East) ------------
 							temporalDsmLocation.Modify(column + 1, row);
+							distanceBetweenSuccessorAndCurrentCell	= 1;
 							break;
 						case DIRECTION_WEST:
 							//----------- 4th Successor (West) ------------
 							temporalDsmLocation.Modify(column - 1, row);
+							distanceBetweenSuccessorAndCurrentCell	= 1;
 							break;
 						case DIRECTION_NORTH_EAST:
 							//----------- 5th Successor (North-East) ------------
 							temporalDsmLocation.Modify(column + 1, row + 1);
+							distanceBetweenSuccessorAndCurrentCell	= 1.4142;
 							break;
 						case DIRECTION_NORTH_WEST:
 							//----------- 6th Successor (North-West) ------------
 							temporalDsmLocation.Modify(column - 1, row + 1);
+							distanceBetweenSuccessorAndCurrentCell	= 1.4142;
 							break;
 						case DIRECTION_SOUTH_EAST:
 							//----------- 7th Successor (South-East) ------------
 							temporalDsmLocation.Modify(column + 1, row - 1);
+							distanceBetweenSuccessorAndCurrentCell	= 1.4142;
 							break;
 						case DIRECTION_SOUTH_WEST:
 							//----------- 8th Successor (South-West) ------------
 							temporalDsmLocation.Modify(column - 1, row - 1);
+							distanceBetweenSuccessorAndCurrentCell	= 1.4142;
 							break;
 						case DIRECTION_NORTH_NORTH:
 							//----------- 9th Successor (North-North) ------------
 							temporalDsmLocation.Modify(column, row + 2);
+							distanceBetweenSuccessorAndCurrentCell	= 2;
 							break;
 						case DIRECTION_SOUTH_SOUTH:
 							//----------- 10th Successor (South-South) ------------
 							temporalDsmLocation.Modify(column, row - 2);
+							distanceBetweenSuccessorAndCurrentCell	= 2;
 							break;
 						case DIRECTION_EAST_EAST:
 							//----------- 11th Successor (East-East) ------------
 							temporalDsmLocation.Modify(column + 2, row);
+							distanceBetweenSuccessorAndCurrentCell	= 2;
 							break;
 						case DIRECTION_WEST_WEST:
 							//----------- 12th Successor (West-West) ------------
 							temporalDsmLocation.Modify(column - 2, row);
+							distanceBetweenSuccessorAndCurrentCell	= 2;
 							break;
 						default:
 							printf("The direction %d is not a valid one\n", direction);
 							csvTargetPathFile.close();
-							return FAIL;
+							return EXIT_FAILURE;
 							
 					}	//	switch()
 					
 					// Only process this cell if this is a valid one
-					if (_IsValid(dsmInformation, temporalDsmLocation)) 
+					if (true == _IsValid(dsmInformation, temporalDsmLocation)) 
 					{
 						// If the destination cell is the same as the
 						// current successor
-						if (_IsDestination(temporalDsmLocation, destinationLocation)) 
+						if (true == _IsDestination(temporalDsmLocation, destinationLocation)) 
 						{
 							// Set the Parent of the destination cell
-							pCellDetails[temporalDsmLocation.Row() * dsmQuantityOfColumns + temporalDsmLocation.Column()].parentLocation.Modify(column, row);
+							pCellDetails[(temporalDsmLocation.Row() * dsmQuantityOfColumns) + temporalDsmLocation.Column()].parentLocation.Modify(column, row);
 							printf("The destination cell is found\n");
 							_TracePath(dsmInformation, pCellDetails, destinationLocation, &targetPathSize, targetPathList, csvTargetPathFile);
 							foundDest	= true;
@@ -422,18 +436,18 @@
 							delete [] pCellDetails;
 							
 							csvTargetPathFile.close();
-							return (targetPathSize);
+							return (targetPathSize-1);
 						}
 						// If the successor is already on the closed
 						// list or if it is blocked, then ignore it.
 						// Else do the following
-						else if (false == pClosedList[temporalDsmLocation.Row() * dsmQuantityOfColumns + temporalDsmLocation.Column()]
+						else if (false == pClosedList[(temporalDsmLocation.Row() * dsmQuantityOfColumns) + temporalDsmLocation.Column()]
 								 && true == _IsUnblocked(dsmInformation, temporalDsmLocation)) 
 						{
-							gNew	= pCellDetails[row * dsmQuantityOfColumns + column].g + 1.0;
+							gNew	= pCellDetails[(row * dsmQuantityOfColumns) + column].g + distanceBetweenSuccessorAndCurrentCell;
 							hNew	= _CalculateHValueForAiHomeExercise(temporalDsmLocation, destinationLocation);
 							fNew	= gNew + hNew;
-			 
+
 							// If it isn’t on the open list, add it to
 							// the open list. Make the current square
 							// the parent of this square. Record the
@@ -442,36 +456,41 @@
 							// If it is on the open list already, check
 							// to see if this path to that square is
 							// better, using 'f' cost as the measure.
-							if (pCellDetails[temporalDsmLocation.Row() * dsmQuantityOfColumns + temporalDsmLocation.Column()].f == FLT_MAX
-								|| pCellDetails[temporalDsmLocation.Row() * dsmQuantityOfColumns + temporalDsmLocation.Column()].f > fNew) 
+							if ((FLT_MAX == pCellDetails[(temporalDsmLocation.Row() * dsmQuantityOfColumns) + temporalDsmLocation.Column()].f)
+								|| (pCellDetails[(temporalDsmLocation.Row() * dsmQuantityOfColumns) + temporalDsmLocation.Column()].f > fNew)) 
 							{
 								openList.insert(make_pair(fNew, make_pair(temporalDsmLocation.Column(), temporalDsmLocation.Row())));
 			 
 								// Update the details of this cell
-								pCellDetails[temporalDsmLocation.Row() * dsmQuantityOfColumns + temporalDsmLocation.Column()].f	= fNew;
-								pCellDetails[temporalDsmLocation.Row() * dsmQuantityOfColumns + temporalDsmLocation.Column()].g = gNew;
-								pCellDetails[temporalDsmLocation.Row() * dsmQuantityOfColumns + temporalDsmLocation.Column()].h = hNew;
-								pCellDetails[temporalDsmLocation.Row() * dsmQuantityOfColumns + temporalDsmLocation.Column()].parentLocation.Modify(column, row);
+								pCellDetails[(temporalDsmLocation.Row() * dsmQuantityOfColumns) + temporalDsmLocation.Column()].f	= fNew;
+								pCellDetails[(temporalDsmLocation.Row() * dsmQuantityOfColumns) + temporalDsmLocation.Column()].g	= gNew;
+								pCellDetails[(temporalDsmLocation.Row() * dsmQuantityOfColumns) + temporalDsmLocation.Column()].h	= hNew;
+								pCellDetails[(temporalDsmLocation.Row() * dsmQuantityOfColumns) + temporalDsmLocation.Column()].parentLocation.Modify(column, row);
 							}
 						}
 					}
 				}
 			}
 
+			//	Deallocate the dynamic arrays created in this function
+			delete [] pClosedList;
+			delete [] pCellDetails;
+			
+			//	Closing CSV file
+			csvTargetPathFile.close();
+			
 			// When the destination cell is not found and the open
 			// list is empty, then we conclude that we failed to
 			// reach the destination cell. This may happen when 
 			// there is no way to destination cell (due to
 			// blockages)
 			if (false == foundDest)
+			{
 				printf("Failed to find the Destination Cell\n");
-				
-			//	Deallocate the dynamic arrays created in this function
-			delete [] pClosedList;
-			delete [] pCellDetails;
-		 
-		 	csvTargetPathFile.close();
-			return (targetPathSize);
+				return EXIT_FAILURE;
+			}
+			
+			return (targetPathSize-1);
 		}
 
 	
@@ -519,7 +538,7 @@
 		bool _IsUnblocked(DsmInformation& dsmInformation, Location location)
 		{
 			// Returns true if the cell is not blocked else false
-			return ((true == dsmInformation.Obstacle(location.Column(), location.Row())) ? false : true);
+			return ((true == dsmInformation.Obstacle(location)) ? false : true);
 			
 		}	//	_IsUnblocked()
 		
@@ -604,12 +623,12 @@
 			Path.push(Location(column, row));
 			while (!Path.empty()) 
 			{
-				Location p		= Path.top();
+				Location p			= Path.top();
 				Path.pop();
 
 				targetPathSize++;
 				*pTargetPathSize	= targetPathSize;
-				csvTargetPathFile << p.Column() << "," << p.Row() << "," << targetPathSize << "\n";
+				csvTargetPathFile << p.Column() << "," << p.Row() << "," << targetPathSize-1 << ","  << dsmInformation.Elevation(p) << "\n";
 				targetPathList.push_back(p);
 			}
  

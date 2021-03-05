@@ -10,7 +10,7 @@
 //
 // Author:			Pablo Daniel Jelsky <PabloDanielJelsky@Gmail.com>
 //
-// Copyright:		
+// Copyright:
 //
 // Remarks:			In this module the objective is to create model base class that will be derived as agent or target classes
 //
@@ -171,10 +171,10 @@
 		// Class name			: Model
 		// Function				: Parametrized constructor
 		// Programmer name		: Pablo Daniel Jelsky
-		// Last update date		: 02-03-2021
+		// Last update date		: 05-03-2021
 		// Class description	: This base class represents the model that will be derived
 		//						as a person (class) that could be an agent, a target, etc
-		// Function description		: This constructors take as parameter GeoTIFF file that
+		// Function description	: This constructors take as parameter GeoTIFF file that
 		//							will be the base of the DSM information map
 		// Remarks				: 
 		/////////////////////////////////////////////////////////////////////////////////
@@ -183,26 +183,8 @@
 		/////////////////////////////////////////////////////////////////////////////////
 		Model::Model(string geoTiffFilename, string modelName)
 		{
-			string	loggerDirectory	= "output/";
-			string	loggerSuffix	= ".txt";
-			
-			this->geoTiffFilename	= geoTiffFilename;
-			this->modelName			= modelName;
-			//	Creating the logger object
-			this->logger.Filename(loggerDirectory + this->modelName + loggerSuffix);
-			//	Registering the GDAL drivers
-			this->_GdalDriverInitialization();
-			//	Raster the GeoTIFF input file inside the object for further use
-			if (false == _DsmInputFileRaster())
-			{
-				this->initialized	= false;
-				return;
-			}
-			
-			this->graphic.Rows(this->dsmMapInfo.Rows());
-			this->graphic.Columns(this->dsmMapInfo.Columns());
-			
-			this->initialized	= true;
+			this->_Initialize(geoTiffFilename, modelName);
+			this->_AStarAlgorithmConfiguration(A_START_SEARCH_4_PIXELS_MOVEMENT, false);
 			
 		}	//	Model::Model()
 		
@@ -224,6 +206,112 @@
 				CPLFree(this->pafScanline);
 
 		}	//	Model::~Model()
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: Target
+		// Function				: Default constructor
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 05-03-2021
+		// Class description	: This class represents the target class derived
+		//							from model class
+		// Function description	: This constructor will create a non valid object
+		// Remarks				: 
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: None
+		/////////////////////////////////////////////////////////////////////////////////
+		Target::Target()
+		{
+		}	//	Target::Target()
+	
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: Target
+		// Function				: Parametrized constructor
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 05-03-2021
+		// Class description	: This class represents the target class derived
+		//							from model class
+		// Function description	: This constructors take as parameter GeoTIFF file that
+		//							will be the base of the DSM information map
+		// Remarks				: 
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: string geoTiffFilename (name of the GeoTIFF file)
+		//						 string modelName (name that will be used for logger and .csv files)
+		/////////////////////////////////////////////////////////////////////////////////
+		Target::Target(string geoTiffFilename, string modelName)
+		{
+			this->_Initialize(geoTiffFilename, modelName);
+			this->_AStarAlgorithmConfiguration(A_START_SEARCH_4_PIXELS_MOVEMENT, false);
+			
+		}	//	Target::Target()
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: Target
+		// Function				: Destructor
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 05-03-2021
+		// Class description	: This class represents the target class derived
+		//							from model class
+		// Function description	: 
+		// Remarks				:
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: None
+		/////////////////////////////////////////////////////////////////////////////////
+		Target::~Target()
+		{
+		}	//	Target::~Target()
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: Agent
+		// Function				: Default constructor
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 05-03-2021
+		// Class description	: This class represents the agent class derived
+		//							from target class
+		// Function description	: This constructor will create a non valid object
+		// Remarks				: 
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: None
+		/////////////////////////////////////////////////////////////////////////////////
+		Agent::Agent()
+		{
+		}	//	Agent::Agent()
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: Agent
+		// Function				: Parametrized constructor
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 05-03-2021
+		// Class description	: This class represents the agent class derived
+		//							from target class
+		// Function description	: This constructors take as parameter GeoTIFF file that
+		//							will be the base of the DSM information map
+		// Remarks				: 
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: string geoTiffFilename (name of the GeoTIFF file)
+		//						 string modelName (name that will be used for logger and .csv files)
+		/////////////////////////////////////////////////////////////////////////////////
+		Agent::Agent(string geoTiffFilename, string modelName)
+		{
+			this->_Initialize(geoTiffFilename, modelName);
+			this->_AStarAlgorithmConfiguration(A_START_SEARCH_12_PIXELS_MOVEMENT, true);
+			
+		}	//	Agent::Agent()
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: Agent
+		// Function				: Destructor
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 05-03-2021
+		// Class description	: This class represents the agent class derived
+		//							from target class
+		// Function description	: 
+		// Remarks				:
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: None
+		/////////////////////////////////////////////////////////////////////////////////
+		Agent::~Agent()
+		{
+		}	//	Agent::~Agent()
 
 	/*
 		****************************************************************************
@@ -244,14 +332,23 @@
 		/////////////////////////////////////////////////////////////////////////////////
 		bool Model::CurrentLocation(Location currentLocation)
 		{
-			if (true == this->dsmMapInfo.GroundLevel(currentLocation))
+			//	Verify the location is a valid one
+			if (false == this->dsmMapInfo.IsInDsmMap(currentLocation))
 			{
-				//	If the current location is at ground level
-				this->currentLocation	= currentLocation;
-				return true;
+				this->logger << "While trying to set current location in DSM map: CURRENT LOCATION is NOT in DSM map => [" << currentLocation.Column() << ", " << currentLocation.Row() << "]\n";
+				return false;
+			}
+			if (false == this->dsmMapInfo.GroundLevel(currentLocation))
+			{
+				this->logger << "While trying to set current location in DSM map: CURRENT LOCATION is not at GROUND LEVEL in DSM map => [" << currentLocation.Column() << ", " << currentLocation.Row() << "]\n";
+				return false;
 			}
 			
-			return false;
+			this->logger << "Current location in DSM map set to [" << currentLocation.Column() << ", " << currentLocation.Row() << "]\n";
+
+			//	If the current location is at ground level
+			this->currentLocation	= currentLocation;
+			return true;
 			
 		}	//	Model::CurrentLocation()
 		
@@ -289,14 +386,22 @@
 		/////////////////////////////////////////////////////////////////////////////////
 		bool Model::DestinationLocation(Location destinationLocation)
 		{
-			if (true == this->dsmMapInfo.GroundLevel(destinationLocation))
+			//	Verify the location is a valid one
+			if (false == this->dsmMapInfo.IsInDsmMap(destinationLocation))
 			{
-				//	If the destination location is at ground level
-				this->destinationLocation	= destinationLocation;
-				return true;
+				this->logger << "While trying to set destination location in DSM map: DESTINATION LOCATION is NOT in DSM map => [" << destinationLocation.Column() << ", " << destinationLocation.Row() << "]\n";
+				return false;
+			}
+			if (false == this->dsmMapInfo.GroundLevel(destinationLocation))
+			{
+				this->logger << "While trying to set destination location in DSM map: DESTINATION LOCATION is not at GROUND LEVEL in DSM map => [" << destinationLocation.Column() << ", " << destinationLocation.Row() << "]\n";
+				return false;
 			}
 			
-			return false;
+			this->logger << "Destination location in DSM map set to [" << destinationLocation.Column() << ", " << destinationLocation.Row() << "]\n";
+			//	If the destination location is at ground level
+			this->destinationLocation	= destinationLocation;
+			return true;
 			
 		}	//	Model::DestinationLocation()
 		
@@ -307,7 +412,7 @@
 		// Last update date		: 04-03-2021
 		// Class description	: This base class represents the model that will be derived
 		//							as a person (class) that could be an agent, a target, etc
-		// Function description	: This public member function returns the model destination 
+		// Function description_: This public member function returns the model destination 
 		//							location
 		// Remarks				:
 		/////////////////////////////////////////////////////////////////////////////////
@@ -323,22 +428,45 @@
 		// Class name			: Model
 		// Function				: FindPath
 		// Programmer name		: Pablo Daniel Jelsky
-		// Last update date		: 04-03-2021
+		// Last update date		: 05-03-2021
 		// Class description	: This base class represents the model that will be derived
 		//							as a person (class) that could be an agent, a target, etc
 		// Function description	: This public member function finds a path from current
 		//							to destination location
 		// Remarks				: Returns the model path length
 		/////////////////////////////////////////////////////////////////////////////////
-		// Arguments			: type of model movement, possibility of not moving, and
-		//							.csv results file
+		// Arguments			: .csv results file
 		/////////////////////////////////////////////////////////////////////////////////
-		int Model::FindPath(aStarSearchPixelsMovementType typeOfPixelMovement, bool possibilityOfNotMoving, string csvModelPathFilename)
+		int Model::FindPath(string csvModelPathFilename)
 		{
-			int modelPathLength;
+			int 		modelPathLength;
+			Location	currentLocation			= this->CurrentLocation();
+			Location	destinationLocation		= this->DestinationLocation();
 			
-			modelPathLength = AStarSearch(typeOfPixelMovement, possibilityOfNotMoving, this->dsmMapInfo, 
-				this->CurrentLocation(), this->DestinationLocation(), 
+			//	Verify the locations are valid ones
+			if (false == this->dsmMapInfo.IsInDsmMap(currentLocation))
+			{
+				this->logger << "While trying to find path from source to destination: CURRENT LOCATION is NOT in DSM map => [" << currentLocation.Column() << ", " << currentLocation.Row() << "]\n";
+				return EXIT_FAILURE;
+			}
+			if (false == this->dsmMapInfo.IsInDsmMap(destinationLocation))
+			{
+				this->logger << "While trying to find path from source to destination: DESTINATION LOCATION is NOT in DSM map => [" << destinationLocation.Column() << ", " << destinationLocation.Row() << "]\n";
+				return EXIT_FAILURE;
+			}
+			if (true == this->dsmMapInfo.Obstacle(currentLocation))
+			{
+				this->logger << "While trying to find path from source to destination: CURRENT LOCATION is an OBSTACLE in DSM map => [" << currentLocation.Column() << ", " << currentLocation.Row() << "]\n";
+				return EXIT_FAILURE;
+			}
+			if (true == this->dsmMapInfo.Obstacle(destinationLocation))
+			{
+				this->logger << "While trying to find path from source to destination: DESTINATION LOCATION is an OBSTACLE in DSM map => [" << destinationLocation.Column() << ", " << destinationLocation.Row() << "]\n";
+				return EXIT_FAILURE;
+			}
+			
+			modelPathLength = AStarSearch(this->aStarSearchPixelsMovementTypeForFindPath, this->aStartSearchPixelsCouldStayOnPlace, 
+				this->dsmMapInfo, this->CurrentLocation(), this->DestinationLocation(), 
 				this->pathList, csvModelPathFilename);
 				
 			return modelPathLength;
@@ -357,12 +485,12 @@
 		// Remarks				:
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: None
-		/////////////////////////////////////////////////////////////////////////////////
+		/////////////_AStarAlgorithmConfiguration(aStarSearchPixelsMovementType aStarSearchPixelsMovementTypeForFindPath, bool possibilityOfNotMoving)////////////////////////////////////////////////////////////////////
 		Location& Model::NextLocation(void)
 		{
 			if (!this->pathList.empty())
 			{
-				this->pathList.pop_front();				
+				this->pathList.pop_front();
 				this->CurrentLocation(this->pathList.front());
 			}
 			
@@ -499,9 +627,81 @@
 
 	/*
 		****************************************************************************
-		* PRIVATE CLASS MEMBER FUNCTION DEFINITIONS
+		* PROTECTED CLASS MEMBER FUNCTION DEFINITIONS
 		****************************************************************************
-	*/		
+	*/
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: Model
+		// Function				: _Initialize
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 05-03-2021
+		// Class description	: This base class represents the model that will be derived
+		//						as a person (class) that could be an agent, a target, etc
+		// Function description	: This protected class member takes as parameter GeoTIFF
+		// 							file that will be the base of the DSM information map
+		// Remarks				: 
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: string geoTiffFilename (name of the GeoTIFF file)
+		//						 string modelName (name that will be used for logger and .csv files)
+		/////////////////////////////////////////////////////////////////////////////////
+		void Model::_Initialize(string geoTiffFilename, string modelName)
+		{
+			string	loggerDirectory	= "output/";
+			string	loggerSuffix	= ".txt";
+			
+			this->geoTiffFilename	= geoTiffFilename;
+			this->modelName			= modelName;
+			//	Creating the logger object
+			this->logger.Filename(loggerDirectory + this->modelName + loggerSuffix);
+			//	Registering the GDAL drivers
+			this->_GdalDriverInitialization();
+			//	Raster the GeoTIFF input file inside the object for further use
+			if (false == _DsmInputFileRaster())
+			{
+				this->initialized	= false;
+				return;
+			}
+			
+			this->graphic.Rows(this->dsmMapInfo.Rows());
+			this->graphic.Columns(this->dsmMapInfo.Columns());
+			
+			this->initialized	= true;
+			
+		}	//	Model::_Initialize()
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: Model
+		// Function				: _AStarAlgorithmConfiguration
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 05-03-2021
+		// Class description	: This base class represents the model that will be derived
+		//							as a person (class) that could be an agent, a target, etc
+		// Function description	: This private member function configures the A* algorithm
+		// Remarks				: The Geospatial Data Abstraction Library (GDAL) is a computer 
+		//							software library for reading and writing raster and vector 
+		//							geospatial data formats
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: None
+		/////////////////////////////////////////////////////////////////////////////////
+		bool Model::_AStarAlgorithmConfiguration(aStarSearchPixelsMovementType aStarSearchPixelsMovementTypeForFindPath, bool possibilityOfNotMoving)
+		{
+			switch (aStarSearchPixelsMovementTypeForFindPath)
+			{
+				case A_START_SEARCH_4_PIXELS_MOVEMENT:
+				case A_START_SEARCH_8_PIXELS_MOVEMENT:
+				case A_START_SEARCH_12_PIXELS_MOVEMENT:
+					this->aStarSearchPixelsMovementTypeForFindPath	= aStarSearchPixelsMovementTypeForFindPath;
+					break;
+				default:
+					this->logger << "Parameter aStarSearchPixelsMovementTypeForFindPath = " << aStarSearchPixelsMovementTypeForFindPath << "is not a valid one in _AStarAlgorithmConfiguration()\n";
+					return false;
+			}
+			
+			this->aStartSearchPixelsCouldStayOnPlace	= (true == possibilityOfNotMoving) ? true : false;
+			return true;
+			
+		}	//	 Model::_AStarAlgorithmConfiguration()
+		
 		/////////////////////////////////////////////////////////////////////////////////
 		// Class name			: Model
 		// Function				: _GdalDriverInitialization
@@ -509,7 +709,7 @@
 		// Last update date		: 02-03-2021
 		// Class description	: This base class represents the model that will be derived
 		//							as a person (class) that could be an agent, a target, etc
-		// Function description	: This private member function that will register the
+		// Function description	: This protected member function that will register the
 		//							GDAL drivers for reading/creating GeoTIFF files
 		// Remarks				: The Geospatial Data Abstraction Library (GDAL) is a computer 
 		//							software library for reading and writing raster and vector 
@@ -548,7 +748,7 @@
 		// Last update date		: 05-03-2021
 		// Class description	: This base class represents the model that will be derived
 		//							as a person (class) that could be an agent, a target, etc
-		// Function description	: This private member function read the GeoTIFF file and 
+		// Function description	: This protected member function read the GeoTIFF file and 
 		//							raster it inside the object for further use
 		// Remarks				: The Geospatial Data Abstraction Library (GDAL) is a computer 
 		//							software library for reading and writing raster and vector 
@@ -668,14 +868,17 @@
 								}
 								
 								//	Inserts the elevation info into the DSM map
+								//	And also sets the obstacle as everything different thant ground level (per project)
 								//		Because of unification of pixel coordinates
 								//		to internal representation where SW pixel is 0,0
 								//		and info from GeoTIFF file is NW pixel as 0,0
 								{
 									int internalRepresentationColumn	= column;			// stays the same representation
 									int internalRepresentationRow		= (nYSize-1) - row;	// the order changes in the representation
+									bool obstacle						= (elevation == this->dsmMapInfo.GroundLevel()) ? false : true;
 									                                    
 									this->dsmMapInfo.Elevation(internalRepresentationColumn, internalRepresentationRow, elevation);
+									this->dsmMapInfo.Obstacle(internalRepresentationColumn, internalRepresentationRow, obstacle);
 								}
 		 					}
 		 			}
@@ -685,6 +888,14 @@
 			return true;
 
 		}   //  Model::_DsmInputFileRaster()
+	/*
+		****************************************************************************
+		* PRIVATE CLASS MEMBER FUNCTION DEFINITIONS
+		****************************************************************************
+	*/
+
+		
+
 
 
 

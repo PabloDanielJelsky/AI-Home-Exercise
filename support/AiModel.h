@@ -10,7 +10,7 @@
 //
 // Author:			Pablo Daniel Jelsky <PabloDanielJelsky@Gmail.com>
 //
-// Copyright:		
+// Copyright:
 //
 // Remarks:			In this module the objective is to create model classes that will be instantiated as agents or targets
 //

@@ -81,9 +81,9 @@ AiSupportAlgorithms.o: $(SUPPORT_DIR)AiSupportAlgorithms.cpp
 #
 AiSupportClasses.o: $(SUPPORT_DIR)AiSupportClasses.cpp
 	@echo "-----------------------------------------------"
-	@echo "Compiling AI Suport classes"
+	@echo "Compiling AI Support classes"
 	$(CC) $(CFLAGS) -c $(SUPPORT_DIR)AiSupportClasses.cpp $(INC_DIR) -o $(OBJ_DIR)AiSupportClasses.o
-	@echo "AI Suport classes compilation process completed"
+	@echo "AI Support classes compilation process completed"
 	@echo "-----------------------------------------------"
 	@echo ""
 

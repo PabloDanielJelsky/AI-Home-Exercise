@@ -10,7 +10,7 @@
 //
 // Author:			Pablo Daniel Jelsky <PabloDanielJelsky@Gmail.com>
 //
-// Copyright:		
+// Copyright:
 //
 // Remarks:			The A* algorithm was adapted from https://www.geeksforgeeks.org/a-search-algorithm/
 //

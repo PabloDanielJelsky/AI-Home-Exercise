@@ -10,7 +10,7 @@
 //
 // Author:			Pablo Daniel Jelsky <PabloDanielJelsky@Gmail.com>
 //
-// Copyright:		
+// Copyright:
 //
 // Remarks:			The A* algorithm was adapted from https://www.geeksforgeeks.org/a-search-algorithm/
 //
@@ -73,7 +73,6 @@
 		/*---- context -------------------------------------------------------------*/
 		/*---- macros --------------------------------------------------------------*/
 		/*---- defines --------------------------------------------------------------*/
-		#define	FAIL	-1
 		#define	FLT_MAX	99999999999
 		/*---- data declarations ---------------------------------------------------*/
 		typedef enum {DIRECTION_SAME_PLACE, 
@@ -82,13 +81,12 @@
 						DIRECTION_NORTH_NORTH, DIRECTION_SOUTH_SOUTH, DIRECTION_EAST_EAST, DIRECTION_WEST_WEST
 					} directionEnumerator;
 
-		// Creating a shortcut for pair<int, pair<int, int>> type
+		// Creating a shortcut for pair<double, pair<int, int>> type
 		typedef pair <double, pair<int, int> > pPair;
 		
 		// A structure to hold the neccesary parameters for A* algorithm
 		struct cell
 		{
-			DsmLocation	location;
 			Location	parentLocation;
 			
 			// f = g + h

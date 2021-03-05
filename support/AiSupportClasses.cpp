@@ -10,9 +10,9 @@
 //
 // Author:			Pablo Daniel Jelsky <PabloDanielJelsky@Gmail.com>
 //
-// Copyright:		
+// Copyright:
 //
-// Remarks:			
+// Remarks:	
 //
 //	DEVELOPMENT HISTORY:
 //
@@ -317,6 +317,7 @@
 		{ 
 			logger.Filename(DEFAULT_DSM_INFORMATION_FILE_NAME);
 			logger.WriteLine("Default Constructor called"); 
+			
 			this->initialized	= false; 
 			this->columns		= 0;
 			this->rows			= 0;
@@ -360,7 +361,7 @@
 		// Last update date		: 26-02-2021
 		// Class description	: This class represents a graphic
 		// Function description	:
-		// Remarks				:Currently supported formats (.png and GeoTIFF)
+		// Remarks				: Currently supported formats (.png and GeoTIFF)
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: None
 		/////////////////////////////////////////////////////////////////////////////////
@@ -818,6 +819,23 @@
 			}
 			
 		}   //  DsmInformation::Columns()
+		
+ 		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: DsmInformation
+		// Function				: Elevation
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 05-03-2021
+		// Class description	: This class represents all the needed info for DSM maps
+		// Function description	: This member function returns the elevation of the column/row
+		// Remarks				:
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: location
+		/////////////////////////////////////////////////////////////////////////////////
+		double DsmInformation::Elevation(Location location)
+		{
+			return (this->pLocation[(location.Row() * this->Columns()) + location.Column()].Elevation());
+			
+		}   //  DsmInformation::Elevation()
 
  		/////////////////////////////////////////////////////////////////////////////////
 		// Class name			: DsmInformation
@@ -832,7 +850,7 @@
 		/////////////////////////////////////////////////////////////////////////////////
 		double DsmInformation::Elevation(int column, int row)
 		{
-			return ((this->pLocation[row*this->Columns()+column]).Elevation());
+			return (this->pLocation[(row * this->Columns()) + column].Elevation());
 			
 		}   //  DsmInformation::Elevation()
 		
@@ -849,7 +867,6 @@
 		/////////////////////////////////////////////////////////////////////////////////
 		bool DsmInformation::Elevation(int column, int row, double elevation)
 		{
-
 			if (row > this->Rows())
 			{
 				logger << "Input row: " << row << " is greater than the maximum number of rows: " << this->Rows() << "\n";
@@ -861,8 +878,7 @@
 				return false;
 			}
 			
-			
-			(this->pLocation[this->Columns() * row + column]).Elevation(elevation);
+			this->pLocation[(this->Columns() * row) + column].Elevation(elevation);
 			logger << "[" << column << "," << row << "] elevation set to " << elevation << "\n";
 			
 			return true;
@@ -895,7 +911,7 @@
 			}
 			
 			
-			(this->pLocation[this->Columns() * row + column]).Obstacle(theLocationIsAnObstacle);
+			this->pLocation[(this->Columns() * row) + column].Obstacle(theLocationIsAnObstacle);
 			if (true == theLocationIsAnObstacle)
 				logger << "[" << column << "," << row << "] was set to be an obstacle\n";
 			else
@@ -916,13 +932,54 @@
 		// Remarks				:Returns true, if the location is an obstacle,
 		//							false otherwise
 		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: location
+		/////////////////////////////////////////////////////////////////////////////////
+		bool DsmInformation::Obstacle(Location location)
+		{
+			return (this->pLocation[(location.Row() * this->Columns()) + location.Column()].Obstacle());
+			
+		}   //  DsmInformation::Obstacle()
+		
+ 		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: DsmInformation
+		// Function				: Obstacle
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 01-03-2021
+		// Class description	: This class represents all the needed info for DSM maps
+		// Function description	: This member function returns if the location is an
+		//							obstacle or not
+		// Remarks				:Returns true, if the location is an obstacle,
+		//							false otherwise
+		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: column, row 
 		/////////////////////////////////////////////////////////////////////////////////
 		bool DsmInformation::Obstacle(int column, int row)
 		{
-			return ((this->pLocation[row*this->Columns()+column]).Obstacle());
+			return (this->pLocation[(row * this->Columns()) + column].Obstacle());
 			
 		}   //  DsmInformation::Obstacle()
+		
+ 		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: DsmInformation
+		// Function				: IsInDsmMap
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 05-03-2021
+		// Class description	: This class represents all the needed info for DSM maps
+		// Function description	: This member function returns if the location is in
+		//							the DSM map
+		// Remarks				:Returns true, if the location is in the DSM map,
+		//							false otherwise
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: location
+		/////////////////////////////////////////////////////////////////////////////////
+		bool DsmInformation::IsInDsmMap(Location location)
+		{
+			if ((location.Row() >= 0 && location.Row() < this->Rows()) && (location.Column() >= 0 && location.Column() < this->Columns()))
+				return true;
+				
+			return false;
+		
+		}	//	DsmInformation::IsInDsmMap()
 		
  		/////////////////////////////////////////////////////////////////////////////////
 		// Class name			: DsmInformation
@@ -974,7 +1031,7 @@
 		/////////////////////////////////////////////////////////////////////////////////
 		bool DsmInformation::GroundLevel(Location location)
 		{
-			return (this->GroundLevel() == this->Elevation(location.Column(), location.Row()));
+			return (this->GroundLevel() == this->Elevation(location));
 			
 		}	//	DsmInformation::GroundLevel()
 		
@@ -1188,39 +1245,19 @@
 		
 		/////////////////////////////////////////////////////////////////////////////////
 		// Class name			: Graphic
-		// Function				: LocationIsInGraphic
-		// Programmer name		: Pablo Daniel Jelsky
-		// Last update date		: 05-03-2021
-		// Class description	: This class represents a graphic
-		// Function description	: This member function sets the graphic file name
-		// Remarks				:
-		/////////////////////////////////////////////////////////////////////////////////
-		// Arguments			: location
-		/////////////////////////////////////////////////////////////////////////////////
-		bool Graphic::LocationIsInGraphic(Location location)
-		{
-			if ((location.Row() < 0 || location.Row() >= this->Rows()) || (location.Column() < 0 || location.Column() >= this->Columns()))
-				return false;
-				
-			return true;
-			
-		}	//	Graphic::LocationIsInGraphic()
-		
-		/////////////////////////////////////////////////////////////////////////////////
-		// Class name			: Graphic
 		// Function				: Type
 		// Programmer name		: Pablo Daniel Jelsky
 		// Last update date		: 01-03-2021
 		// Class description	: This class represents a graphic
 		// Function description	: This member function draws a line with a specific color
-		// Remarks				:Currently supported formats (.png and GeoTIFF)
+		// Remarks				: Currently supported formats (.png and GeoTIFF)
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: location of the start and end points of the line and
 		//							the color to be used in the line
 		/////////////////////////////////////////////////////////////////////////////////
 		bool Graphic::Line(class Location from, class Location to, AI_SUPPORT_CLASSES_color lineColor)
 		{
-			if ((false == this->initialized) || (false == this->LocationIsInGraphic(from)) || (false == this->LocationIsInGraphic(to)))
+			if ((false == this->initialized) || (false == this->_IsInGraphic(from)) || (false == this->_IsInGraphic(to)))
 				return false;
 
 			(*this->pPngObject).line(from.Column(), from.Row(), to.Column(), to.Row(), 
@@ -1239,13 +1276,13 @@
 		// Last update date		: 04-03-2021
 		// Class description	: This class represents a graphic
 		// Function description	: This member function set a pixel to a specific color
-		// Remarks				:Currently supported formats (.png and GeoTIFF)
+		// Remarks				: Currently supported formats (.png and GeoTIFF)
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: point location and specific color (relevant to .png)
 		/////////////////////////////////////////////////////////////////////////////////
 		bool Graphic::Point(class Location point, AI_SUPPORT_CLASSES_color pixelColor)
 		{
-			if ((false == this->initialized) || (false == this->LocationIsInGraphic(point)))
+			if ((false == this->initialized) || (false == this->_IsInGraphic(point)))
 				return false;
 
 			//	.png graphic point with color
@@ -1267,7 +1304,7 @@
 		// Last update date		: 05-03-2021
 		// Class description	: This class represents a graphic
 		// Function description	: This member function set a pixel to a specific color
-		// Remarks				:Currently supported formats (.png and GeoTIFF)
+		// Remarks				: Currently supported formats (.png and GeoTIFF)
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: point location and elevation (relevant to GeoTIFF)
 		/////////////////////////////////////////////////////////////////////////////////
@@ -1282,7 +1319,7 @@
 			int	dsmRepresentationColumn			= point.Column();									// stays the same representation
 			int	dsmRepresentationRow			= (internalRepresentationRows-1) - point.Row();		// the order changes in the representation
 			
-			if ((false == this->initialized) || (false == this->LocationIsInGraphic(point)))
+			if ((false == this->initialized) || (false == this->_IsInGraphic(point)))
 				return false;
 
 			//	GeoTIFF graphic point with elevation
@@ -1316,7 +1353,7 @@
 		{
 			const double PI	= 3.141592653589793238463;
 			
-			if ((false == this->initialized) || (false == this->LocationIsInGraphic(from)))
+			if ((false == this->initialized) || (false == this->_IsInGraphic(from)))
 				return false;
 				
 			(*this->pPngObject).plot_text_utf8(
@@ -1514,6 +1551,12 @@
 
 	/*
 		****************************************************************************
+		* PROTECTED CLASS MEMBER FUNCTION DEFINITIONS
+		****************************************************************************
+	*/
+	
+	/*
+		****************************************************************************
 		* PRIVATE CLASS MEMBER FUNCTION DEFINITIONS
 		****************************************************************************
 	*/
@@ -1557,6 +1600,26 @@
 			this->Obstacle(false);
 
 		}	//	DsmLocation::_Elevation()
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: Graphic
+		// Function				: _IsInGraphic
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 05-03-2021
+		// Class description	: This class represents a graphic
+		// Function description	: This private member function sets the graphic file name
+		// Remarks				:
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: location
+		/////////////////////////////////////////////////////////////////////////////////
+		bool Graphic::_IsInGraphic(Location location)
+		{
+			if ((location.Row() < 0 || location.Row() >= this->Rows()) || (location.Column() < 0 || location.Column() >= this->Columns()))
+				return false;
+				
+			return true;
+			
+		}	//	Graphic::_IsInGraphic()
 
 		/////////////////////////////////////////////////////////////////////////////////
 		// Class name			: Graphic
@@ -1566,7 +1629,7 @@
 		// Class description	: This class represents a graphic
 		// Function description	: This private member function updates the output graphic
 		//							file that is being created
-		// Remarks				:Currently supported formats (.png and GeoTIFF)
+		// Remarks				: Currently supported formats (.png and GeoTIFF)
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: None
 		/////////////////////////////////////////////////////////////////////////////////

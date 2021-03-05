@@ -10,11 +10,11 @@
 //
 // Author:			Pablo Daniel Jelsky <PabloDanielJelsky@Gmail.com>
 //
-// Copyright:		
+// Copyright:
 //
 //	DEVELOPMENT HISTORY:
 //
-// Remarks:			
+// Remarks:	
 //
 //	Date		Author					Release		Change Id	Description of change
 //	----------- -----------------------	-----------	----------- ---------------------
