@@ -2,9 +2,9 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// File:			AiSupportClasses.c
+// File:			AiSupportClasses.cpp
 //
-// Version:			01.01
+// Version:			01.04
 //
 // Description:		Support classes for the AI home excercise source file
 //
@@ -22,6 +22,13 @@
 //	27-02-2021	Pablo Daniel Jelsky		01			01			Working with Logger, Location, DsmLocation and DsmInformation classes
 //	01-03-2021	Pablo Daniel Jelsky		01			02			Added LineOfSight() member function to DsmInformation class and added template use
 //	02-03-2021	Pablo Daniel Jelsky		01			03			Added Graphic class
+//	05-03-2021	Pablo Daniel Jelsky		01			04			Modification of internal representation
+//																	of pixels.
+//																The internal representation of the DSM map in the DsmInformation class is that 
+//																the south-west (down-left) pixel is (0,0), and all the pixels are positive, 
+//																and therefore, pixel in the north-east (up-right) is (Columns-1, Rows-1), where 
+//																Columns is the total number of columns of the DSM file, and Rows is the total
+//																number of rows of the DSM file
 //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1032,10 +1039,12 @@
 						CPLErr		rasterIoError;
 						const int	BAND_TO_BE_WRITTEN	= 1;
 						int			columns				= this->Columns();
+						int			rows				= this->Rows();
 						
-						for (row = 0; row < this->Rows(); row++)
+						for (row = 0; row < rows; row++)
 						{
-							rasterIoError	= this->geotiffDataset->GetRasterBand(BAND_TO_BE_WRITTEN)->RasterIO(
+							rasterIoError	= this->geotiffDataset->GetRasterBand(BAND_TO_BE_WRITTEN)->RasterIO
+							(
 								GF_Write,
 								0,								//	The pixel offset to the top left corner of the region of the band to be accessed. 
 																//	This would be zero to start from the left side.
@@ -1050,13 +1059,14 @@
 								1,								//	The height of the buffer image into which the desired region is to be read, or from which it is to be written.
 								GDT_Float32,					//	The type of the pixel values in the pData data buffer. The pixel values will automatically be translated to/from the GDALRasterBand data type as needed.
 								0,
-								0);
+								0
+							);
 								
-								if (CE_None != rasterIoError)
-								{
-									cout << "\tRasterIO(GF_Write) function returns with error: " << rasterIoError << "\n";
-									return false;
-								}
+							if (CE_None != rasterIoError)
+							{
+								cout << "\tRasterIO(GF_Write) function returns with error: " << rasterIoError << "\n";
+								return false;
+							}
 						}
 					}
 					//	close out GeoTIFF dataset
@@ -1254,7 +1264,7 @@
 		// Class name			: Graphic
 		// Function				: Point
 		// Programmer name		: Pablo Daniel Jelsky
-		// Last update date		: 04-03-2021
+		// Last update date		: 05-03-2021
 		// Class description	: This class represents a graphic
 		// Function description	: This member function set a pixel to a specific color
 		// Remarks				:Currently supported formats (.png and GeoTIFF)
@@ -1263,11 +1273,20 @@
 		/////////////////////////////////////////////////////////////////////////////////
 		bool Graphic::Point(class Location point, int elevation)
 		{
+			//	Inserts the elevation info into the DSM map
+			//		Because of unification of pixel coordinates
+			//		to internal representation where SW pixel is 0,0
+			//		and info to GeoTIFF file is NW pixel as 0,0
+			int	internalRepresentationRows		= this->Rows();
+			int	internalRepresentationColumns	= this->Columns();
+			int	dsmRepresentationColumn			= point.Column();									// stays the same representation
+			int	dsmRepresentationRow			= (internalRepresentationRows-1) - point.Row();		// the order changes in the representation
+			
 			if ((false == this->initialized) || (false == this->LocationIsInGraphic(point)))
 				return false;
 
 			//	GeoTIFF graphic point with elevation
-			pafWriteDspMap[point.Row() * this->Columns() + point.Column()]	= elevation;
+			pafWriteDspMap[(dsmRepresentationRow * internalRepresentationColumns) + dsmRepresentationColumn]	= elevation;
 
 			return true;
 

@@ -2,9 +2,9 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// File:			AiSupportAlgorithms.c
+// File:			AiSupportAlgorithms.cpp
 //
-// Version:			01.00
+// Version:			01.01
 //
 // Description:		Support algorithms for the AI home excercise source file
 //
@@ -19,6 +19,13 @@
 //	Date		Author					Release		Change Id	Description of change
 //	----------- -----------------------	-----------	----------- ---------------------
 //	27-02-2021	Pablo Daniel Jelsky		01			00			Initial
+//	05-03-2021	Pablo Daniel Jelsky		01			01			Modification of internal representation
+//																	of pixels.
+//																The internal representation of the DSM map in the DsmInformation class is that 
+//																the south-west (down-left) pixel is (0,0), and all the pixels are positive, 
+//																and therefore, pixel in the north-east (up-right) is (Columns-1, Rows-1), where 
+//																Columns is the total number of columns of the DSM file, and Rows is the total
+//																number of rows of the DSM file
 //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -108,8 +115,8 @@
 		/*---- macros --------------------------------------------------------------*/
 		/*---- defines --------------------------------------------------------------*/
 		
-		/*---- data declarations ---------------------------------------------------*/	
-		/*---- function prototypes -------------------------------------------------*/	
+		/*---- data declarations ---------------------------------------------------*/
+		/*---- function prototypes -------------------------------------------------*/
 
 
 	/*
@@ -121,7 +128,7 @@
 		// Module name			: A* (pronounced "A-star")
 		// Function				: AStarSearch
 		// Programmer name		: Pablo Daniel Jelsky
-		// Last update date		: 27-02-2021
+		// Last update date		:05-03-2021
 		// Module description	: This module is a graph traversal and path search algorithm
 		// Function description	: Finds the shortest path between a given source cell to a 
 		//							destination cell according to A* Search Algorithm
@@ -141,7 +148,7 @@
 		{
 			int	targetPathSize					= 0;
 			int	dsmQuantityOfColumns			= dsmInformation.Columns();
-			int	dsmQuantityOfRows				= dsmInformation.Columns();
+			int	dsmQuantityOfRows				= dsmInformation.Rows();
 			
 			//	To store the first enumerator, and the last one, depending in the quantity of pixels per each movement
 			directionEnumerator	directionFirst	= (true == possibilityOfNotMoving) ? DIRECTION_SAME_PLACE : DIRECTION_NORTH;
@@ -190,8 +197,8 @@
 									S
 				 
 							Cell-->Popped Cell		(column, row)
-							N -->  North			(column, row-1)
-							S -->  South			(column, row+1)
+							N -->  North			(column, row+1)
+							S -->  South			(column, row-1)
 							E -->  East				(column+1, row)
 							W -->  West				(column-1, row)
 					*/	
@@ -199,7 +206,7 @@
 					//	Implying exactly moving 1 pixel each time
 					directionLast	= DIRECTION_WEST;
 					break;
-				case A_START_SEARCH_8_PIXELS_MOVEMENT:	
+				case A_START_SEARCH_8_PIXELS_MOVEMENT:
 					/*
 						 Generating all the 8 successor of this cell
 				 
@@ -212,14 +219,14 @@
 							S.W		S		S.E
 				 
 							Cell-->Popped Cell		(column, row)
-							N -->  North			(column, row-1)
-							S -->  South			(column, row+1)
+							N -->  North			(column, row+1)
+							S -->  South			(column, row-1)
 							E -->  East				(column+1, row)
 							W -->  West				(column-1, row)
-							N.E--> North-East  		(column+1, row-1)
-							N.W--> North-West  		(column-1, row-1)
-							S.E--> South-East  		(column+1, row+1)
-							S.W--> South-West  		(column-1, row+1)
+							N.E--> North-East  		(column+1, row+1)
+							N.W--> North-West  		(column-1, row+1)
+							S.E--> South-East  		(column+1, row-1)
+							S.W--> South-West  		(column-1, row-1)
 					*/	
 					//	Implying moving to all adjacent pixels each time
 					directionLast	= DIRECTION_SOUTH_WEST;
@@ -241,18 +248,18 @@
 							S.W		S		S.E
 									|
 									|
-									S											 
+									S 
 							Cell-->Popped Cell		(column, row)
-							N -->  North			(column, row-1)
-							S -->  South			(column, row+1)
+							N -->  North			(column, row+1)
+							S -->  South			(column, row-1)
 							E -->  East				(column+1, row)
 							W -->  West				(column-1, row)
-							N.E--> North-East  		(column+1, row-1)
-							N.W--> North-West  		(column-1, row-1)
-							S.E--> South-East  		(column+1, row+1)
-							S.W--> South-West  		(column-1, row+1)
-							N.N--> North-North		(column, row-2)
-							S.S--> South-South		(column, row+2)
+							N.E--> North-East  		(column+1, row+1)
+							N.W--> North-West  		(column-1, row+1)
+							S.E--> South-East  		(column+1, row-1)
+							S.W--> South-West  		(column-1, row-1)
+							N.N--> North-North		(column, row+2)
+							S.S--> South-South		(column, row-2)
 							E.E--> East-East		(column+2, row)
 							W.W--> West-West		(column-2, row)
 					*/	
@@ -344,11 +351,11 @@
 							break;
 						case DIRECTION_NORTH:
 							//----------- 1st Successor (North) ------------
-							temporalDsmLocation.Modify(column, row - 1);
+							temporalDsmLocation.Modify(column, row + 1);
 							break;
 						case DIRECTION_SOUTH:
 							//----------- 2nd Successor (South) ------------
-							temporalDsmLocation.Modify(column, row + 1);
+							temporalDsmLocation.Modify(column, row - 1);
 							break;
 						case DIRECTION_EAST:
 							//----------- 3rd Successor (East) ------------
@@ -360,27 +367,27 @@
 							break;
 						case DIRECTION_NORTH_EAST:
 							//----------- 5th Successor (North-East) ------------
-							temporalDsmLocation.Modify(column + 1, row - 1);
+							temporalDsmLocation.Modify(column + 1, row + 1);
 							break;
 						case DIRECTION_NORTH_WEST:
 							//----------- 6th Successor (North-West) ------------
-							temporalDsmLocation.Modify(column - 1, row - 1);
+							temporalDsmLocation.Modify(column - 1, row + 1);
 							break;
 						case DIRECTION_SOUTH_EAST:
 							//----------- 7th Successor (South-East) ------------
-							temporalDsmLocation.Modify(column + 1, row + 1);
+							temporalDsmLocation.Modify(column + 1, row - 1);
 							break;
 						case DIRECTION_SOUTH_WEST:
 							//----------- 8th Successor (South-West) ------------
-							temporalDsmLocation.Modify(column - 1, row + 1);
+							temporalDsmLocation.Modify(column - 1, row - 1);
 							break;
 						case DIRECTION_NORTH_NORTH:
 							//----------- 9th Successor (North-North) ------------
-							temporalDsmLocation.Modify(column, row - 2);
+							temporalDsmLocation.Modify(column, row + 2);
 							break;
 						case DIRECTION_SOUTH_SOUTH:
 							//----------- 10th Successor (South-South) ------------
-							temporalDsmLocation.Modify(column, row + 2);
+							temporalDsmLocation.Modify(column, row - 2);
 							break;
 						case DIRECTION_EAST_EAST:
 							//----------- 11th Successor (East-East) ------------

@@ -4,7 +4,7 @@
 //
 // File:			AiModel.h
 //
-// Version:			01.00
+// Version:			01.01
 //
 // Description:		Model classes the AI home excercise include file
 //
@@ -19,6 +19,14 @@
 //	Date		Author					Release		Change Id	Description of change
 //	----------- -----------------------	-----------	----------- ---------------------
 //	02-03-2021	Pablo Daniel Jelsky		01			00			Initial
+//	05-03-2021	Pablo Daniel Jelsky		01			01			Addition of new Agent class derived from new Target class based on Model class
+//																Modification of internal representation
+//																	of pixels.
+//																The internal representation of the DSM map in the DsmInformation class is that 
+//																the south-west (down-left) pixel is (0,0), and all the pixels are positive, 
+//																and therefore, pixel in the north-east (up-right) is (Columns-1, Rows-1), where 
+//																Columns is the total number of columns of the DSM file, and Rows is the total
+//																number of rows of the DSM file
 //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

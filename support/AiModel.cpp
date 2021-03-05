@@ -2,9 +2,9 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// File:			AiModel.c
+// File:			AiModel.cpp
 //
-// Version:			01.00
+// Version:			01.01
 //
 // Description:		Model classes the AI home excercise source file
 //
@@ -19,6 +19,14 @@
 //	Date		Author					Release		Change Id	Description of change
 //	----------- -----------------------	-----------	----------- ---------------------
 //	02-03-2021	Pablo Daniel Jelsky		01			00			Initial
+//	05-03-2021	Pablo Daniel Jelsky		01			01			Addition of new Agent class derived from new Target class based on Model class
+//																Modification of internal representation
+//																	of pixels.
+//																The internal representation of the DSM map in the DsmInformation class is that 
+//																the south-west (down-left) pixel is (0,0), and all the pixels are positive, 
+//																and therefore, pixel in the north-east (up-right) is (Columns-1, Rows-1), where 
+//																Columns is the total number of columns of the DSM file, and Rows is the total
+//																number of rows of the DSM file
 //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -537,7 +545,7 @@
 		// Class name			: Model
 		// Function				: _DsmInputFileRaster
 		// Programmer name		: Pablo Daniel Jelsky
-		// Last update date		: 02-03-2021
+		// Last update date		: 05-03-2021
 		// Class description	: This base class represents the model that will be derived
 		//							as a person (class) that could be an agent, a target, etc
 		// Function description	: This private member function read the GeoTIFF file and 
@@ -650,7 +658,7 @@
 		 				for (row = 0; row < nYSize; row++)
 		 					for (column = 0; column < nXSize; column++)
 		 					{
-								int	elevation	= this->pafScanline[row * nXSize + column];
+								int	elevation	= this->pafScanline[(row * nXSize) + column];
 
 								if (0 == this->elevationColor.count(elevation))
 								{
@@ -660,7 +668,15 @@
 								}
 								
 								//	Inserts the elevation info into the DSM map
-		 						this->dsmMapInfo.Elevation(column, row, elevation);
+								//		Because of unification of pixel coordinates
+								//		to internal representation where SW pixel is 0,0
+								//		and info from GeoTIFF file is NW pixel as 0,0
+								{
+									int internalRepresentationColumn	= column;			// stays the same representation
+									int internalRepresentationRow		= (nYSize-1) - row;	// the order changes in the representation
+									                                    
+									this->dsmMapInfo.Elevation(internalRepresentationColumn, internalRepresentationRow, elevation);
+								}
 		 					}
 		 			}
 				}

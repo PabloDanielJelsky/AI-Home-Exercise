@@ -4,7 +4,7 @@
 //
 // File:			AiSupportAlgorithms.h
 //
-// Version:			01.00
+// Version:			01.01
 //
 // Description:		Support algorithms for the AI home excercise include file
 //
@@ -19,6 +19,13 @@
 //	Date		Author					Release		Change Id	Description of change
 //	----------- -----------------------	-----------	----------- ---------------------
 //	27-02-2021	Pablo Daniel Jelsky		01			00			Initial
+//	05-03-2021	Pablo Daniel Jelsky		01			01			Modification of internal representation
+//																	of pixels.
+//																The internal representation of the DSM map in the DsmInformation class is that 
+//																the south-west (down-left) pixel is (0,0), and all the pixels are positive, 
+//																and therefore, pixel in the north-east (up-right) is (Columns-1, Rows-1), where 
+//																Columns is the total number of columns of the DSM file, and Rows is the total
+//																number of rows of the DSM file
 //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -68,7 +75,7 @@
 		/*---- defines --------------------------------------------------------------*/
 		#define	FAIL	-1
 		#define	FLT_MAX	99999999999
-		/*---- data declarations ---------------------------------------------------*/	
+		/*---- data declarations ---------------------------------------------------*/
 		typedef enum {DIRECTION_SAME_PLACE, 
 						DIRECTION_NORTH, DIRECTION_SOUTH, DIRECTION_EAST, DIRECTION_WEST,
 						DIRECTION_NORTH_EAST, DIRECTION_NORTH_WEST, DIRECTION_SOUTH_EAST, DIRECTION_SOUTH_WEST,

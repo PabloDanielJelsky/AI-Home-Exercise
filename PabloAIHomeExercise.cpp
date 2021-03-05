@@ -2,9 +2,9 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// File:			PabloAiHomeExercise.c
+// File:			PabloAiHomeExercise.cpp
 //
-// Version:			01.00
+// Version:			01.01
 //
 // Description:		Pablo's AI home excercise source file
 //
@@ -19,6 +19,13 @@
 //	Date		Author					Release		Change Id	Description of change
 //	----------- -----------------------	-----------	----------- ---------------------
 //	27-02-2021	Pablo Daniel Jelsky		01			00			Initial
+//	05-03-2021	Pablo Daniel Jelsky		01			01			Modification of internal representation
+//																	of pixels.
+//																The internal representation of the DSM map in the DsmInformation class is that 
+//																the south-west (down-left) pixel is (0,0), and all the pixels are positive, 
+//																and therefore, pixel in the north-east (up-right) is (Columns-1, Rows-1), where 
+//																Columns is the total number of columns of the DSM file, and Rows is the total
+//																number of rows of the DSM file
 //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -170,15 +177,15 @@
 		#define	NUMBER_OF_AGENTS	2
 		#define DSM_FILE        	"../Input/cage6.tif"
 		#define OUT_FILE        	"output/cage6.png"
-		#define TARGET_PATH_FILE	"output/cage6_with_TargetPath.png"		
-		#define AGENT1_PATH_FILE	"output/cage6_with_Agent1Path.png"	
-		#define AGENT2_PATH_FILE	"output/cage6_with_Agent2Path.png"	
+		#define TARGET_PATH_FILE	"output/cage6_with_TargetPath.png"
+		#define AGENT1_PATH_FILE	"output/cage6_with_Agent1Path.png"
+		#define AGENT2_PATH_FILE	"output/cage6_with_Agent2Path.png"
 		
-		/*---- data declarations ---------------------------------------------------*/	
+		/*---- data declarations ---------------------------------------------------*/
 		typedef enum {PERSON_TYPE_TARGET, PERSON_TYPE_AGENT1, PERSON_TYPE_AGENT2} personType;
 		//	Logger support object created to log all the relevant events of this simulation
 		class Logger				LoggerObject("output/PabloAIHomeExercise.txt");
-		/*---- function prototypes -------------------------------------------------*/	
+		/*---- function prototypes -------------------------------------------------*/
 
 
 	/*
@@ -255,7 +262,7 @@ int main()
     //	Create the output file with target path
     DsmOutputFileCreationWithPath(PERSON_TYPE_AGENT1, AGENT1_PATH_FILE, DsmInformationObject, agent1PathList, agent1PathSize);
  */   
-    Location pointA(0,0);
+    Location pointA(1,1);
     Location pointB(10,10);
     Location pointC(0,0);
     Location pointD(150,150);
@@ -276,7 +283,7 @@ int main()
    
    class Model	model(DSM_FILE, "Agent1");
    model.CurrentLocation(pointA);
-   model.DestinationLocation(pointE);
+   model.DestinationLocation(pointB);
    int modelPathLength = model.FindPath(A_START_SEARCH_4_PIXELS_MOVEMENT, false, "output/ModelPath.csv");
    cout << "Model path length = " << modelPathLength << "\n";
    model.GraphicOpen("output/Model", "Model graphic");
@@ -293,6 +300,8 @@ int main()
 		currentLocation	= model.NextLocation();
 		simulationSeconds++;
 		cout << "[" << currentLocation.Column() << ", " << currentLocation.Row() << ", " << simulationSeconds << "]\n"; 
+		if (simulationSeconds > 600)
+			break;
     }	
   
 	return EXIT_SUCCESS;

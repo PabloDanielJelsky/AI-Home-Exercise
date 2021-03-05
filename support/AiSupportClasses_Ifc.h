@@ -4,7 +4,7 @@
 //
 // File:			AiSupportClasses_Ifc.h
 //
-// Version:			01.01
+// Version:			01.04
 //
 // Description:		Support classes for the AI home excercise interface file
 //
@@ -22,6 +22,13 @@
 //	27-02-2021	Pablo Daniel Jelsky		01			01			Working with Logger, Location, DsmLocation and DsmInformation classes
 //	01-03-2021	Pablo Daniel Jelsky		01			02			Added LineOfSight() member function to DsmInformation class and added template use
 //	02-03-2021	Pablo Daniel Jelsky		01			03			Added Graphic class
+//	05-03-2021	Pablo Daniel Jelsky		01			04			Modification of internal representation
+//																	of pixels.
+//																The internal representation of the DSM map in the DsmInformation class is that 
+//																the south-west (down-left) pixel is (0,0), and all the pixels are positive, 
+//																and therefore, pixel in the north-east (up-right) is (Columns-1, Rows-1), where 
+//																Columns is the total number of columns of the DSM file, and Rows is the total
+//																number of rows of the DSM file
 //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
