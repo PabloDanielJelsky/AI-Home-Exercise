@@ -8,7 +8,7 @@
 //
 // Description:		Support classes for the AI home excercise include file
 //
-// Author:			Pablo Daniel Jelsky
+// Author:			Pablo Daniel Jelsky <PabloDanielJelsky@Gmail.com>
 //
 // Copyright:		
 //
@@ -58,10 +58,14 @@
 		/*---- context -------------------------------------------------------------*/
 		/*---- macros --------------------------------------------------------------*/
 		/*---- defines --------------------------------------------------------------*/
-		#define	DEFAULT_DSM_INFORMATION_FILE_NAME	"output/DsmInformation.txt"
-		#define	MAXIMUM_COLOR						65535
-		#define	NO_COLOR							0
-		/*---- data declarations ---------------------------------------------------*/	
+		#define	DEFAULT_DSM_INFORMATION_FILE_NAME		"output/DsmInformation.txt"
+		#define	MAXIMUM_COLOR							255
+		#define	HALF_COLOR								128
+		#define	NO_COLOR								0
+		#define	CONVERSION_FROM_8_BIT_TO_16_BIT_COLOR	257
+		#define	PNG_COLUMN_OFFSET_FROM_DSM_MAP			1	// DSM map starts at (0,0) whereas .png file in (1,1)
+		#define	PNG_ROW_OFFSET_FROM_DSM_MAP				1	// DSM map starts at (0,0) whereas .png file in (1,1)
+		/*---- data declarations ---------------------------------------------------*/
 		typedef struct
 		{
 			int	red;

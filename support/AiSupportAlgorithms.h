@@ -8,7 +8,7 @@
 //
 // Description:		Support algorithms for the AI home excercise include file
 //
-// Author:			Pablo Daniel Jelsky
+// Author:			Pablo Daniel Jelsky <PabloDanielJelsky@Gmail.com>
 //
 // Copyright:		
 //
@@ -91,10 +91,10 @@
 
 		
 		/*---- function prototypes -------------------------------------------------*/	
-		bool _IsValid(DsmInformation& dsmInformation, DsmLocation location);
-		bool _IsUnblocked(DsmInformation& dsmInformation, DsmLocation location);
-		bool _IsDestination(DsmLocation currentLocation, DsmLocation destinationLocation);
-		double _CalculateHValueForAiHomeExercise(DsmLocation currentLocation, DsmLocation destinationLocation);
+		bool _IsValid(DsmInformation& dsmInformation, Location location);
+		bool _IsUnblocked(DsmInformation& dsmInformation, Location location);
+		bool _IsDestination(Location currentLocation, Location destinationLocation);
+		double _CalculateHValueForAiHomeExercise(Location currentLocation, Location destinationLocation);
 		void _TracePath(DsmInformation& dsmInformation, cell *pCellDetails, Location destinationLocation, int *pTargetPathSize, list <Location>& targetPathList, std::ofstream& csvTargetPathFile);
 	
 

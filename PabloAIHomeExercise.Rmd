@@ -211,8 +211,14 @@ CalculateNextLocation3 = function(TargetCurrentLocation, OtherFollowerCurrentLoc
 }
 
 
+
 ```
 
+```{r}
+# view raster attributes
+DsmTestRaster   <- raster("/home/pablo/Documents/Software Engineering/AI home exercise/Solution/test.tif")
+plot(DsmTestRaster)
+```
 
 
 

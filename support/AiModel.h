@@ -8,7 +8,7 @@
 //
 // Description:		Model classes the AI home excercise include file
 //
-// Author:			Pablo Daniel Jelsky
+// Author:			Pablo Daniel Jelsky <PabloDanielJelsky@Gmail.com>
 //
 // Copyright:		
 //
@@ -33,16 +33,16 @@
 		****************************************************************************
 	*/
 		/*---- system and platform files -------------------------------------------*/
+		#include <string>	// for strings
 		/*---- library files -------------------------------------------------------*/
 		#include "/usr/include/gdal/gdal.h"
 		#include "/usr/include/gdal/gdal_priv.h"
 		#include "/usr/include/gdal/gdal_utils.h"
 		#include "/usr/include/gdal/cpl_conv.h"
 		#include "/usr/include/gdal/cpl_string.h"
-		#include "pngwriter.h"	
+		#include "pngwriter.h"
 		/*---- program files -------------------------------------------------------*/
 		#include "AiModel_Ifc.h"
-		
 	/*
 		****************************************************************************
 		* INTERNAL REFERENCE    
@@ -72,6 +72,5 @@
 		
 		/*---- function prototypes -------------------------------------------------*/	
 
-	
 
 #endif	// __AI_MODEL_H__

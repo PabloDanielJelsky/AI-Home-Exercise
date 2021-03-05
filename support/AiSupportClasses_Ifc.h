@@ -8,7 +8,7 @@
 //
 // Description:		Support classes for the AI home excercise interface file
 //
-// Author:			Pablo Daniel Jelsky
+// Author:			Pablo Daniel Jelsky <PabloDanielJelsky@Gmail.com>
 //
 // Copyright:		
 //
@@ -62,7 +62,31 @@
 		#define AI_SUPPORT_CLASSES_INVALID_DSM_ELEVATION	-999999999
 		/*---- enums --------------------------------------------------------------*/
 		typedef enum {GRAPHIC_TYPE_PNG, GRAPHIC_TYPE_GEOTIFF} graphicType;
-		typedef enum {COLOR_RED, COLOR_GREEN, COLOR_BLUE, COLOR_WHITE, COLOR_BLACK, COLOR_YELLOW, COLOR_CYAN, COLOR_MAGENTA} color;
+		typedef enum {
+						AI_SUPPORT_CLASSES_COLOR_BLACK,			 	//	(0,0,0)
+						AI_SUPPORT_CLASSES_COLOR_RED,				//	(255,0,0)
+						AI_SUPPORT_CLASSES_COLOR_LIME,				//	(0,255,0)
+						AI_SUPPORT_CLASSES_COLOR_BLUE,				//	(0,0,255)
+						AI_SUPPORT_CLASSES_COLOR_YELLOW,			//	(255,255,0) 
+						AI_SUPPORT_CLASSES_COLOR_CYAN,				//	(0,255,255) 
+						AI_SUPPORT_CLASSES_COLOR_MAGENTA,			//	(255,0,255)
+						AI_SUPPORT_CLASSES_COLOR_SILVER,			//	(192,192,192)
+						AI_SUPPORT_CLASSES_COLOR_GRAY,				//	(128,128,128)
+						AI_SUPPORT_CLASSES_COLOR_MAROON,			//	(128,0,0)
+						AI_SUPPORT_CLASSES_COLOR_OLIVE,				//	(128,128,0)
+						AI_SUPPORT_CLASSES_COLOR_VIOLET,			//	(238,130,238)
+						AI_SUPPORT_CLASSES_COLOR_PURPLE,			//	(128,0,128)
+						AI_SUPPORT_CLASSES_COLOR_TEAL,				//	(0,128,128)
+						AI_SUPPORT_CLASSES_COLOR_NAVY,				//	(0,0,128)
+						AI_SUPPORT_CLASSES_COLOR_TOMATO,			//	(255,99,71)
+						AI_SUPPORT_CLASSES_COLOR_ORANGE,			//	(255,165,0)
+						AI_SUPPORT_CLASSES_COLOR_DARK_GREEN,		//	(0,100,0)
+						AI_SUPPORT_CLASSES_COLOR_TURQUOISE,			//	(64,224,208)
+						AI_SUPPORT_CLASSES_COLOR_CHOCOLATE,			//	(210,105,30)
+						AI_SUPPORT_CLASSES_COLOR_WHITE				//	(255,255,255)
+						
+					} AI_SUPPORT_CLASSES_color;
+					
 		/*---- data declarations ---------------------------------------------------*/
 		/*---- function prototypes -------------------------------------------------*/
 	
@@ -216,6 +240,7 @@
 				bool Obstacle(int column, int row);
 				void GroundLevel(double groundLevelElevation);
 				double GroundLevel(void);
+				bool GroundLevel(Location location);
 				bool LineOfSight(Location pointA, Location pointB);
 
 				//	Default Constructor 
@@ -248,14 +273,24 @@
 		class Graphic
 		{
 			public:
-				bool Create(graphicType typeOfGraphic);
-				void Filename(string filename);
+				bool Open(string filename, string description = "", string author = "Pablo Daniel Jelsky", string software = "AI Home Exercise");
+				bool Close(graphicType typeOfGraphic);
+				bool Filename(string filename);
 				void Columns(int columns);
 				int Columns(void);
 				void Rows(int rows);
 				int Rows(void);
-				
-				bool Line(class Location from, class Location to, color lineColor);
+				bool LocationIsInGraphic(Location location);
+				bool Point(class Location point, AI_SUPPORT_CLASSES_color pixelColor);					//	for .png files
+				bool Point(class Location point, int elevation);										//	for GeoTIFF files
+				bool Line(class Location from, class Location to, AI_SUPPORT_CLASSES_color lineColor);
+				bool Text(class Location from, string text, 
+					//	Default arguments
+					AI_SUPPORT_CLASSES_color textColor = AI_SUPPORT_CLASSES_COLOR_WHITE, 
+					int fontSize = 12,
+					string fontPathAndFilename = "/usr/share/fonts/truetype/ubuntu/Ubuntu-M.ttf",
+					double angle = 0.0			//	angle is the text angle in degrees
+					);
 			
 				//	Default Constructor 
 				Graphic(); 
@@ -297,6 +332,8 @@
  				GDALDataset 	*geotiffDataset			= NULL;
 				GDALDriver 		*driverGeotiff			= NULL;			//	also declare pointers for Geotiff
 				GDALRasterBand	*geotiffBand			= NULL;			//	and raster band object(s)
+				float			*pafWriteDspMap			= NULL;
+				
  
 
 		};	//	class Graphic	

@@ -8,7 +8,7 @@
 //
 // Description:		Model classes the AI home excercise source file
 //
-// Author:			Pablo Daniel Jelsky
+// Author:			Pablo Daniel Jelsky <PabloDanielJelsky@Gmail.com>
 //
 // Copyright:		
 //
@@ -33,7 +33,7 @@
 //	========
 //	========
 //	The model class will use composition between internal structures and classes like: DsmInformation, and use of A* algorithm function, or
-//	libraries like GDAL (to read and write GeoTIFF files)
+//	libraries like GDAL (to read and write GeoTIFF files), and PNGWriter (to read/write .png files)
 //
 //	The libraries used by this module:
 //	GDAL
@@ -83,7 +83,6 @@
 		****************************************************************************
 	*/
 		/*---- system and platform files -------------------------------------------*/
-		#include <string>	// for strings
 		/*---- library files -------------------------------------------------------*/
 		/*---- program files -------------------------------------------------------*/
 		#include "AiModel.h"
@@ -141,13 +140,6 @@
 		* PUBLIC CLASS CONSTRUCTORS AND DESTRUCTORS DEFINITIONS
 		****************************************************************************
 	*/
-	
-		// Class name		: Model
-		// Programmer name	: Pablo Daniel Jelsky
-		// Last update date	: 02-03-2021
-		// Description		: This base class represents the model that will be derived
-		//						as a person (class) that could be an agent, a target, etc
-		
 		/////////////////////////////////////////////////////////////////////////////////
 		// Class name			: Model
 		// Function				: Default constructor
@@ -213,7 +205,7 @@
 		// Class description	: This base class represents the model that will be derived
 		//						as a person (class) that could be an agent, a target, etc
 		// Function description	: This destructor destroys the array data created with CPLMalloc()
-		// Remarks         		: 
+		// Remarks				: 
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: None
 		/////////////////////////////////////////////////////////////////////////////////
@@ -221,10 +213,9 @@
 		{
 			if (NULL != this->pafScanline)
 				CPLFree(this->pafScanline);
-			
+
 		}	//	Model::~Model()
-			
-		
+
 	/*
 		****************************************************************************
 		* PUBLIC CLASS MEMBER FUNCTION DEFINITIONS
@@ -232,27 +223,261 @@
 	*/
 		/////////////////////////////////////////////////////////////////////////////////
 		// Class name			: Model
-		// Function				: GraphicCreation
+		// Function				: CurrentLocation
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 04-03-2021
+		// Class description	: This base class represents the model that will be derived
+		//						as a person (class) that could be an agent, a target, etc
+		// Function description	: This public member function sets the model current location
+		// Remarks				: Returns true, if it is a ground level location
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: current location
+		/////////////////////////////////////////////////////////////////////////////////
+		bool Model::CurrentLocation(Location currentLocation)
+		{
+			if (true == this->dsmMapInfo.GroundLevel(currentLocation))
+			{
+				//	If the current location is at ground level
+				this->currentLocation	= currentLocation;
+				return true;
+			}
+			
+			return false;
+			
+		}	//	Model::CurrentLocation()
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: Model
+		// Function				: CurrentLocation
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 04-03-2021
+		// Class description	: This base class represents the model that will be derived
+		//						as a person (class) that could be an agent, a target, etc
+		// Function description	: This public member function returns the model current 
+		//							location
+		// Remarks				: 
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: None
+		/////////////////////////////////////////////////////////////////////////////////
+		Location& Model::CurrentLocation(void)
+		{
+			return this->currentLocation;
+			
+		}	//	Model::CurrentLocation()
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: Model
+		// Function				: DestinationLocation
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 04-03-2021
+		// Class description	: This base class represents the model that will be derived
+		//						as a person (class) that could be an agent, a target, etc
+		// Function description	: This public member function sets the model destination
+		//							location
+		// Remarks				: Returns true, if it is a ground level location
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: destination location
+		/////////////////////////////////////////////////////////////////////////////////
+		bool Model::DestinationLocation(Location destinationLocation)
+		{
+			if (true == this->dsmMapInfo.GroundLevel(destinationLocation))
+			{
+				//	If the destination location is at ground level
+				this->destinationLocation	= destinationLocation;
+				return true;
+			}
+			
+			return false;
+			
+		}	//	Model::DestinationLocation()
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: Model
+		// Function				: DestinationLocation
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 04-03-2021
+		// Class description	: This base class represents the model that will be derived
+		//						as a person (class) that could be an agent, a target, etc
+		// Function description	: This public member function returns the model destination 
+		//							location
+		// Remarks				: 
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: None
+		/////////////////////////////////////////////////////////////////////////////////
+		Location& Model::DestinationLocation(void)
+		{
+			return this->destinationLocation;
+			
+		}	//	Model::DestinationLocation()
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: Model
+		// Function				: FindPath
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 04-03-2021
+		// Class description	: This base class represents the model that will be derived
+		//						as a person (class) that could be an agent, a target, etc
+		// Function description	: This public member function finds a path from current
+		//							to destination location
+		// Remarks				: Returns the model path length
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: type of model movement, possibility of not moving, and
+		//							.csv results file
+		/////////////////////////////////////////////////////////////////////////////////
+		int Model::FindPath(aStarSearchPixelsMovementType typeOfPixelMovement, bool possibilityOfNotMoving, string csvModelPathFilename)
+		{
+			int modelPathLength;
+			
+			modelPathLength = AStarSearch(typeOfPixelMovement, possibilityOfNotMoving, this->dsmMapInfo, 
+				this->CurrentLocation(), this->DestinationLocation(), 
+				this->pathList, csvModelPathFilename);
+				
+			return modelPathLength;
+			
+		}	//	Model::FindPath
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: Model
+		// Function				: NextLocation
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 04-03-2021
+		// Class description	: This base class represents the model that will be derived
+		//						as a person (class) that could be an agent, a target, etc
+		// Function description	: This public member function returns next location of
+		//							the path from current to destination location
+		// Remarks				: 
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: None
+		/////////////////////////////////////////////////////////////////////////////////
+		Location& Model::NextLocation(void)
+		{
+			if (!this->pathList.empty())
+			{
+				this->pathList.pop_front();				
+				this->CurrentLocation(this->pathList.front());
+			}
+			
+			return this->CurrentLocation();
+			
+		}	//	Model::NextLocation()
+				
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: Model
+		// Function				: GraphicOpen
 		// Programmer name		: Pablo Daniel Jelsky
 		// Last update date		: 03-03-2021
 		// Class description	: This base class represents the model that will be derived
 		//						as a person (class) that could be an agent, a target, etc
-		// Function description	: This public member function creates an output graphic
+		// Function description	: This public member function opens an output graphic
+		//							file based on the raster information in it
+		// Remarks         		: Currently supported formats (.png and GeoTIFF)
+		//							returns true if the graphic was created,
+		//							false otherwise
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: graphic name
+		//					Default parameter:
+		//							graphic description
+		/////////////////////////////////////////////////////////////////////////////////
+		bool Model::GraphicOpen(string filename, string description)
+		{
+			this->graphic.Open(filename, description);
+
+			return true;
+			
+		}	//	Model::GraphicOpen()
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: Model
+		// Function				: GraphicPreparation
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 04-03-2021
+		// Class description	: This base class represents the model that will be derived
+		//						as a person (class) that could be an agent, a target, etc
+		// Function description	: This public member function prepares an output graphic
+		//							file based on the raster information in it
+		// Remarks				: Currently supported formats (.png and GeoTIFF)
+		//							returns true if the graphic was prepared,
+		//							false otherwise
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: clear previous graphic (true, if clear, false otherwise )
+		/////////////////////////////////////////////////////////////////////////////////
+		bool Model::GraphicPreparation(bool clearPreviousGraphic)
+		{
+			int							row, column;
+			AI_SUPPORT_CLASSES_color	pixelColor;
+
+			for (row = 0; row < this->dsmMapInfo.Rows(); row++)
+			{
+				for (column = 0; column < this->dsmMapInfo.Columns(); column++)
+				{
+					Location	pixel(column, row);
+					
+					int	elevation	=  this->dsmMapInfo.Elevation(column, row);
+					
+					//	For .png
+					if (1 == this->elevationColor.count(elevation))
+					{
+						//	If there is a match for this elevation
+						pixelColor	= (AI_SUPPORT_CLASSES_color) this->elevationColor.at(elevation);
+						this->graphic.Point(pixel, pixelColor);
+					}
+					//	For GeoTIFF
+					this->graphic.Point(pixel, elevation);
+				}
+			}
+				
+			return true;
+				
+		}	//	Model::GraphicPreparation()
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: Model
+		// Function				: GraphicPreparation
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 04-03-2021
+		// Class description	: This base class represents the model that will be derived
+		//						as a person (class) that could be an agent, a target, etc
+		// Function description	: This public member function prepares an output graphic
+		//							file based on the raster information in it
+		// Remarks				: Currently supported formats (.png and GeoTIFF)
+		//							returns true if the graphic was prepared,
+		//							false otherwise
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: clear previous graphic (true, if clear, false otherwise )
+		/////////////////////////////////////////////////////////////////////////////////
+		bool Model::GraphicText(class Location from, string text, 
+			//	Default arguments
+			AI_SUPPORT_CLASSES_color textColor, 
+			int fontSize,
+			string fontPathAndFilename,
+			double angle)					//	angle is the text angle in degrees
+		{
+			return (this->graphic.Text(from, text, textColor, fontSize, fontPathAndFilename, angle));
+			
+		}	//	Model::GraphicText()
+
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: Model
+		// Function				: GraphicClose
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 03-03-2021
+		// Class description	: This base class represents the model that will be derived
+		//						as a person (class) that could be an agent, a target, etc
+		// Function description	: This public member function closes an output graphic
 		//							file based on the raster information in it
 		// Remarks         		: Currently supported formats (.png and GeoTIFF)
 		//							returns true if the graphic was created,
 		//							false otherwise
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: graphic type (.png or GeoTIFF)
-		//							graphic name
-		/////////////////////////////////////////////////////////////////////////////////	
-		bool Model::GraphicCreation(graphicType typeOfGraphic, string filename)
+		/////////////////////////////////////////////////////////////////////////////////
+		bool Model::GraphicClose(graphicType typeOfGraphic)
 		{
-			this->graphic.Filename(filename);
-			this->graphic.Create(typeOfGraphic);
+			this->graphic.Close(typeOfGraphic);
 			
-		}	//	Model::GraphicCreation()
-		
+			return true;
+			
+		}	//	Model::GraphicClose()
 
 	/*
 		****************************************************************************
@@ -321,6 +546,8 @@
 		/////////////////////////////////////////////////////////////////////////////////	
 		bool Model::_DsmInputFileRaster(void)
 		{
+			const int	BAND_TO_BE_FETCHED = 1;	// Taken for granted that there is ONLY one band in this DSM map
+				
 			this->logger.WriteLine("*** GeoTIFF DSM Input File Raster Operation ***");
 			  
 			//  Opening the File        
@@ -339,19 +566,24 @@
 				
 				this->logger << "\tDriver: " << this->poDataset->GetDriver()->GetDescription() << "/" <<  this->poDataset->GetDriver()->GetMetadataItem(GDAL_DMD_LONGNAME) << "\n";
 				this->logger << "\tDSM file size is: " << this->poDataset->GetRasterXSize() << " columns by " << this->poDataset->GetRasterYSize() << " rows by " << this->poDataset->GetRasterCount() << " pixel" << "\n";
+				if (CE_None == poDataset->GetGeoTransform(adfGeoTransform))
+					this->logger << "\tOrigin (top-left x = " << adfGeoTransform[0] << ", top-left y = " << adfGeoTransform[3] << "), pixel size = (w-e pixel resolution = " 
+								<< adfGeoTransform[1] << ", n-s pixel resolution (negative value) = " << adfGeoTransform[5] << ")\n";
 				
 				//	Create the DSM map info object with the GeoTIFF size
 				this->dsmMapInfo.Rows(poDataset->GetRasterYSize());
 				this->dsmMapInfo.Columns(poDataset->GetRasterXSize());
 
-				{     	
+				{
+					CPLErr	rasterIoError;
+					
 					//  Fetching a Raster Band
 					GDALRasterBand  *poBand;
 					int             nBlockXSize, nBlockYSize;
 					int             bGotMin, bGotMax;
 					double          adfMinMax[2];
 					
-					poBand = this->poDataset->GetRasterBand(1);
+					poBand = this->poDataset->GetRasterBand(BAND_TO_BE_FETCHED);
 					poBand->GetBlockSize(&nBlockXSize, &nBlockYSize);
 					this->logger << "\nDSM file block is " << nBlockXSize << " by " << nBlockYSize << " type is " << GDALGetDataTypeName(poBand->GetRasterDataType()) 
 								<< " and color interpretation is " << GDALGetColorInterpretationName(poBand->GetColorInterpretation()) << "\n";
@@ -361,7 +593,7 @@
 					
 					if (!(bGotMin && bGotMax))
 					{
-					    GDALComputeRasterMinMax((GDALRasterBandH)poBand, TRUE, adfMinMax);
+					    GDALComputeRasterMinMax((GDALRasterBandH) poBand, true, adfMinMax);
 					    this->dsmMapInfo.GroundLevel(adfMinMax[0]);
 					    this->logger << "\t\tMinimum elevation = " << adfMinMax[0] << ", maximum elevation = " << adfMinMax[1] << "\n";
 					    this->logger << "\t\tDSM map ground level set to " << this->dsmMapInfo.GroundLevel() << "\n";
@@ -393,24 +625,49 @@
 						this->logger << "\tThe raster data array was successfully created.\n";
 					}
 
-					poBand->RasterIO(GF_Read, 0, 0, nXSize, nYSize,
-					                this->pafScanline, nXSize, nYSize, GDT_Float32,
-					                0, 0 );        	        
+					rasterIoError	= poBand->RasterIO(GF_Read, 0, 0, nXSize, nYSize,
+														this->pafScanline, nXSize, nYSize, GDT_Float32,
+														0, 0);
+					if (CE_None != rasterIoError)
+					{
+						this->logger << "\tRasterIO(GF_Read) function returns with error: " << rasterIoError << "\n";
+						cout << "\tRasterIO(GF_Read) function returns with error: " << rasterIoError << "\n";
+						return false;
+					}
 							 			
-		 			//	Insert the array information into the DSM map object
+		 			//	Insert the array information into the DSM map object and set the color for each different elevation
 		 			{
 		 				int	column, row;
+		 				int	color	= (int) AI_SUPPORT_CLASSES_COLOR_BLACK;
+		 				
+						//	Sets the color of ground level to black
+		 				this->elevationColor.insert({this->dsmMapInfo.GroundLevel(), (AI_SUPPORT_CLASSES_color) color++});
 		 				
 		 				for (row = 0; row < nYSize; row++)
 		 					for (column = 0; column < nXSize; column++)
-		 						this->dsmMapInfo.Elevation(column, row, this->pafScanline[row * nXSize + column]);
-		 			
+		 					{
+								int	elevation	= this->pafScanline[row * nXSize + column];
+
+								if (0 == this->elevationColor.count(elevation))
+								{
+									//	If the index of the elevation was not found in the unorder map,
+									//	then insert it and set its color to the next color enumerator
+									this->elevationColor.insert({elevation, (AI_SUPPORT_CLASSES_color) color++});
+								}
+								
+								//	Inserts the elevation info into the DSM map
+		 						this->dsmMapInfo.Elevation(column, row, elevation);
+		 					}
 		 			}
 				}
 			}
-			
+
 			return true;
-			
+
 		}   //  Model::_DsmInputFileRaster()
-	
-	
+
+
+
+
+
+

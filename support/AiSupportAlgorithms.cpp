@@ -8,7 +8,7 @@
 //
 // Description:		Support algorithms for the AI home excercise source file
 //
-// Author:			Pablo Daniel Jelsky
+// Author:			Pablo Daniel Jelsky <PabloDanielJelsky@Gmail.com>
 //
 // Copyright:		
 //
@@ -117,14 +117,14 @@
 		****************************************************************************
 	*/
 		/////////////////////////////////////////////////////////////////////////////////
-		// Module name			: A* (A* (pronounced "A-star")
+		// Module name			: A* (pronounced "A-star")
 		// Function				: AStarSearch
 		// Programmer name		: Pablo Daniel Jelsky
 		// Last update date		: 27-02-2021
 		// Module description	: This module is a graph traversal and path search algorithm
 		// Function description	: Finds the shortest path between a given source cell to a 
 		//							destination cell according to A* Search Algorithm
-		// Remarks         		: Returns the number of steps in the returning path and 
+		// Remarks				: Returns the number of steps in the returning path and 
 		//							a list with the path
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: Type of pixel movement (4, 8, 12 pixels per cycle),
@@ -133,7 +133,7 @@
 		//							source and destination locations (as DsmLocation)
 		//							and the CSV target path filen name
 		/////////////////////////////////////////////////////////////////////////////////
-		long AStarSearch(aStarSearchPixelsMovementType typeOfPixelMovement, bool possibilityOfNotMoving, DsmInformation& dsmInformation, DsmLocation sourceLocation, DsmLocation destinationLocation, 
+		long AStarSearch(aStarSearchPixelsMovementType typeOfPixelMovement, bool possibilityOfNotMoving, DsmInformation& dsmInformation, Location sourceLocation, Location destinationLocation, 
 				list <Location>& targetPathList, string csvTargetPathFilename)
 		{
 			int	targetPathSize					= 0;
@@ -471,20 +471,20 @@
 		****************************************************************************
 	*/	
 		/////////////////////////////////////////////////////////////////////////////////
-		// Module name			: A* (A* (pronounced "A-star")
+		// Module name			: A* (pronounced "A-star")
 		// Function				: _IsValid
 		// Programmer name		: Pablo Daniel Jelsky
 		// Last update date		: 27-02-2021
 		// Module description	: This module is a graph traversal and path search algorithm
 		// Function description	: Checks whether given cell is a valid cell or not 
 		//							(if it is in the range of the graph)
-		// Remarks         		: Return true if the cell is in the graph,
+		// Remarks				: Return true if the cell is in the graph,
 		//							false, otherwise
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: DSM map information (as DsmInformation) and 
-		//							location (as DsmLocation)
+		//							location (as Location)
 		/////////////////////////////////////////////////////////////////////////////////
-		bool _IsValid(DsmInformation& dsmInformation, DsmLocation location)
+		bool _IsValid(DsmInformation& dsmInformation, Location location)
 		{
 			// Returns true if row number and column number
 			// is in range
@@ -494,7 +494,7 @@
 		}	//	_IsValid()	
 		
 		/////////////////////////////////////////////////////////////////////////////////
-		// Module name			: A* (A* (pronounced "A-star")
+		// Module name			: A* (pronounced "A-star")
 		// Function				: _IsUnblocked
 		// Programmer name		: Pablo Daniel Jelsky
 		// Last update date		: 27-02-2021
@@ -504,9 +504,9 @@
 		//							false, otherwise
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: DSM map information (as DsmInformation) and 
-		//							location (as DsmLocation)
+		//							location (as Location)
 		/////////////////////////////////////////////////////////////////////////////////
-		bool _IsUnblocked(DsmInformation& dsmInformation, DsmLocation location)
+		bool _IsUnblocked(DsmInformation& dsmInformation, Location location)
 		{
 			// Returns true if the cell is not blocked else false
 			return ((true == dsmInformation.Obstacle(location.Column(), location.Row())) ? false : true);
@@ -514,7 +514,7 @@
 		}	//	_IsUnblocked()
 		
 		/////////////////////////////////////////////////////////////////////////////////
-		// Module name			: A* (A* (pronounced "A-star")
+		// Module name			: A* (pronounced "A-star")
 		// Function				: _IsDestination
 		// Programmer name		: Pablo Daniel Jelsky
 		// Last update date		: 27-02-2021
@@ -525,14 +525,14 @@
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: current and destination locations (as DsmLocation)
 		/////////////////////////////////////////////////////////////////////////////////		
-		bool _IsDestination(DsmLocation currentLocation, DsmLocation destinationLocation)
+		bool _IsDestination(Location currentLocation, Location destinationLocation)
 		{
 			return (currentLocation == destinationLocation);
 				
 		}	//	_IsDestination()
 			
 		/////////////////////////////////////////////////////////////////////////////////
-		// Module name			: A* (A* (pronounced "A-star")
+		// Module name			: A* (pronounced "A-star")
 		// Function				: _CalculateHValueForAiHomeExercise
 		// Programmer name		: Pablo Daniel Jelsky
 		// Last update date		: 27-02-2021
@@ -546,7 +546,7 @@
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: current and destination locations (as DsmLocation)
 		/////////////////////////////////////////////////////////////////////////////////			
-		double _CalculateHValueForAiHomeExercise(DsmLocation currentLocation, DsmLocation destinationLocation)
+		double _CalculateHValueForAiHomeExercise(Location currentLocation, Location destinationLocation)
 		{
 			int	differenceInColumns, differenceInRows;
 			
@@ -558,7 +558,7 @@
 		}	//	_CalculateHValueForAiHomeExercise()
 		
 		/////////////////////////////////////////////////////////////////////////////////
-		// Module name			: A* (A* (pronounced "A-star")
+		// Module name			: A* (pronounced "A-star")
 		// Function				: _TracePath
 		// Programmer name		: Pablo Daniel Jelsky
 		// Last update date		: 27-02-2021
@@ -575,12 +575,9 @@
 		void _TracePath(DsmInformation& dsmInformation, cell *pCellDetails, Location destinationLocation, int *pTargetPathSize, list <Location>& targetPathList, std::ofstream& csvTargetPathFile)
 		{
 			int	dsmQuantityOfColumns	= dsmInformation.Columns();
-			int	dsmQuantityOfRows		= dsmInformation.Columns();
-			
-			printf("\nThe Path is ");
-			int column	= destinationLocation.Column();
-			int row		= destinationLocation.Row();
-			int	targetPathSize	= *pTargetPathSize;
+			int column					= destinationLocation.Column();
+			int row						= destinationLocation.Row();
+			int	targetPathSize			= *pTargetPathSize;
 	 
 			stack <Location> Path;
 		 
@@ -606,18 +603,18 @@
 				csvTargetPathFile << p.Column() << "," << p.Row() << "," << targetPathSize << "\n";
 				targetPathList.push_back(p);
 			}
-		 
+ 
 			return;
-			
+
 		}	//	_TracePath()
-		
+
 
 	/*
 		****************************************************************************
 		* PUBLIC CLASS CONSTRUCTORS AND DESTRUCTORS DEFINITIONS
 		****************************************************************************
 	*/
-		
+
 	/*
 		****************************************************************************
 		* PUBLIC CLASS MEMBER FUNCTION DEFINITIONS
@@ -636,4 +633,4 @@
 		* PRIVATE CLASS MEMBER FUNCTION DEFINITIONS
 		****************************************************************************
 	*/	
-	
+

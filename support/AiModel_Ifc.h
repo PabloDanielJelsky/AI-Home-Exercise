@@ -8,7 +8,7 @@
 //
 // Description:		Model classes the AI home excercise interface file
 //
-// Author:			Pablo Daniel Jelsky
+// Author:			Pablo Daniel Jelsky <PabloDanielJelsky@Gmail.com>
 //
 // Copyright:		
 //
@@ -33,14 +33,14 @@
 		****************************************************************************
 	*/
 		/*---- system and platform files -------------------------------------------*/
-		#include <list>		// for lists
-		#include <string>	// for strings
-		#include <cstring>	// for C strings
+		#include <list>				// for STL lists
+		#include <string>			// for C++ strings
+		#include <cstring>			// for C strings
+		#include <unordered_map>	// for STL unorder maps
 		/*---- library files -------------------------------------------------------*/
 		/*---- program files -------------------------------------------------------*/
 		#include "AiSupportAlgorithms_Ifc.h"
 		#include "AiSupportClasses_Ifc.h"
-	
 	/*
 		****************************************************************************
 		* EXTERNAL REFERENCE    
@@ -87,7 +87,22 @@
 		class Model
 		{ 
 			public:
-				bool GraphicCreation(graphicType typeOfGraphic, string filename);
+				bool GraphicOpen(string filename, string description = "");
+				bool GraphicPreparation(bool clearPreviousGraphic);
+				bool GraphicText(class Location from, string text, 
+					//	Default arguments
+					AI_SUPPORT_CLASSES_color textColor = AI_SUPPORT_CLASSES_COLOR_WHITE, 
+					int fontSize = 12,
+					string fontPathAndFilename = "/usr/share/fonts/truetype/ubuntu/Ubuntu-M.ttf",
+					double angle = 0.0			//	angle is the text angle in degrees
+					);
+				bool GraphicClose(graphicType typeOfGraphic);
+				int FindPath(aStarSearchPixelsMovementType typeOfPixelMovement, bool possibilityOfNotMoving, string csvModelPathFilename);
+				bool CurrentLocation(Location currentLocation);
+				Location& CurrentLocation(void);
+				bool DestinationLocation(Location destinationLocation);
+				Location& DestinationLocation(void);
+				Location& NextLocation(void);
 			
 				//	Default Constructor 
 				Model();
@@ -101,16 +116,17 @@
 				
 			private: 
 				//	Private variables
-				bool    				initialized		= false;
-				string					geoTiffFilename;
-				string					modelName;
-				class DsmInformation	dsmMapInfo;
-				GDALDataset  			*poDataset;
-				float 					*pafScanline;
-				class DsmLocation		currentLocation, destinationLocation;
-				list <class Location>	pathList;
-				class Graphic			graphic;
-				class Logger			logger;
+				bool    										initialized		= false;
+				string											geoTiffFilename;
+				string											modelName;
+				class DsmInformation							dsmMapInfo;
+				GDALDataset  									*poDataset		= NULL;
+				float 											*pafScanline	= NULL;
+				class Location									currentLocation, destinationLocation;
+				unordered_map <int, AI_SUPPORT_CLASSES_color>	elevationColor;
+				list <class Location>							pathList;
+				class Graphic									graphic;
+				class Logger									logger;
 				
 				//	Private member functions
 				void _GdalDriverInitialization(void);
@@ -118,5 +134,5 @@
 				
 				
 		};  //  class Model
-	
+
 #endif	// __AI_MODEL_IFC_H__
