@@ -47,12 +47,11 @@
 		****************************************************************************
 	*/
 		/*---- name spaces declarations --------------------------------------------*/
-		using namespace std;	
+		using namespace std;
 		/*---- defines --------------------------------------------------------------*/
 		/*---- enums --------------------------------------------------------------*/
 		/*---- data declarations ---------------------------------------------------*/
 		/*---- function prototypes -------------------------------------------------*/
-
 	
 	/*
 		****************************************************************************
@@ -66,13 +65,14 @@
 		* PUBLIC CLASS DEFINITIONS
 		****************************************************************************
 	*/
+	
 		/////////////////////////////////////////////////////////////////////////////////
 		// Class name		: Model
 		// Programmer name	: Pablo Daniel Jelsky
 		// Last update date	: 02-03-2021
 		// Description		: This base class represents the model that will be derived
 		//						as a person (class) that could be an agent, a target, etc
-		// Remarks         : This class will have as internal info:
+		// Remarks				:This class will have as internal info:
 		//						DSM map information object
 		//						GDAL dataset object, that will read from GeoTIFF file
 		//							into the DSM maap information object
@@ -83,7 +83,7 @@
 		//						graphic object to be created
 		//						logger class to send info to text files
 		//						
-		/////////////////////////////////////////////////////////////////////////////////	
+		/////////////////////////////////////////////////////////////////////////////////
 		class Model
 		{ 
 			public:
@@ -103,17 +103,17 @@
 				bool DestinationLocation(Location destinationLocation);
 				Location& DestinationLocation(void);
 				Location& NextLocation(void);
-			
+
 				//	Default Constructor 
 				Model();
 				//	Parametrized Constructors 
 				Model(string geoTiffFilename, string modelName);
 				//	Destructor
 				~Model();
-				
+
 			protected:
 				//	Protected member functions
-				
+
 			private: 
 				//	Private variables
 				bool    										initialized		= false;
@@ -131,8 +131,57 @@
 				//	Private member functions
 				void _GdalDriverInitialization(void);
 				bool _DsmInputFileRaster(void);
-				
-				
+
 		};  //  class Model
+		
+
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name		: Target
+		// Programmer name	: Pablo Daniel Jelsky
+		// Last update date	: 05-03-2021
+		// Description		: This class represents a target person
+		// Remarks			: It is derived from Model class
+		/////////////////////////////////////////////////////////////////////////////////
+		class Target : public Model
+		{
+			public:
+				//	Default Constructor 
+				Target(); 
+				//	Parametrized Constructors 
+				//	Destructor
+				~Target();
+
+			protected:
+				//	Protected member function
+			private:
+				//	Private variables
+
+		};	//	class Target
+	
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name		: Agent
+		// Programmer name	: Pablo Daniel Jelsky
+		// Last update date	: 05-03-2021
+		// Description		: This class represents an agent person
+		// Remarks			: It is derived from Target class 
+		//						(the agent also could be a target of another agent)
+		/////////////////////////////////////////////////////////////////////////////////
+		class Agent : public Target
+		{
+			public:
+				//	Default Constructor 
+				Agent(); 
+				//	Parametrized Constructors 
+				//	Destructor
+				~Agent();
+
+			protected:
+				//	Protected member function
+			private:
+				//	Private variables
+
+		};	//	class Agent
+		
+
 
 #endif	// __AI_MODEL_IFC_H__

@@ -109,7 +109,7 @@
 		// Description		: This class gives support for logging in a text file all
 		//						the events that are needed to follow the sequence of
 		//						events in the software
-		// Remarks			: 
+		// Remarks			:
 		/////////////////////////////////////////////////////////////////////////////////
 		class Logger
 		{
@@ -138,14 +138,14 @@
 				string		filename		= "";
 				ofstream	outfile;
 
-		};	//	class Logger	
+		};	//	class Logger
 		
 		/////////////////////////////////////////////////////////////////////////////////
 		// Class name		: Location
 		// Programmer name	: Pablo Daniel Jelsky
 		// Last update date	: 27-02-2021
 		// Description		: This class represents a specific location
-		// Remarks      	:
+		// Remarks			:
 		/////////////////////////////////////////////////////////////////////////////////
 		class Location
 		{
@@ -176,14 +176,14 @@
 				int	column;
 				int	row;
 
-		};	//	class Location	
+		};	//	class Location
 		
 		/////////////////////////////////////////////////////////////////////////////////
 		// Class name		: DsmLocation
 		// Programmer name	: Pablo Daniel Jelsky
 		// Last update date	: 27-02-2021
 		// Description		: This class represents a specific location for DSM maps
-		// Remarks      	: It is derived from Location class
+		// Remarks			: It is derived from Location class
 		/////////////////////////////////////////////////////////////////////////////////
 		class DsmLocation : public Location
 		{
@@ -209,14 +209,14 @@
 
 			protected:
 				//	Protected member function
-				void _Elevation(DsmLocation location, double elevation);				
+				void _Elevation(DsmLocation location, double elevation);
 			private:
 
 				//	Private variables
 				double	elevation;
 				bool	obstacle	= false;
 
-		};	//	class DsmLocation	
+		};	//	class DsmLocation
 		
 		/////////////////////////////////////////////////////////////////////////////////
 		// Class name		: DsmInformation
@@ -225,8 +225,8 @@
 		// Description		: This class represents the information taken from a DSM file
 		//						A DSM (Digital Surface Model) is a computer graphics 
 		//						representation of elevation data to represent terrain
-		// Remarks         : 
-		/////////////////////////////////////////////////////////////////////////////////	
+		// Remarks			:
+		/////////////////////////////////////////////////////////////////////////////////
 		class DsmInformation
 		{ 
 			public:
@@ -260,7 +260,6 @@
 				class Logger	logger;
 				//	Private member functions
 
-				
 		};  //  class DsmInformation
 		
 		/////////////////////////////////////////////////////////////////////////////////
@@ -268,7 +267,7 @@
 		// Programmer name	: Pablo Daniel Jelsky
 		// Last update date	: 02-03-2021
 		// Description		: This class represents a graphic
-		// Remarks      	: Currently supported formats (.png and GeoTIFF)
+		// Remarks			: Currently supported formats (.png and GeoTIFF)
 		/////////////////////////////////////////////////////////////////////////////////
 		class Graphic
 		{
@@ -333,10 +332,8 @@
 				GDALDriver 		*driverGeotiff			= NULL;			//	also declare pointers for Geotiff
 				GDALRasterBand	*geotiffBand			= NULL;			//	and raster band object(s)
 				float			*pafWriteDspMap			= NULL;
-				
- 
 
-		};	//	class Graphic	
+		};	//	class Graphic
 		
 	/*
 		****************************************************************************

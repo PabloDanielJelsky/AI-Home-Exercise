@@ -68,6 +68,7 @@
 //					end (for loop)
 //				 e) push q on the closed list
 //			end (while loop)
+//
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -133,8 +134,10 @@
 		//							source and destination locations (as DsmLocation)
 		//							and the CSV target path filen name
 		/////////////////////////////////////////////////////////////////////////////////
-		long AStarSearch(aStarSearchPixelsMovementType typeOfPixelMovement, bool possibilityOfNotMoving, DsmInformation& dsmInformation, Location sourceLocation, Location destinationLocation, 
-				list <Location>& targetPathList, string csvTargetPathFilename)
+		long AStarSearch(aStarSearchPixelsMovementType typeOfPixelMovement, bool possibilityOfNotMoving, 
+							DsmInformation& dsmInformation, Location sourceLocation, 
+							Location destinationLocation, list <Location>& targetPathList, 
+							string csvTargetPathFilename)
 		{
 			int	targetPathSize					= 0;
 			int	dsmQuantityOfColumns			= dsmInformation.Columns();
@@ -478,7 +481,7 @@
 		// Module description	: This module is a graph traversal and path search algorithm
 		// Function description	: Checks whether given cell is a valid cell or not 
 		//							(if it is in the range of the graph)
-		// Remarks				: Return true if the cell is in the graph,
+		// Remarks				: Returns true if the cell is in the graph,
 		//							false, otherwise
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: DSM map information (as DsmInformation) and 
@@ -500,7 +503,7 @@
 		// Last update date		: 27-02-2021
 		// Module description	: This module is a graph traversal and path search algorithm
 		// Function description	: Checks whether the given cell is blocked or not
-		// Remarks         		: Return true if the cell is unblock (could be transversed),
+		// Remarks				: Returns true if the cell is unblock (could be transversed),
 		//							false, otherwise
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: DSM map information (as DsmInformation) and 
@@ -520,11 +523,11 @@
 		// Last update date		: 27-02-2021
 		// Module description	: This module is a graph traversal and path search algorithm
 		// Function description	: Checks whether destination cell has been reached or not
-		// Remarks         		: Return true if the destination cell has been reached,
+		// Remarks				: Returns true if the destination cell has been reached,
 		//							false, otherwise
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: current and destination locations (as DsmLocation)
-		/////////////////////////////////////////////////////////////////////////////////		
+		/////////////////////////////////////////////////////////////////////////////////
 		bool _IsDestination(Location currentLocation, Location destinationLocation)
 		{
 			return (currentLocation == destinationLocation);
@@ -538,14 +541,14 @@
 		// Last update date		: 27-02-2021
 		// Module description	: This module is a graph traversal and path search algorithm
 		// Function description	: Calculates the 'h' heuristics
-		// Remarks         		: Returns the 'h' heuristics as a double
+		// Remarks				: Returns the 'h' heuristics as a double
 		//							This function was 'adapted' to the limitations of 
 		//								the home exercise where the speed is one 
 		//								meter for second (and one meter is one pixel),
 		//								therefore we could only move up/down, right/left
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: current and destination locations (as DsmLocation)
-		/////////////////////////////////////////////////////////////////////////////////			
+		/////////////////////////////////////////////////////////////////////////////////
 		double _CalculateHValueForAiHomeExercise(Location currentLocation, Location destinationLocation)
 		{
 			int	differenceInColumns, differenceInRows;
@@ -564,14 +567,14 @@
 		// Last update date		: 27-02-2021
 		// Module description	: This module is a graph traversal and path search algorithm
 		// Function description	: Traces the path from the source to destination
-		// Remarks         		: Returns a list with the  target path and the target 
+		// Remarks				: Returns a list with the  target path and the target 
 		//							path size until now
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			:  DSM map information (as DsmInformation),  
 		//							pointer to cell details (as struct cell)
 		//							, destination location (as DsmLocation),
 		//							and the CSV target path file
-		/////////////////////////////////////////////////////////////////////////////////	
+		/////////////////////////////////////////////////////////////////////////////////
 		void _TracePath(DsmInformation& dsmInformation, cell *pCellDetails, Location destinationLocation, int *pTargetPathSize, list <Location>& targetPathList, std::ofstream& csvTargetPathFile)
 		{
 			int	dsmQuantityOfColumns	= dsmInformation.Columns();
@@ -599,7 +602,6 @@
 
 				targetPathSize++;
 				*pTargetPathSize	= targetPathSize;
-//				printf("-> (%d, %d) (%d) ", p.Column(), p.Row(), targetPathSize);
 				csvTargetPathFile << p.Column() << "," << p.Row() << "," << targetPathSize << "\n";
 				targetPathList.push_back(p);
 			}

@@ -24,6 +24,109 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//	============================================================
+//	============================================================
+//	Task (home exercise) objective:	double tracking on target //
+//	============================================================
+//	============================================================
+//	-	The idea of this task is to create an algorithm that allows the continuous tracking after the person - "target" - by a couple of followers
+//	-	Given a DSM (Digital Surface Model) building's map - 100 [m] x 100 [m] matrix ????
+//	-	Given the "target" maximum speed as 1 meter/second in a not known in advance route. The "target movement is limited only to "ground" level
+//	-	Given the "followers" speed as 2 meters/second, and are only allowed to be as close as 10 meters (no less than this) from the "target". 
+//			The "followers" movement is also limited to "ground" level
+//	-	The task objective is to create an algorithm that once in a second, gives us the "target" and "followers" position given the limitations above, 
+//			and issues instructions to the "followers" next movement in order that at least one of the "followers" could have "eye-contact" as much as 
+//			possible with the "target"
+//	
+//	====================
+//	====================
+//	Development steps // 
+//	====================
+//	====================
+//	-	1)	Visual Simulation
+//	-		-----------------
+//	-	1.1)	Display the DSM file in Python / Matlab (in this case as .png file)
+//	-	1.2)	"Target" player
+//	-	1.2.1)		Create the "target" path given start and objective points
+//	-	1.2.2)		Display "target" path progress over time on map
+//	-	1.3)	"Agent" players
+//	-	1.3.1)		Display "agents" path progress over time on map
+//	-	1.4)	LOS (Line Of Sight)
+//	-	1.4.1)		Display LOS between every agent ant the "target", if existent
+//	-	2)	Solution help tools
+//	-		-------------------
+
+//
+//	==========================================
+//	==========================================
+//	Web links related to this home exercise // 
+//	==========================================
+//	==========================================
+//		-	[Digital Elevation Model (DEM)](https://en.wikipedia.org/wiki/Digital_elevation_model)
+//		-	[Geospatial Data Abstraction Library (GDAL)](https://en.wikipedia.org/wiki/GDAL)
+//		-	[GeoTIFF](https://en.wikipedia.org/wiki/GeoTIFF)
+//
+//	==============================================
+//	==============================================
+//	Clarifications from Yair email (2021-02-21) //
+//	==============================================
+//	==============================================
+//		-	Work with the DSM with the size 'as is' 351x201 pixels 
+//		-	One pixel equals to one meter
+//		-	The target is supposed to have constant rate (1 meter/second) and could NOT stop
+//		-	The follower agent could also stop or up to 2 meters/second (0 meters/second, 1 meter/second, 2 meters/second)
+//		-	Starting points for the target and follower agents could be in every place but NOT in a "obstacle" level (NOT "ground" level)
+//		-	The agents will have LOS with the "target" in the first simulation cycle
+//
+//	===========================================
+//	===========================================
+//	Important notes regarding implementation //
+//	===========================================
+//	===========================================
+//		-	The software architecture is based on different support classes (basing ones on top of others by derivation or composition),
+//				algorithm function (based on A* algorithm that selects a path from a starting cell to a destination cell), and in the low
+//				level the use of classes / functions, especially to deal with graphics reading / writting
+//
+//			The hierarchy is as follows:
+//											Agent			(AiModel module)
+//											|
+//											Target			(AiModel module)
+//											|
+//											Model			(AiModel module)
+//											|
+//	-----------------------------------------------------------------------------------------------------------------
+//	|						|				|					|					|								|
+//	Location				DsmInformation	Graphic				Logger				FindPath()						GDAL library
+//	(current, destination)	(DSM map)		(for .png/gTiff)	(for log events)	(member function)				(to read GeoTIFF DSM input file)
+//	(AiSupportClasses module)-----------------------------(AiSupportClasses module)	(AiSupportAlgorithms module)
+//											|										(also writes a CSV file with the found path)
+//						-----------------------------------------
+//						|										|
+//						GDAL library							PNGWriter library
+//						(to create GeoTIFF DSM output file)		(to create .png output file)
+//																|
+//									---------------------------------------------
+//									|											|
+//									libpng library								FreeType2 library
+//									(to read/create .png files)					(to write text into the .png files)
+//
+//		-	The internal representation of the DSM map in the DsmInformation class is that the south-west (down-left) pixel is (0,0),
+//				and all the pixels are positive, and therefore, pixel in the north-east (up-right) is (Columns-1, Rows-1), where 
+//				Columns is the total number of columns of the DSM file, and Rows is the total number of rows of the DSM file
+//		-	.PNGWriter library defines this pixel in south-west (down-left) as being (1,1), and therefore pixel in the north-east (up-right) 
+//				is (Columns, Rows)
+//		-	GDAL library defines the pixel in the north-west (up-left) as being (0,0), and therefore pixel in the south-east (down-right)
+//				is (Columns-1, Rows-1)
+//		-	The conversion should be non-felt by the "user"
+//
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 	/*
 		****************************************************************************
 		* INCLUDE FILES
@@ -93,6 +196,7 @@
 
 int main()
 {
+	
 /*
 //	locationDsm				targetInitialLocation, targetLocation, targetObjectiveLocation, targetNextLocation;
 	const int				groundLevel = 3300;
@@ -109,16 +213,7 @@ int main()
     class Location			targetInitialLocation(0,0), targetObjectiveLocation(200, 200), targetLocation;
     class Location			agent1InitialLocation(10,0), agent1ObjectiveLocation(200, 200), agent1Location;
      
-    //  GDAL driver initialization
-    GdalDriverInitialization();
-    
-    // 	Analyze the input DSM file
-    DsmInputFileAnalyze(DSM_FILE, DsmInformationObject);
-    
-    //	Create the output file
-    DsmOutputFileCreation(OUT_FILE, DsmInformationObject);
-   
- 
+  
     //	Set initial target and target objective locations
 	targetLocation	= targetInitialLocation;
 	targetPathSize	= AStarSearch(A_START_SEARCH_4_PIXELS_MOVEMENT, false, DsmInformationObject, targetInitialLocation, targetObjectiveLocation, targetPathList, "output/TargetPath.csv");

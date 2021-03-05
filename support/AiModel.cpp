@@ -36,6 +36,7 @@
 //	libraries like GDAL (to read and write GeoTIFF files), and PNGWriter (to read/write .png files)
 //
 //	The libraries used by this module:
+//
 //	GDAL
 //	====
 //		This library is used to read and create GetoTIFF files
@@ -113,8 +114,8 @@
 		/*---- macros --------------------------------------------------------------*/
 		/*---- defines --------------------------------------------------------------*/
 		
-		/*---- data declarations ---------------------------------------------------*/	
-		/*---- function prototypes -------------------------------------------------*/	
+		/*---- data declarations ---------------------------------------------------*/
+		/*---- function prototypes -------------------------------------------------*/
 
 
 	/*
@@ -146,9 +147,9 @@
 		// Programmer name		: Pablo Daniel Jelsky
 		// Last update date		: 02-03-2021
 		// Class description	: This base class represents the model that will be derived
-		//						as a person (class) that could be an agent, a target, etc
+		//							as a person (class) that could be an agent, a target, etc
 		// Function description	: This constructor will create a non valid object
-		// Remarks         		: 
+		// Remarks				: 
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: None
 		/////////////////////////////////////////////////////////////////////////////////
@@ -165,9 +166,9 @@
 		// Last update date		: 02-03-2021
 		// Class description	: This base class represents the model that will be derived
 		//						as a person (class) that could be an agent, a target, etc
-		// Function description	: This constructors take as parameter GeoTIFF file that
+		// Function description		: This constructors take as parameter GeoTIFF file that
 		//							will be the base of the DSM information map
-		// Remarks         		: 
+		// Remarks				: 
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: string geoTiffFilename (name of the GeoTIFF file)
 		//						 string modelName (name that will be used for logger and .csv files)
@@ -203,9 +204,9 @@
 		// Programmer name		: Pablo Daniel Jelsky
 		// Last update date		: 02-03-2021
 		// Class description	: This base class represents the model that will be derived
-		//						as a person (class) that could be an agent, a target, etc
+		//							as a person (class) that could be an agent, a target, etc
 		// Function description	: This destructor destroys the array data created with CPLMalloc()
-		// Remarks				: 
+		// Remarks				:
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: None
 		/////////////////////////////////////////////////////////////////////////////////
@@ -227,9 +228,9 @@
 		// Programmer name		: Pablo Daniel Jelsky
 		// Last update date		: 04-03-2021
 		// Class description	: This base class represents the model that will be derived
-		//						as a person (class) that could be an agent, a target, etc
+		//							as a person (class) that could be an agent, a target, etc
 		// Function description	: This public member function sets the model current location
-		// Remarks				: Returns true, if it is a ground level location
+		// Remarks				:Returns true, if it is a ground level location
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: current location
 		/////////////////////////////////////////////////////////////////////////////////
@@ -252,10 +253,10 @@
 		// Programmer name		: Pablo Daniel Jelsky
 		// Last update date		: 04-03-2021
 		// Class description	: This base class represents the model that will be derived
-		//						as a person (class) that could be an agent, a target, etc
+		//							as a person (class) that could be an agent, a target, etc
 		// Function description	: This public member function returns the model current 
 		//							location
-		// Remarks				: 
+		// Remarks				:
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: None
 		/////////////////////////////////////////////////////////////////////////////////
@@ -271,7 +272,7 @@
 		// Programmer name		: Pablo Daniel Jelsky
 		// Last update date		: 04-03-2021
 		// Class description	: This base class represents the model that will be derived
-		//						as a person (class) that could be an agent, a target, etc
+		//							as a person (class) that could be an agent, a target, etc
 		// Function description	: This public member function sets the model destination
 		//							location
 		// Remarks				: Returns true, if it is a ground level location
@@ -297,10 +298,10 @@
 		// Programmer name		: Pablo Daniel Jelsky
 		// Last update date		: 04-03-2021
 		// Class description	: This base class represents the model that will be derived
-		//						as a person (class) that could be an agent, a target, etc
+		//							as a person (class) that could be an agent, a target, etc
 		// Function description	: This public member function returns the model destination 
 		//							location
-		// Remarks				: 
+		// Remarks				:
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: None
 		/////////////////////////////////////////////////////////////////////////////////
@@ -316,7 +317,7 @@
 		// Programmer name		: Pablo Daniel Jelsky
 		// Last update date		: 04-03-2021
 		// Class description	: This base class represents the model that will be derived
-		//						as a person (class) that could be an agent, a target, etc
+		//							as a person (class) that could be an agent, a target, etc
 		// Function description	: This public member function finds a path from current
 		//							to destination location
 		// Remarks				: Returns the model path length
@@ -342,10 +343,10 @@
 		// Programmer name		: Pablo Daniel Jelsky
 		// Last update date		: 04-03-2021
 		// Class description	: This base class represents the model that will be derived
-		//						as a person (class) that could be an agent, a target, etc
+		//							as a person (class) that could be an agent, a target, etc
 		// Function description	: This public member function returns next location of
 		//							the path from current to destination location
-		// Remarks				: 
+		// Remarks				:
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: None
 		/////////////////////////////////////////////////////////////////////////////////
@@ -367,10 +368,10 @@
 		// Programmer name		: Pablo Daniel Jelsky
 		// Last update date		: 03-03-2021
 		// Class description	: This base class represents the model that will be derived
-		//						as a person (class) that could be an agent, a target, etc
+		//							as a person (class) that could be an agent, a target, etc
 		// Function description	: This public member function opens an output graphic
 		//							file based on the raster information in it
-		// Remarks         		: Currently supported formats (.png and GeoTIFF)
+		// Remarks				: Currently supported formats (.png and GeoTIFF)
 		//							returns true if the graphic was created,
 		//							false otherwise
 		/////////////////////////////////////////////////////////////////////////////////
@@ -392,14 +393,14 @@
 		// Programmer name		: Pablo Daniel Jelsky
 		// Last update date		: 04-03-2021
 		// Class description	: This base class represents the model that will be derived
-		//						as a person (class) that could be an agent, a target, etc
+		//							as a person (class) that could be an agent, a target, etc
 		// Function description	: This public member function prepares an output graphic
 		//							file based on the raster information in it
 		// Remarks				: Currently supported formats (.png and GeoTIFF)
 		//							returns true if the graphic was prepared,
 		//							false otherwise
 		/////////////////////////////////////////////////////////////////////////////////
-		// Arguments			: clear previous graphic (true, if clear, false otherwise )
+		// Arguments			: clear previous graphic (true, if clear, false otherwise)
 		/////////////////////////////////////////////////////////////////////////////////
 		bool Model::GraphicPreparation(bool clearPreviousGraphic)
 		{
@@ -436,14 +437,17 @@
 		// Programmer name		: Pablo Daniel Jelsky
 		// Last update date		: 04-03-2021
 		// Class description	: This base class represents the model that will be derived
-		//						as a person (class) that could be an agent, a target, etc
+		//							as a person (class) that could be an agent, a target, etc
 		// Function description	: This public member function prepares an output graphic
 		//							file based on the raster information in it
 		// Remarks				: Currently supported formats (.png and GeoTIFF)
 		//							returns true if the graphic was prepared,
 		//							false otherwise
 		/////////////////////////////////////////////////////////////////////////////////
-		// Arguments			: clear previous graphic (true, if clear, false otherwise )
+		// Arguments			: text location, text
+		//					Default parameters:
+		//							text color, font size
+		//							font path and filename, angle
 		/////////////////////////////////////////////////////////////////////////////////
 		bool Model::GraphicText(class Location from, string text, 
 			//	Default arguments
@@ -462,10 +466,10 @@
 		// Programmer name		: Pablo Daniel Jelsky
 		// Last update date		: 03-03-2021
 		// Class description	: This base class represents the model that will be derived
-		//						as a person (class) that could be an agent, a target, etc
+		//							as a person (class) that could be an agent, a target, etc
 		// Function description	: This public member function closes an output graphic
 		//							file based on the raster information in it
-		// Remarks         		: Currently supported formats (.png and GeoTIFF)
+		// Remarks				: Currently supported formats (.png and GeoTIFF)
 		//							returns true if the graphic was created,
 		//							false otherwise
 		/////////////////////////////////////////////////////////////////////////////////
@@ -496,15 +500,15 @@
 		// Programmer name		: Pablo Daniel Jelsky
 		// Last update date		: 02-03-2021
 		// Class description	: This base class represents the model that will be derived
-		//						as a person (class) that could be an agent, a target, etc
+		//							as a person (class) that could be an agent, a target, etc
 		// Function description	: This private member function that will register the
 		//							GDAL drivers for reading/creating GeoTIFF files
-		// Remarks         		: The Geospatial Data Abstraction Library (GDAL) is a computer 
+		// Remarks				: The Geospatial Data Abstraction Library (GDAL) is a computer 
 		//							software library for reading and writing raster and vector 
 		//							geospatial data formats
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: None
-		/////////////////////////////////////////////////////////////////////////////////	
+		/////////////////////////////////////////////////////////////////////////////////
 		void Model::_GdalDriverInitialization(void)
 		{
 			//  Register all the GDAL drivers
@@ -535,15 +539,15 @@
 		// Programmer name		: Pablo Daniel Jelsky
 		// Last update date		: 02-03-2021
 		// Class description	: This base class represents the model that will be derived
-		//						as a person (class) that could be an agent, a target, etc
+		//							as a person (class) that could be an agent, a target, etc
 		// Function description	: This private member function read the GeoTIFF file and 
 		//							raster it inside the object for further use
-		// Remarks         		: The Geospatial Data Abstraction Library (GDAL) is a computer 
+		// Remarks				: The Geospatial Data Abstraction Library (GDAL) is a computer 
 		//							software library for reading and writing raster and vector 
 		//							geospatial data formats
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: None
-		/////////////////////////////////////////////////////////////////////////////////	
+		/////////////////////////////////////////////////////////////////////////////////
 		bool Model::_DsmInputFileRaster(void)
 		{
 			const int	BAND_TO_BE_FETCHED = 1;	// Taken for granted that there is ONLY one band in this DSM map

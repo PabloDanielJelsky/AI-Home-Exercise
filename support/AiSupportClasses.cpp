@@ -116,7 +116,7 @@
 		//							the events that are needed to follow the sequence of
 		//							events in the software
 		// Function description	:
-		// Remarks				: 
+		// Remarks				:
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: None
 		/////////////////////////////////////////////////////////////////////////////////
@@ -134,7 +134,7 @@
 		// Last update date		: 27-02-2021
 		// Class description	: This class represents a specific location
 		// Function description	: This constructor will create a non valid object
-		// Remarks				: 
+		// Remarks				:
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: None
 		/////////////////////////////////////////////////////////////////////////////////
@@ -152,7 +152,7 @@
 		// Class description	: This class represents a specific location
 		// Function description	: This constructors take as parameter the location
 		//							(column, row)
-		// Remarks				: 
+		// Remarks				:
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			:	column
 		//							row
@@ -170,7 +170,7 @@
 		// Last update date		: 27-02-2021
 		// Class description	: This class represents a specific location
 		// Function description	: This destructor does not do anything as for today
-		// Remarks				: 
+		// Remarks				:
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: None
 		/////////////////////////////////////////////////////////////////////////////////
@@ -186,9 +186,9 @@
 		// Last update date		: 27-02-2021
 		// Class description	: This class represents a specific location for DSM maps
 		// Function description	: This constructor will create a non valid object
-		// Remarks				: 
+		// Remarks				:
 		/////////////////////////////////////////////////////////////////////////////////
-		// Arguments			: None	
+		// Arguments			: None
 		/////////////////////////////////////////////////////////////////////////////////
 		DsmLocation::DsmLocation()
 		{
@@ -204,7 +204,7 @@
 		// Last update date		: 27-02-2021
 		// Class description	: This class represents a specific location for DSM maps
 		// Function description	: This constructor will create a non valid object
-		// Remarks				: 
+		// Remarks				:
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			:	column
 		//							row
@@ -223,7 +223,7 @@
 		// Last update date		: 27-02-2021
 		// Class description	: This class represents a specific location for DSM maps
 		// Function description	: This family of constructors will create a valid object
-		// Remarks				: 
+		// Remarks				:
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			:	column
 		//							row
@@ -244,7 +244,7 @@
 		// Last update date		: 27-02-2021
 		// Class description	: This class represents a specific location for DSM maps
 		// Function description	: This destructor does not do anything as for today
-		// Remarks				: 
+		// Remarks				:
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: None
 		/////////////////////////////////////////////////////////////////////////////////
@@ -263,13 +263,13 @@
 		//							events in the software
 		// Function description	: This constructor takes as parameter the filename where
 		//							the event logs will be recorded
-		// Remarks				: 
+		// Remarks				:
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: Log file name (string)
 		/////////////////////////////////////////////////////////////////////////////////
 		Logger::Logger(string filename) 
 		{ 
-			this->Filename(filename);	
+			this->Filename(filename);
 			
 		}	//	Logger::Logger()      
 
@@ -282,7 +282,7 @@
 		//							the events that are needed to follow the sequence of
 		//							events in the software
 		// Function description	:
-		// Remarks				: 
+		// Remarks				:
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: None
 		/////////////////////////////////////////////////////////////////////////////////
@@ -301,7 +301,7 @@
 		//							A DSM (Digital Surface Model) is a computer graphics 
 		//							representation of elevation data to represent terrain
 		// Function description	:
-		// Remarks				: Set the default logger file to "DsmInformation.txt"
+		// Remarks				:Set the default logger file to "DsmInformation.txt"
 		//							in "output" sub-directory
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: None
@@ -353,7 +353,7 @@
 		// Last update date		: 26-02-2021
 		// Class description	: This class represents a graphic
 		// Function description	:
-		// Remarks				: Currently supported formats (.png and GeoTIFF)
+		// Remarks				:Currently supported formats (.png and GeoTIFF)
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: None
 		/////////////////////////////////////////////////////////////////////////////////
@@ -409,10 +409,10 @@
 		//							events in the software
 		// Function description	: This member function is used to send information (with
 		//							different types of arguments) into the logger file
-		// Remarks				: Returns false, if the object was not initialized
+		// Remarks				:Returns false, if the object was not initialized
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: Info to be sent to the logger file
-		/////////////////////////////////////////////////////////////////////////////////		
+		/////////////////////////////////////////////////////////////////////////////////
 		template <class GenericType> 
 		bool Logger::Write(GenericType loggerGenericType)
 		{
@@ -435,10 +435,10 @@
 		// Function description	: This member function is used to send string information 
 		//							(and adding - end of line - in the en into the logger 
 		//							file)
-		// Remarks				: Returns false, if the object was not initialized
+		// Remarks				:Returns false, if the object was not initialized
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: Info to be sent to the logger file (string))
-		/////////////////////////////////////////////////////////////////////////////////	
+		/////////////////////////////////////////////////////////////////////////////////
 		bool Logger::WriteLine(string loggerString)
 		{
 			if (this->initialized == false)
@@ -460,24 +460,24 @@
 		// Function description	: This member function to set the filename where
 		//							the event logs will be recorded (in case the object
 		//							was instatiated with the default constructor)
-		// Remarks				: Returns false, if the file name could not be set
+		// Remarks				:Returns false, if the file name could not be set
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: Log file name (string)
-		/////////////////////////////////////////////////////////////////////////////////	
+		/////////////////////////////////////////////////////////////////////////////////
 		bool Logger::Filename(string filename)
 		{
 			if (this->initialized == false && this->filename == "")
 			{
 				this->initialized	= true;
 				this->filename		= filename;
-				this->outfile.open(filename);	
+				this->outfile.open(filename);
 				
 				return true; 
 			}
 			else
 				return false;
 			
-		}	//	Logger::Filename()	
+		}	//	Logger::Filename()
 		
 		/////////////////////////////////////////////////////////////////////////////////
 		// Class name			: Location
@@ -486,7 +486,7 @@
 		// Last update date		: 27-02-2021
 		// Class description	: This class represents a specific location
 		// Function description	: This member function modifies the location
-		// Remarks				: 
+		// Remarks				:
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			:	column
 		//							row
@@ -504,15 +504,15 @@
 		// Last update date		: 27-02-2021
 		// Class description	: This class represents a specific location
 		// Function description	: This member function returns column location
-		// Remarks				: Returns the column location
+		// Remarks				:Returns the column location
 		/////////////////////////////////////////////////////////////////////////////////
-		// Arguments			: None	
-		/////////////////////////////////////////////////////////////////////////////////	
+		// Arguments			: None
+		/////////////////////////////////////////////////////////////////////////////////
 		int Location::Column(void)
 		{
 			return (this->column);
 			
-		}	//	Location::Column()	
+		}	//	Location::Column()
 		
 		/////////////////////////////////////////////////////////////////////////////////
 		// Class name			: Location
@@ -521,15 +521,15 @@
 		// Last update date		: 27-02-2021
 		// Class description	: This class represents a specific location
 		// Function description	: This member function returns row location
-		// Remarks				: Returns the row location
+		// Remarks				:Returns the row location
 		/////////////////////////////////////////////////////////////////////////////////
-		// Arguments			: None	
-		/////////////////////////////////////////////////////////////////////////////////	
+		// Arguments			: None
+		/////////////////////////////////////////////////////////////////////////////////
 		int Location::Row(void)
 		{
 			return (this->row);
 			
-		}	//	Location::Row()	
+		}	//	Location::Row()
 		
 		/////////////////////////////////////////////////////////////////////////////////
 		// Class name			: Location
@@ -539,10 +539,10 @@
 		// Class description	: This class represents a specific location
 		// Function description	: This member function returns the line intercept point
 		//							given 2 points
-		// Remarks				: Returns the line intercept point
+		// Remarks				:Returns the line intercept point
 		/////////////////////////////////////////////////////////////////////////////////
-		// Arguments			: 	
-		/////////////////////////////////////////////////////////////////////////////////	
+		// Arguments			: point location
+		/////////////////////////////////////////////////////////////////////////////////
 		double Location::LineIntercept(Location point)
 		{
 			double	intercept	= (this->Row() - (this->LineSlope(point) * this->Column()));
@@ -559,10 +559,10 @@
 		// Class description	: This class represents a specific location
 		// Function description	: This member function returns the line slope
 		//							given 2 points
-		// Remarks				: Returns the line slope
+		// Remarks				:Returns the line slope
 		/////////////////////////////////////////////////////////////////////////////////
-		// Arguments			: 	
-		/////////////////////////////////////////////////////////////////////////////////	
+		// Arguments			: point location
+		/////////////////////////////////////////////////////////////////////////////////
 		double Location::LineSlope(Location point)
 		{
 			double	slope		= (this->Row() - point.Row()) / (this->Column() - point.Column());
@@ -580,11 +580,11 @@
 		// Class description	: This class represents a specific location for DSM maps
 		// Function description	: This is a member function that sets the 
 		//							location and elevation
-		// Remarks				: 
+		// Remarks				:
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			:	location (as DsmLocation)
-		//							elevation	
-		/////////////////////////////////////////////////////////////////////////////////	
+		//							elevation
+		/////////////////////////////////////////////////////////////////////////////////
 		template <class GenericType> 
 		void DsmLocation::Elevation(DsmLocation location, GenericType genericTypeElevation)
 		{
@@ -599,10 +599,10 @@
 		// Last update date		: 27-02-2021
 		// Class description	: This class represents a specific location for DSM maps
 		// Function description	: This is a member functions that sets its elevation 
-		// Remarks				: 
+		// Remarks				:
 		/////////////////////////////////////////////////////////////////////////////////
-		// Arguments			:	elevation (as double)	
-		/////////////////////////////////////////////////////////////////////////////////		
+		// Arguments			:	elevation (as double)
+		/////////////////////////////////////////////////////////////////////////////////
 		void DsmLocation::Elevation(double elevation)
 		{
 			this->elevation	= elevation;
@@ -616,15 +616,15 @@
 		// Last update date		: 27-02-2021
 		// Class description	: This class represents a specific location for DSM maps
 		// Function description	: This member function returns the location elevation
-		// Remarks				: Returns the location elevation
+		// Remarks				:Returns the location elevation
 		/////////////////////////////////////////////////////////////////////////////////
-		// Arguments			: None	
-		/////////////////////////////////////////////////////////////////////////////////	
+		// Arguments			: None
+		/////////////////////////////////////////////////////////////////////////////////
 		double DsmLocation::Elevation(void)
 		{
 			return (this->elevation);
 			
-		}	//	DsmLocation::Elevation()		
+		}	//	DsmLocation::Elevation()
 		
 		/////////////////////////////////////////////////////////////////////////////////
 		// Class name			: DsmLocation
@@ -634,7 +634,7 @@
 		// Class description	: This class represents a specific location for DSM maps
 		// Function description	: This member function defines if the location is an obstacle
 		//							of the location
-		// Remarks				: 
+		// Remarks				:
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: true, if the location is an obstacle, 
 		//							false, otherwise
@@ -653,11 +653,11 @@
 		// Class description	: This class represents a specific location for DSM maps
 		// Function description	: This member function returns if the location is an
 		//							obstacle
-		// Remarks				: Returns true, if the location is an obstacle
+		// Remarks				:Returns true, if the location is an obstacle
 		//							false, otherwise
 		/////////////////////////////////////////////////////////////////////////////////
-		// Arguments			: None	
-		/////////////////////////////////////////////////////////////////////////////////	
+		// Arguments			: None
+		/////////////////////////////////////////////////////////////////////////////////
 		bool DsmLocation::Obstacle(void)
 		{
 			return this->obstacle;
@@ -672,11 +672,11 @@
 		// Class description	: This class represents all the needed info for DSM maps
 		// Function description	: This member function returns the visibility between
 		//							two location (line of sight = LOS)
-		// Remarks				: Returns true, if the locations are visible between them
+		// Remarks				:Returns true, if the locations are visible between them
 		//							false, otherwise
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: pointA and pointB (as Location)
-		/////////////////////////////////////////////////////////////////////////////////	
+		/////////////////////////////////////////////////////////////////////////////////
 		bool DsmInformation::LineOfSight(Location pointA, Location pointB)
 		{
 			double	slope, intercept;
@@ -719,10 +719,10 @@
 		// Last update date		: 01-03-2021
 		// Class description	: This class represents all the needed info for DSM maps
 		// Function description	: This member function returns DSM map number of rows
-		// Remarks				: 
+		// Remarks				:
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: None
-		/////////////////////////////////////////////////////////////////////////////////	
+		/////////////////////////////////////////////////////////////////////////////////
 		int DsmInformation::Rows(void)
 		{
 			return (this->rows);
@@ -736,10 +736,10 @@
 		// Last update date		: 01-03-2021
 		// Class description	: This class represents all the needed info for DSM maps
 		// Function description	: This member function returns DSM map number of columns
-		// Remarks				: 
+		// Remarks				:
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: None
-		/////////////////////////////////////////////////////////////////////////////////	
+		/////////////////////////////////////////////////////////////////////////////////
 		int DsmInformation::Columns(void)
 		{
 			return (this->columns);
@@ -753,11 +753,11 @@
 		// Last update date		: 01-03-2021
 		// Class description	: This class represents all the needed info for DSM maps
 		// Function description	: This member function sets the DSM map number of rows
-		// Remarks				: If also the columns are initialized, creates the
+		// Remarks				:If also the columns are initialized, creates the
 		//							internal array
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: Number of rows
-		/////////////////////////////////////////////////////////////////////////////////	
+		/////////////////////////////////////////////////////////////////////////////////
 		void DsmInformation::Rows(int rows)
 		{
 			logger.Write("Called rows(");
@@ -786,7 +786,7 @@
 		// Last update date		: 01-03-2021
 		// Class description	: This class represents all the needed info for DSM maps
 		// Function description	: This member function sets the DSM map number of columns
-		// Remarks				: If also the rows are initialized, creates the
+		// Remarks				:If also the rows are initialized, creates the
 		//							internal array
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: Number of columns
@@ -819,10 +819,10 @@
 		// Last update date		: 01-03-2021
 		// Class description	: This class represents all the needed info for DSM maps
 		// Function description	: This member function returns the elevation of the column/row
-		// Remarks				: 
+		// Remarks				:
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: column and row
-		/////////////////////////////////////////////////////////////////////////////////	
+		/////////////////////////////////////////////////////////////////////////////////
 		double DsmInformation::Elevation(int column, int row)
 		{
 			return ((this->pLocation[row*this->Columns()+column]).Elevation());
@@ -836,10 +836,10 @@
 		// Last update date		: 01-03-2021
 		// Class description	: This class represents all the needed info for DSM maps
 		// Function description	: This member function sets the elevation of the column/row
-		// Remarks				: 
+		// Remarks				:
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: column, row and elevation to be set
-		/////////////////////////////////////////////////////////////////////////////////	
+		/////////////////////////////////////////////////////////////////////////////////
 		bool DsmInformation::Elevation(int column, int row, double elevation)
 		{
 
@@ -869,11 +869,11 @@
 		// Last update date		: 01-03-2021
 		// Class description	: This class represents all the needed info for DSM maps
 		// Function description	: This member function defines location as an obstacle
-		// Remarks				: 
+		// Remarks				:
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: column, row and boolean deciding if the location could
 		//							is an obstacle
-		/////////////////////////////////////////////////////////////////////////////////	
+		/////////////////////////////////////////////////////////////////////////////////
 		bool DsmInformation::Obstacle(int column, int row, bool theLocationIsAnObstacle)
 		{
 			if (row > this->Rows())
@@ -906,7 +906,7 @@
 		// Class description	: This class represents all the needed info for DSM maps
 		// Function description	: This member function returns if the location is an
 		//							obstacle or not
-		// Remarks				: Returns true, if the location is an obstacle,
+		// Remarks				:Returns true, if the location is an obstacle,
 		//							false otherwise
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: column, row 
@@ -925,7 +925,7 @@
 		// Class description	: This class represents all the needed info for DSM maps
 		// Function description	: This member function sets the elevation of the
 		//							ground level of this DSM map
-		// Remarks				: 
+		// Remarks				:
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: DSM map ground level
 		/////////////////////////////////////////////////////////////////////////////////
@@ -943,7 +943,7 @@
 		// Class description	: This class represents all the needed info for DSM maps
 		// Function description	: This member function returns the ground level elevation
 		//							of the DSM map
-		// Remarks				: 
+		// Remarks				:
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: None
 		/////////////////////////////////////////////////////////////////////////////////
@@ -961,7 +961,7 @@
 		// Class description	: This class represents all the needed info for DSM maps
 		// Function description	: This member function returns true if the location is 
 		//							at the ground level elevation of the DSM map
-		// Remarks				: 
+		// Remarks				:
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: location
 		/////////////////////////////////////////////////////////////////////////////////
@@ -979,7 +979,7 @@
 		// Class description	: This class represents a graphic
 		// Function description	: This member function opens the graphic with the 
 		//							pre-inserted information
-		// Remarks				: Returns true, if it succeeded creating the graphic file,
+		// Remarks				:Returns true, if it succeeded creating the graphic file,
 		//							false otherwise
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: filename,
@@ -987,7 +987,7 @@
 		//							.png header description
 		//							.png header Author
 		//							.png header Software
-		/////////////////////////////////////////////////////////////////////////////////	
+		/////////////////////////////////////////////////////////////////////////////////
 		bool Graphic::Open(string filename, string description, string author, string software)
 		{
 			if (false == this->Filename(filename))
@@ -1008,11 +1008,11 @@
 		// Class description	: This class represents a graphic
 		// Function description	: This member function closes the graphic with the 
 		//							pre-inserted information
-		// Remarks				: Returns true, if it succeeded creating the graphic file,
+		// Remarks				:Returns true, if it succeeded creating the graphic file,
 		//							false otherwise
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: graphic type
-		/////////////////////////////////////////////////////////////////////////////////	
+		/////////////////////////////////////////////////////////////////////////////////
 		bool Graphic::Close(graphicType typeOfGraphic)
 		{
 			int	row;
@@ -1077,10 +1077,10 @@
 		// Last update date		: 01-03-2021
 		// Class description	: This class represents a graphic
 		// Function description	: This member function returns the graphic number of rows
-		// Remarks				: 
+		// Remarks				:
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: None
-		/////////////////////////////////////////////////////////////////////////////////	
+		/////////////////////////////////////////////////////////////////////////////////
 		int Graphic::Rows(void)
 		{
 			return this->rows;
@@ -1094,10 +1094,10 @@
 		// Last update date		: 01-03-2021
 		// Class description	: This class represents a graphic
 		// Function description	: This member function returns the graphic of columns
-		// Remarks				: 
+		// Remarks				:
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: None
-		/////////////////////////////////////////////////////////////////////////////////	
+		/////////////////////////////////////////////////////////////////////////////////
 		int Graphic::Columns(void)
 		{
 			return this->columns;
@@ -1111,10 +1111,10 @@
 		// Last update date		: 01-03-2021
 		// Class description	: This class represents a graphic
 		// Function description	: This member function sets the graphic number of rows
-		// Remarks				: 
+		// Remarks				:
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: Number of rows
-		/////////////////////////////////////////////////////////////////////////////////	
+		/////////////////////////////////////////////////////////////////////////////////
 		void Graphic::Rows(int rows)
 		{
 			this->rows	= rows;
@@ -1134,7 +1134,7 @@
 		// Last update date		: 01-03-2021
 		// Class description	: This class represents a graphic
 		// Function description	: This member function sets the graphic number of columns
-		// Remarks				: 
+		// Remarks				:
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: Number of columns
 		/////////////////////////////////////////////////////////////////////////////////
@@ -1157,7 +1157,7 @@
 		// Last update date		: 01-03-2021
 		// Class description	: This class represents a graphic
 		// Function description	: This member function sets the graphic file name
-		// Remarks				: 
+		// Remarks				:
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: graphic file name
 		/////////////////////////////////////////////////////////////////////////////////
@@ -1183,7 +1183,7 @@
 		// Last update date		: 05-03-2021
 		// Class description	: This class represents a graphic
 		// Function description	: This member function sets the graphic file name
-		// Remarks				: 
+		// Remarks				:
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: location
 		/////////////////////////////////////////////////////////////////////////////////
@@ -1203,7 +1203,7 @@
 		// Last update date		: 01-03-2021
 		// Class description	: This class represents a graphic
 		// Function description	: This member function draws a line with a specific color
-		// Remarks				: Currently supported formats (.png and GeoTIFF)
+		// Remarks				:Currently supported formats (.png and GeoTIFF)
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: location of the start and end points of the line and
 		//							the color to be used in the line
@@ -1229,7 +1229,7 @@
 		// Last update date		: 04-03-2021
 		// Class description	: This class represents a graphic
 		// Function description	: This member function set a pixel to a specific color
-		// Remarks				: Currently supported formats (.png and GeoTIFF)
+		// Remarks				:Currently supported formats (.png and GeoTIFF)
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: point location and specific color (relevant to .png)
 		/////////////////////////////////////////////////////////////////////////////////
@@ -1257,7 +1257,7 @@
 		// Last update date		: 04-03-2021
 		// Class description	: This class represents a graphic
 		// Function description	: This member function set a pixel to a specific color
-		// Remarks				: Currently supported formats (.png and GeoTIFF)
+		// Remarks				:Currently supported formats (.png and GeoTIFF)
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: point location and elevation (relevant to GeoTIFF)
 		/////////////////////////////////////////////////////////////////////////////////
@@ -1280,7 +1280,7 @@
 		// Last update date		: 04-03-2021
 		// Class description	: This class represents a graphic
 		// Function description	: This member function set a text in the output file
-		// Remarks				: Currently supported formats (.png)
+		// Remarks				:Currently supported formats (.png)
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: text location 
 		//							text string
@@ -1330,7 +1330,7 @@
 		//							events in the software
 		// Operator description	: This operator (<<) is used to send information (with
 		//							different types of variables) into the logger file
-		// Remarks				: 
+		// Remarks				:
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: Info to be sent to the logger file (string, integer,
 		//							long, float, double)
@@ -1384,7 +1384,7 @@
 		// Class description	: This class represents a specific location
 		// Operator description	: This operator (<<) is used to overload the default << 
 		//							operator
-		// Remarks				: 
+		// Remarks				:
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: Info to be sent to the logger file (string, integer,
 		//							long, float, double)
@@ -1404,7 +1404,7 @@
 		// Class description	: This class represents a specific location for DSM maps
 		// Operator description	: This operator (<<) is used to overload the default << 
 		//							operator
-		// Remarks				: 
+		// Remarks				:
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: Info to be sent to the logger file (string, integer,
 		//							long, float, double)
@@ -1423,7 +1423,7 @@
 		// Last update date		: 27-02-2021
 		// Class description	: This class represents a specific location
 		// Operator description	: This operator (=) is used to assign a location to another
-		// Remarks				: 
+		// Remarks				:
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: location
 		/////////////////////////////////////////////////////////////////////////////////
@@ -1443,7 +1443,7 @@
 		// Last update date		: 27-02-2021
 		// Class description	: This class represents a specific location for DSM maps
 		// Operator description	: This operator (=) is used to assign a location to another
-		// Remarks				: 
+		// Remarks				:
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: location
 		/////////////////////////////////////////////////////////////////////////////////
@@ -1466,7 +1466,7 @@
 		// Last update date		: 27-02-2021
 		// Class description	: This class represents a specific location
 		// Operator description	: This operator (==) is used to compare a location to another
-		// Remarks				: 
+		// Remarks				:
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: location
 		/////////////////////////////////////////////////////////////////////////////////
@@ -1483,7 +1483,7 @@
 		// Last update date		: 27-02-2021
 		// Class description	: This class represents a specific location
 		// Operator description	: This operator (==) is used to compare a location to another
-		// Remarks				: 
+		// Remarks				:
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: location
 		/////////////////////////////////////////////////////////////////////////////////
@@ -1510,7 +1510,7 @@
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			:	column
 		//							row
-		/////////////////////////////////////////////////////////////////////////////////	
+		/////////////////////////////////////////////////////////////////////////////////
 		void Location::_Location(int column, int row)
 		{
 			this->column	= column;
@@ -1526,11 +1526,11 @@
 		// Class description	: This class represents a specific location for DSM maps
 		// Function description	: This private member function takes as parameter the 
 		//							location (column, row) and sets its elevation
-		// Remarks				: 
+		// Remarks				:
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			:	location (as Location)
 		//							elevation (as double)	
-		/////////////////////////////////////////////////////////////////////////////////	
+		/////////////////////////////////////////////////////////////////////////////////
 		void DsmLocation::_Elevation(DsmLocation location, double elevation)
 		{
 			this->_Location(location.Column(), location.Row());
@@ -1547,10 +1547,10 @@
 		// Class description	: This class represents a graphic
 		// Function description	: This private member function updates the output graphic
 		//							file that is being created
-		// Remarks				: Currently supported formats (.png and GeoTIFF)
+		// Remarks				:Currently supported formats (.png and GeoTIFF)
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: None
-		/////////////////////////////////////////////////////////////////////////////////	
+		/////////////////////////////////////////////////////////////////////////////////
 		void Graphic::_Update(void)
 		{
 			string	pngFilename		= this->filename + ".png";
