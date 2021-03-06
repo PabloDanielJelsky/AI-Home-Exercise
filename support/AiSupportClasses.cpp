@@ -4,7 +4,7 @@
 //
 // File:			AiSupportClasses.cpp
 //
-// Version:			01.04
+// Version:			01.05
 //
 // Description:		Support classes for the AI home excercise source file
 //
@@ -29,6 +29,7 @@
 //																and therefore, pixel in the north-east (up-right) is (Columns-1, Rows-1), where 
 //																Columns is the total number of columns of the DSM file, and Rows is the total
 //																number of rows of the DSM file
+//	06-03-2021	Pablo Daniel Jelsky		01			05			Added Timer class (for profiling and Tick() functions
 //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -133,6 +134,45 @@
 			this->filename		= "";
 			
 		}	//	Logger::Logger() 
+
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: Logger
+		// Function				: Parametrized constructor
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 26-02-2021
+		// Class description	: This class gives support for logging in a text file all
+		//							the events that are needed to follow the sequence of
+		//							events in the software
+		// Function description	: This constructor takes as parameter the filename where
+		//							the event logs will be recorded
+		// Remarks				:
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: Log file name (string)
+		/////////////////////////////////////////////////////////////////////////////////
+		Logger::Logger(string filename) 
+		{ 
+			this->Filename(filename);
+			
+		}	//	Logger::Logger()      
+
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: Logger
+		// Function				: Destructor
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 26-02-2021
+		// Class description	: This class gives support for logging in a text file all
+		//							the events that are needed to follow the sequence of
+		//							events in the software
+		// Function description	:
+		// Remarks				:
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: None
+		/////////////////////////////////////////////////////////////////////////////////
+		Logger::~Logger() 
+		{ 
+			this->outfile.close();
+			
+		}	//	Logger::~Logger()
 		
 		/////////////////////////////////////////////////////////////////////////////////
 		// Class name			: Location
@@ -259,45 +299,6 @@
 		{
 			
 		}	//	DsmLocation::~DsmLocation()
-
-		/////////////////////////////////////////////////////////////////////////////////
-		// Class name			: Logger
-		// Function				: Parametrized constructor
-		// Programmer name		: Pablo Daniel Jelsky
-		// Last update date		: 26-02-2021
-		// Class description	: This class gives support for logging in a text file all
-		//							the events that are needed to follow the sequence of
-		//							events in the software
-		// Function description	: This constructor takes as parameter the filename where
-		//							the event logs will be recorded
-		// Remarks				:
-		/////////////////////////////////////////////////////////////////////////////////
-		// Arguments			: Log file name (string)
-		/////////////////////////////////////////////////////////////////////////////////
-		Logger::Logger(string filename) 
-		{ 
-			this->Filename(filename);
-			
-		}	//	Logger::Logger()      
-
-		/////////////////////////////////////////////////////////////////////////////////
-		// Class name			: Logger
-		// Function				: Destructor
-		// Programmer name		: Pablo Daniel Jelsky
-		// Last update date		: 26-02-2021
-		// Class description	: This class gives support for logging in a text file all
-		//							the events that are needed to follow the sequence of
-		//							events in the software
-		// Function description	:
-		// Remarks				:
-		/////////////////////////////////////////////////////////////////////////////////
-		// Arguments			: None
-		/////////////////////////////////////////////////////////////////////////////////
-		Logger::~Logger() 
-		{ 
-			this->outfile.close();
-			
-		}	//	Logger::~Logger()
 			
 		/////////////////////////////////////////////////////////////////////////////////
 		// Class name			: DsmInformation
@@ -373,10 +374,24 @@
 			
 			if (NULL == this->pPngObject)
 				this->pPngObject		= new pngwriter(0, 0, 0, "");
+				
+			if (NULL == this->pPngObjectShadow)
+				this->pPngObjectShadow	= new pngwriter(0, 0, 0, "");
+			
 			
 		}	//	Graphic::Graphic()
 
-		//	Parametrized Constructor 
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: Graphic
+		// Function				: Parametrized constructor
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 26-02-2021
+		// Class description	: This class represents a graphic
+		// Function description	:
+		// Remarks				: Currently supported formats (.png and GeoTIFF)
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: None
+		/////////////////////////////////////////////////////////////////////////////////
 		Graphic::Graphic(int columns, int rows) 
 		{ 
 			this->initialized			= true;
@@ -386,32 +401,103 @@
 			if (NULL == this->pPngObject)
 				this->pPngObject		= new pngwriter(columns, rows, 0, "");
 				
+			if (NULL == this->pPngObjectShadow)
+				this->pPngObjectShadow	= new pngwriter(columns, rows, 0, "");
+				
 			if (NULL == this->pafWriteDspMap)
 				this->pafWriteDspMap	= (float*) CPLMalloc(sizeof(float) * columns * rows);
 			
 		}	//	Graphic::Graphic()
-
-		//	Destructor
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: Graphic
+		// Function				: Destructor
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 26-02-2021
+		// Class description	: This class represents a graphic
+		// Function description	:
+		// Remarks				: Currently supported formats (.png and GeoTIFF)
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: None
+		/////////////////////////////////////////////////////////////////////////////////
 		Graphic::~Graphic() 
 		{
 			if (NULL != this->pPngObject)
 				delete this->pPngObject;
 				
+			if (NULL != this->pPngObjectShadow)
+				delete this->pPngObjectShadow;
+
 			if (NULL != this->pafWriteDspMap)
 				CPLFree(this->pafWriteDspMap);
 			
 		}	//	Graphic::~Graphic()
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: Timer
+		// Function				: Default constructor
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 06-03-2021
+		// Class description	: This class gives support for timer and system clock functions
+		// Function description	:
+		// Remarks				: This class will give support to Logger class and algorithms
+		//						for profiling issues
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: None
+		/////////////////////////////////////////////////////////////////////////////////
+		Timer::Timer() 
+		{ 
+			this->running		= false;
+			this->systemStart 	= std::chrono::high_resolution_clock::now();
+			
+		}	//	Timer::Timer() 
+
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: Timer
+		// Function				: Destructor
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 06-03-2021
+		// Class description	: This class gives support for timer and system clock functions
+		// Function description	:
+		// Remarks				: This class will give support to Logger class and algorithms
+		//						for profiling issues
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: None
+		/////////////////////////////////////////////////////////////////////////////////
+		Timer::~Timer() 
+		{ 
+		}	//	Timer::~Timer()
 		
 	/*
 		****************************************************************************
 		* PUBLIC CLASS MEMBER FUNCTION DEFINITIONS
 		****************************************************************************
 	*/
+	
 		/////////////////////////////////////////////////////////////////////////////////
 		// Class name			: Logger
 		// Function				: Write 
 		// Programmer name		: Pablo Daniel Jelsky
-		// Last update date		: 26-02-2021
+		// Last update date		: 06-03-2021
+		// Class description	: This class gives support for logging in a text file all
+		//							the events that are needed to follow the sequence of
+		//							events in the software
+		// Function description	: This member function is used to return the system time
+		// Remarks				:Returns false, if the object was not initialized
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: 
+		/////////////////////////////////////////////////////////////////////////////////
+		class Timer& Logger::SystemTime(void)
+		{
+			return this->timer;
+			
+		}	//	Logger::SystemTime()
+
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: Logger
+		// Function				: Write 
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 06-03-2021
 		// Class description	: This class gives support for logging in a text file all
 		//							the events that are needed to follow the sequence of
 		//							events in the software
@@ -452,7 +538,7 @@
 			if (this->initialized == false)
 				return false;
 				
-			this->outfile << loggerString << endl;
+			this->outfile << "{" << this->timer.Tick() << "} - " << loggerString << endl;
 			return true;
 			
 		}	//	Logger::WriteLine()
@@ -1049,12 +1135,13 @@
 		// Arguments			: filename,
 		//					Default parameters
 		//							.png header description
+		//							if open from shadow
 		//							.png header Author
 		//							.png header Software
 		/////////////////////////////////////////////////////////////////////////////////
-		bool Graphic::Open(string filename, string description, string author, string software)
+		bool Graphic::Open(string filename, string description, bool fromShadow, string author, string software)
 		{
-			if (false == this->Filename(filename))
+			if (false == this->Filename(filename, fromShadow))
 				return false;
 				
 			//	Change the text information in the PNG header
@@ -1088,7 +1175,8 @@
 			{
 				case GRAPHIC_TYPE_PNG:
 					//	Close the instance of the class, and write the image to disk.
-					(*pPngObject).close();
+//					(*pPngObject).close();
+					(*pPngObject).write_png();
 					break;
 					
 				case GRAPHIC_TYPE_GEOTIFF:
@@ -1228,14 +1316,14 @@
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: graphic file name
 		/////////////////////////////////////////////////////////////////////////////////
-		bool Graphic::Filename(string filename)
+		bool Graphic::Filename(string filename, bool fromShadow)
 		{
 			this->filename	= filename;
 			
-			if (this->initialized == false && this->Rows() != 0 && this->Columns() != 0)
+			if ((this->initialized == false || true == fromShadow) && this->Rows() != 0 && this->Columns() != 0)
 			{
 				this->initialized	= true; 
-				this->_Update();
+				this->_Update(fromShadow);
 				return true;
 			}
 			
@@ -1255,7 +1343,7 @@
 		// Arguments			: location of the start and end points of the line and
 		//							the color to be used in the line
 		/////////////////////////////////////////////////////////////////////////////////
-		bool Graphic::Line(class Location from, class Location to, AI_SUPPORT_CLASSES_color lineColor)
+		bool Graphic::Line(class Location from, class Location to, AI_SUPPORT_CLASSES_color lineColor, bool copyToShadow)
 		{
 			if ((false == this->initialized) || (false == this->_IsInGraphic(from)) || (false == this->_IsInGraphic(to)))
 				return false;
@@ -1264,6 +1352,14 @@
 				colorToRgb[lineColor].red * CONVERSION_FROM_8_BIT_TO_16_BIT_COLOR, 
 				colorToRgb[lineColor].green * CONVERSION_FROM_8_BIT_TO_16_BIT_COLOR, 
 				colorToRgb[lineColor].blue * CONVERSION_FROM_8_BIT_TO_16_BIT_COLOR);
+				
+			if (true == copyToShadow)
+			{
+				(*this->pPngObjectShadow).line(from.Column(), from.Row(), to.Column(), to.Row(), 
+					colorToRgb[lineColor].red * CONVERSION_FROM_8_BIT_TO_16_BIT_COLOR, 
+					colorToRgb[lineColor].green * CONVERSION_FROM_8_BIT_TO_16_BIT_COLOR, 
+					colorToRgb[lineColor].blue * CONVERSION_FROM_8_BIT_TO_16_BIT_COLOR);
+			}
 
 			return true;
 
@@ -1287,6 +1383,13 @@
 
 			//	.png graphic point with color
 			(*this->pPngObject).plot(
+				point.Column() + PNG_COLUMN_OFFSET_FROM_DSM_MAP, 
+				point.Row()  + PNG_ROW_OFFSET_FROM_DSM_MAP, 
+				colorToRgb[pixelColor].red * CONVERSION_FROM_8_BIT_TO_16_BIT_COLOR, 
+				colorToRgb[pixelColor].green * CONVERSION_FROM_8_BIT_TO_16_BIT_COLOR, 
+				colorToRgb[pixelColor].blue * CONVERSION_FROM_8_BIT_TO_16_BIT_COLOR);
+				
+			(*this->pPngObjectShadow).plot(
 				point.Column() + PNG_COLUMN_OFFSET_FROM_DSM_MAP, 
 				point.Row()  + PNG_ROW_OFFSET_FROM_DSM_MAP, 
 				colorToRgb[pixelColor].red * CONVERSION_FROM_8_BIT_TO_16_BIT_COLOR, 
@@ -1369,6 +1472,70 @@
 			return true;
 			 
 		}	//	Graphic::Text()
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: Timer
+		// Function				: Start
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 06-03-2021
+		// Class description	: This class gives support for timer and system clock functions
+		// Function description	: This functions starts the "stopper"
+		// Remarks				: This class will give support to Logger class and algorithms
+		//						for profiling issues
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: None
+		/////////////////////////////////////////////////////////////////////////////////
+		void Timer::Start(void)
+		{ 
+			this->running	= true;
+			this->start		= std::chrono::high_resolution_clock::now();
+			
+		}	//	Timer::Start() 
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: Timer
+		// Function				: Stop
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 06-03-2021
+		// Class description	: This class gives support for timer and system clock functions
+		// Function description	: This functions stops the "stopper" and returns the elapsed
+		//							time betweein Start() and Stop() functions
+		// Remarks				: This class will give support to Logger class and algorithms
+		//						for profiling issues
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: None
+		/////////////////////////////////////////////////////////////////////////////////
+		long int Timer::Stop(void)
+		{
+			if (true == this->running)
+			{
+				long int	durationMilliseconds	= (long int) chrono::duration_cast<chrono::milliseconds>(std::chrono::high_resolution_clock::now() - this->start).count();
+ 
+				this->running	= false;
+				return durationMilliseconds;
+			}
+			
+			return 0;
+			
+		}	//	Timer::Stop() 
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: Timer
+		// Function				: Tick
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 06-03-2021
+		// Class description	: This class gives support for timer and system clock functions
+		// Function description	: This functions returns the current "tick"
+		// Remarks				: This class will give support to Logger class and algorithms
+		//						for profiling issues
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: None
+		/////////////////////////////////////////////////////////////////////////////////
+		long int Timer::Tick(void)
+		{ 
+			return ((long int) chrono::duration_cast<chrono::milliseconds>(std::chrono::high_resolution_clock::now() - this->systemStart).count());
+			
+		}	//	Timer::Tick() 
 
 	/*
 		****************************************************************************
@@ -1389,8 +1556,18 @@
 		// Remarks				:
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: Info to be sent to the logger file (string, integer,
-		//							long, float, double)
+		//							long, float, double, class Timer
 		/////////////////////////////////////////////////////////////////////////////////
+		Logger& operator << (Logger& logger, const class Timer& loggerTimer)
+		{
+			class Timer systemTimer = loggerTimer;
+			
+			logger << "{" << systemTimer.Tick()  << "} - ";
+
+			return logger;
+
+		}	//	Logger& operator <<
+		
 		Logger& operator << (Logger& logger, const string& loggerString)
 		{
 			logger.Write(loggerString);
@@ -1548,6 +1725,23 @@
 			return (this->Column() != location.Column()) || (this->Row() != location.Row());
 
 		}	//	bool Location::operator !=
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: Graphic
+		// Function				: = operator (location assignment operator)
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 06-03-2021
+		// Class description	: This class represents a graphic
+		// Operator description	: This operator (=) is used to assign a location to another
+		// Remarks				:
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: 
+		/////////////////////////////////////////////////////////////////////////////////
+		Graphic& Graphic::operator = (Graphic& graphic)
+		{
+			return (*this);
+
+		}	//	Graphic::operator =
 
 	/*
 		****************************************************************************
@@ -1633,7 +1827,7 @@
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: None
 		/////////////////////////////////////////////////////////////////////////////////
-		void Graphic::_Update(void)
+		void Graphic::_Update(bool fromShadow)
 		{
 			string	pngFilename		= this->filename + ".png";
 			string	geoTiffFilename	= this->filename + ".tif";
@@ -1641,15 +1835,26 @@
 			if (false == this->initialized)
 				return;
 
-			//	Update .png graphic file
-			(*this->pPngObject).resize(this->Columns(), this->Rows());
+			//	Update .png graphic file size (if not from shadow)
+			if (false == fromShadow)
+				(*this->pPngObject).resize(this->Columns(), this->Rows());
+			
+			if (false == fromShadow)
+				(*this->pPngObjectShadow).resize(this->Columns(), this->Rows());
+			else
+				(*this->pPngObject)	= (*this->pPngObjectShadow);
+			
+			//	Update .png graphic file name
 			(*this->pPngObject).pngwriter_rename(pngFilename.c_str());
 
 			//	Update GeoTIFF graphic file
 				//	Create GDAL driver object whose Create() method will be used to create Geotiff writer object. */
-			this->driverGeotiff 	= GetGDALDriverManager()->GetDriverByName("GTiff");
-			this->geotiffDataset	= this->driverGeotiff->Create(geoTiffFilename.c_str(), this->Columns(), this->Rows(), 1, GDT_Float32, NULL);
-			this->pafWriteDspMap	= (float*) CPLMalloc(sizeof(float) * this->Columns() * this->Rows());
+			if (false == fromShadow)
+			{
+				this->driverGeotiff 	= GetGDALDriverManager()->GetDriverByName("GTiff");
+				this->geotiffDataset	= this->driverGeotiff->Create(geoTiffFilename.c_str(), this->Columns(), this->Rows(), 1, GDT_Float32, NULL);
+				this->pafWriteDspMap	= (float*) CPLMalloc(sizeof(float) * this->Columns() * this->Rows());
+			}
 
 		}	//	Graphic::_Update()
 

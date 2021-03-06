@@ -335,16 +335,16 @@
 			//	Verify the location is a valid one
 			if (false == this->dsmMapInfo.IsInDsmMap(currentLocation))
 			{
-				this->logger << "While trying to set current location in DSM map: CURRENT LOCATION is NOT in DSM map => [" << currentLocation.Column() << ", " << currentLocation.Row() << "]\n";
+				this->logger << this->logger.SystemTime() << "While trying to set current location in DSM map: CURRENT LOCATION is NOT in DSM map => [" << currentLocation.Column() << ", " << currentLocation.Row() << "]\n";
 				return false;
 			}
 			if (false == this->dsmMapInfo.GroundLevel(currentLocation))
 			{
-				this->logger << "While trying to set current location in DSM map: CURRENT LOCATION is not at GROUND LEVEL in DSM map => [" << currentLocation.Column() << ", " << currentLocation.Row() << "]\n";
+				this->logger << this->logger.SystemTime() << "While trying to set current location in DSM map: CURRENT LOCATION is not at GROUND LEVEL in DSM map => [" << currentLocation.Column() << ", " << currentLocation.Row() << "]\n";
 				return false;
 			}
 			
-			this->logger << "Current location in DSM map set to [" << currentLocation.Column() << ", " << currentLocation.Row() << "]\n";
+			this->logger << this->logger.SystemTime() << "Current location in DSM map set to [" << currentLocation.Column() << ", " << currentLocation.Row() << "]\n";
 
 			//	If the current location is at ground level
 			this->currentLocation	= currentLocation;
@@ -389,16 +389,16 @@
 			//	Verify the location is a valid one
 			if (false == this->dsmMapInfo.IsInDsmMap(destinationLocation))
 			{
-				this->logger << "While trying to set destination location in DSM map: DESTINATION LOCATION is NOT in DSM map => [" << destinationLocation.Column() << ", " << destinationLocation.Row() << "]\n";
+				this->logger << this->logger.SystemTime() << "While trying to set destination location in DSM map: DESTINATION LOCATION is NOT in DSM map => [" << destinationLocation.Column() << ", " << destinationLocation.Row() << "]\n";
 				return false;
 			}
 			if (false == this->dsmMapInfo.GroundLevel(destinationLocation))
 			{
-				this->logger << "While trying to set destination location in DSM map: DESTINATION LOCATION is not at GROUND LEVEL in DSM map => [" << destinationLocation.Column() << ", " << destinationLocation.Row() << "]\n";
+				this->logger << this->logger.SystemTime() << "While trying to set destination location in DSM map: DESTINATION LOCATION is not at GROUND LEVEL in DSM map => [" << destinationLocation.Column() << ", " << destinationLocation.Row() << "]\n";
 				return false;
 			}
 			
-			this->logger << "Destination location in DSM map set to [" << destinationLocation.Column() << ", " << destinationLocation.Row() << "]\n";
+			this->logger << this->logger.SystemTime() << "Destination location in DSM map set to [" << destinationLocation.Column() << ", " << destinationLocation.Row() << "]\n";
 			//	If the destination location is at ground level
 			this->destinationLocation	= destinationLocation;
 			return true;
@@ -446,22 +446,22 @@
 			//	Verify the locations are valid ones
 			if (false == this->dsmMapInfo.IsInDsmMap(currentLocation))
 			{
-				this->logger << "While trying to find path from source to destination: CURRENT LOCATION is NOT in DSM map => [" << currentLocation.Column() << ", " << currentLocation.Row() << "]\n";
+				this->logger << this->logger.SystemTime() << "While trying to find path from source to destination: CURRENT LOCATION is NOT in DSM map => [" << currentLocation.Column() << ", " << currentLocation.Row() << "]\n";
 				return EXIT_FAILURE;
 			}
 			if (false == this->dsmMapInfo.IsInDsmMap(destinationLocation))
 			{
-				this->logger << "While trying to find path from source to destination: DESTINATION LOCATION is NOT in DSM map => [" << destinationLocation.Column() << ", " << destinationLocation.Row() << "]\n";
+				this->logger << this->logger.SystemTime() << "While trying to find path from source to destination: DESTINATION LOCATION is NOT in DSM map => [" << destinationLocation.Column() << ", " << destinationLocation.Row() << "]\n";
 				return EXIT_FAILURE;
 			}
 			if (true == this->dsmMapInfo.Obstacle(currentLocation))
 			{
-				this->logger << "While trying to find path from source to destination: CURRENT LOCATION is an OBSTACLE in DSM map => [" << currentLocation.Column() << ", " << currentLocation.Row() << "]\n";
+				this->logger << this->logger.SystemTime() << "While trying to find path from source to destination: CURRENT LOCATION is an OBSTACLE in DSM map => [" << currentLocation.Column() << ", " << currentLocation.Row() << "]\n";
 				return EXIT_FAILURE;
 			}
 			if (true == this->dsmMapInfo.Obstacle(destinationLocation))
 			{
-				this->logger << "While trying to find path from source to destination: DESTINATION LOCATION is an OBSTACLE in DSM map => [" << destinationLocation.Column() << ", " << destinationLocation.Row() << "]\n";
+				this->logger << this->logger.SystemTime() << "While trying to find path from source to destination: DESTINATION LOCATION is an OBSTACLE in DSM map => [" << destinationLocation.Column() << ", " << destinationLocation.Row() << "]\n";
 				return EXIT_FAILURE;
 			}
 			
@@ -485,7 +485,7 @@
 		// Remarks				:
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: None
-		/////////////_AStarAlgorithmConfiguration(aStarSearchPixelsMovementType aStarSearchPixelsMovementTypeForFindPath, bool possibilityOfNotMoving)////////////////////////////////////////////////////////////////////
+		/////////////////////////////////////////////////////////////////////////////////
 		Location& Model::NextLocation(void)
 		{
 			if (!this->pathList.empty())
@@ -514,10 +514,11 @@
 		// Arguments			: graphic name
 		//					Default parameter:
 		//							graphic description
+		//							if open from shadow
 		/////////////////////////////////////////////////////////////////////////////////
-		bool Model::GraphicOpen(string filename, string description)
+		bool Model::GraphicOpen(string filename, string description, bool fromShadow)
 		{
-			this->graphic.Open(filename, description);
+			this->graphic.Open(filename, description, fromShadow);
 
 			return true;
 			
@@ -566,16 +567,40 @@
 			return true;
 				
 		}	//	Model::GraphicPreparation()
+	
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: Model
+		// Function				: GraphicLine
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 06-03-2021
+		// Class description	: This base class represents the model that will be derived
+		//							as a person (class) that could be an agent, a target, etc
+		// Function description	: This public member function draws a line in the graphic
+		// Remarks				: Currently supported formats (.png and GeoTIFF)
+		//							returns true if the graphic was prepared,
+		//							false otherwise
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: from and to locations, line color
+		//					Default parameters:
+		//							copy to shadow
+		/////////////////////////////////////////////////////////////////////////////////
+		bool Model::GraphicLine(Location from, Location to, 
+			AI_SUPPORT_CLASSES_color lineColor, 
+			//	Default arguments
+			bool copyToShadow)
+		{
+			return (this->graphic.Line(from, to, lineColor, copyToShadow));
+			
+		}	//	Model::GraphicLine()
 		
 		/////////////////////////////////////////////////////////////////////////////////
 		// Class name			: Model
-		// Function				: GraphicPreparation
+		// Function				: GraphicText
 		// Programmer name		: Pablo Daniel Jelsky
 		// Last update date		: 04-03-2021
 		// Class description	: This base class represents the model that will be derived
 		//							as a person (class) that could be an agent, a target, etc
-		// Function description	: This public member function prepares an output graphic
-		//							file based on the raster information in it
+		// Function description	: This public member function displays a text in the graphic
 		// Remarks				: Currently supported formats (.png and GeoTIFF)
 		//							returns true if the graphic was prepared,
 		//							false otherwise
@@ -693,7 +718,7 @@
 					this->aStarSearchPixelsMovementTypeForFindPath	= aStarSearchPixelsMovementTypeForFindPath;
 					break;
 				default:
-					this->logger << "Parameter aStarSearchPixelsMovementTypeForFindPath = " << aStarSearchPixelsMovementTypeForFindPath << "is not a valid one in _AStarAlgorithmConfiguration()\n";
+					this->logger << this->logger.SystemTime() << "Parameter aStarSearchPixelsMovementTypeForFindPath = " << aStarSearchPixelsMovementTypeForFindPath << "is not a valid one in _AStarAlgorithmConfiguration()\n";
 					return false;
 			}
 			
@@ -722,6 +747,7 @@
 			//  Register all the GDAL drivers
 			GDALAllRegister();
 			
+			this->logger << this->logger.SystemTime();
 			this->logger.WriteLine("*** GDAL Driver Initialization ***");
 			this->logger.WriteLine("\tThe following format drivers are configured and support output:");
 			
@@ -760,6 +786,7 @@
 		{
 			const int	BAND_TO_BE_FETCHED = 1;	// Taken for granted that there is ONLY one band in this DSM map
 				
+			this->logger << this->logger.SystemTime();
 			this->logger.WriteLine("*** GeoTIFF DSM Input File Raster Operation ***");
 			  
 			//  Opening the File        

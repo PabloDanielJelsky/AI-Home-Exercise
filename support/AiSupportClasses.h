@@ -4,7 +4,7 @@
 //
 // File:			AiSupportClasses.h
 //
-// Version:			01.04
+// Version:			01.05
 //
 // Description:		Support classes for the AI home excercise include file
 //
@@ -29,6 +29,7 @@
 //																and therefore, pixel in the north-east (up-right) is (Columns-1, Rows-1), where 
 //																Columns is the total number of columns of the DSM file, and Rows is the total
 //																number of rows of the DSM file
+//	06-03-2021	Pablo Daniel Jelsky		01			05			Added Timer class (for profiling and Tick() functions
 //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -94,13 +94,13 @@
 						
 		};	//	struct cell
 
-		
-		/*---- function prototypes -------------------------------------------------*/	
+		/*---- function prototypes -------------------------------------------------*/
 		bool _IsValid(DsmInformation& dsmInformation, Location location);
 		bool _IsUnblocked(DsmInformation& dsmInformation, Location location);
 		bool _IsDestination(Location currentLocation, Location destinationLocation);
 		double _CalculateHValueForAiHomeExercise(Location currentLocation, Location destinationLocation);
 		void _TracePath(DsmInformation& dsmInformation, cell *pCellDetails, Location destinationLocation, int *pTargetPathSize, list <Location>& targetPathList, std::ofstream& csvTargetPathFile);
+		
 	
 
 #endif	// __AI_SUPPORT_ALGORITHMS_H__

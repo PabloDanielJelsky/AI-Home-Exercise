@@ -110,16 +110,18 @@
 //	Location				DsmInformation	Graphic				Logger				FindPath()						GDAL library
 //	(current, destination)	(DSM map)		(for .png/gTiff)	(for log events)	(member function)				(to read GeoTIFF DSM input file)
 //	(AiSupportClasses module)-----------------------------(AiSupportClasses module)	(AiSupportAlgorithms module)
-//											|										(also writes a CSV file with the found path)
-//						-----------------------------------------
-//						|										|
-//						GDAL library							PNGWriter library
-//						(to create GeoTIFF DSM output file)		(to create .png output file)
+//											|					|					(also writes a CSV file with the found path)
+//			-----------------------------------------			Timer
+//			|										|			(AiSupportClasses module)
+			|										|			(for system time and "stopper")
+			|										|
+//			GDAL library							PNGWriter library
+//			(to create GeoTIFF DSM output file)		(to create .png output file)
 //																|
-//									---------------------------------------------
-//									|											|
-//									libpng library								FreeType2 library
-//									(to read/create .png files)					(to write text into the .png files)
+//										---------------------------------------------
+//										|											|
+//										libpng library								FreeType2 library
+//										(to read/create .png files)					(to write text into the .png files)
 //
 //		-	The internal representation of the DSM map in the DsmInformation class is that the south-west (down-left) pixel is (0,0),
 //				and all the pixels are positive, and therefore, pixel in the north-east (up-right) is (Columns-1, Rows-1), where 
@@ -203,148 +205,112 @@
 
 int main()
 {
-	Location pointA(0,0);
+	Location targetStart(2,2);
+	Location targetObjective(300,100);
+	
 	Location pointB(10,10);
-	Location pointC(0,0);
+	Location pointC(4,4);
 	Location pointD(150,150);
-	Location pointE(200,200);
 	Location text(3,3);
 
+	bool					targetArrived = false, agent1Arrived = false;
 	long					targetPathLength, agent1PathLength, agent2PathLength;
 	list <DsmLocation> 		targetPathList, agent1PathList, agent2PathList;
 
 	class Agent				agent1(DSM_FILE, "Agent1");
-	agent1.CurrentLocation(pointA);
-	agent1.DestinationLocation(pointE);
+	agent1.CurrentLocation(targetStart);
+	agent1.DestinationLocation(targetObjective);
 	agent1PathLength 	= agent1.FindPath("output/Agent1Path.csv");
 	
 	class Target			target(DSM_FILE, "Target");
-	target.CurrentLocation(pointA);
-	target.DestinationLocation(pointE);
+	target.CurrentLocation(targetStart);
+	target.DestinationLocation(targetObjective);
+//	-	1.2.1)		Create the "target" path given start and objective points
 	targetPathLength 	= target.FindPath("output/TargetPath.csv");
 	
 	
 	class Agent				agent2(DSM_FILE, "Agent2");
-	agent2.CurrentLocation(pointA);
-	agent2.DestinationLocation(pointE);
+	agent2.CurrentLocation(targetStart);
+	agent2.DestinationLocation(targetObjective);
 	agent2PathLength 	= agent2.FindPath("output/Agent2Path.csv");
    
 	cout << "Target path length = " << targetPathLength << "\n";
 	cout << "Agent 1 path length = " << agent1PathLength << "\n";
 	cout << "Agent 2 path length = " << agent2PathLength << "\n";
 	
-	target.GraphicOpen("output/Target", "Target graphic");
+//	-	1.1)	Display the DSM file in Python / Matlab (in this case as .png file)
+	target.GraphicOpen("output/1_1_DsmOriginalFile", "DSM original input");
 	target.GraphicPreparation(true);
 	target.GraphicText(text, "Original cage6.tif");
 	target.GraphicClose(GRAPHIC_TYPE_PNG);
 	target.GraphicClose(GRAPHIC_TYPE_GEOTIFF);
-   
+	
+	agent1.GraphicOpen("output/1_1_DsmOriginalFile - Agent", "DSM original input");
+	agent1.GraphicPreparation(true);
+//	agent1.GraphicText(text, "Original cage6.tif");
+//	agent1.GraphicClose(GRAPHIC_TYPE_PNG);
+	agent1.GraphicClose(GRAPHIC_TYPE_GEOTIFF);
+	
 	long int	simulationSeconds = 0;
   
-	while (target.CurrentLocation() != target.DestinationLocation())
+	while (targetArrived == false && agent1Arrived == false)
     {
-		Location	currentLocation;
-		currentLocation	= target.NextLocation();
+		Location	targetCurrentLocation	= target.CurrentLocation(), targetNextLocation;
+		Location	agent1CurrentLocation	= agent1.CurrentLocation(), agent1NextLocation;
+		string		target_base_filename	= "output/target/1_2_2_TargetOverTime_";
+		string		target_base_text		= "Target path progress over time on map second = ";
+		string		agent1_base_filename	= "output/agent/1_2_2_AgentOverTime_";
+		string		agent1_base_text		= "Agent path progress over time on map second = ";
+		string		filename, text;
+		
+		if (false == targetArrived)
+			targetNextLocation				= target.NextLocation();
+			
+		if (false == agent1Arrived)
+			agent1NextLocation				= agent1.NextLocation();
+			
 		simulationSeconds++;
-		cout << "[" << currentLocation.Column() << ", " << currentLocation.Row() << ", " << simulationSeconds << "]\n"; 
+		
+		if (false == targetArrived)
+		{
+//	-	1.2.2)		Display "target" path progress over time on map
+			filename						= target_base_filename;
+			filename						+= std::to_string(simulationSeconds);
+			text							= target_base_text;
+			text							+= std::to_string(simulationSeconds);
+					
+			target.GraphicOpen(filename, text, true);
+			target.GraphicLine(targetCurrentLocation, targetNextLocation, AI_SUPPORT_CLASSES_COLOR_WHITE, true);
+			target.GraphicClose(GRAPHIC_TYPE_PNG);
+		}
+			
+		if (false == agent1Arrived)
+		{
+			filename						= agent1_base_filename;
+			filename						+= std::to_string(simulationSeconds);
+			text							= agent1_base_text;
+			text							+= std::to_string(simulationSeconds);
+			
+			agent1.GraphicOpen(filename, text, true);
+			agent1.GraphicLine(targetCurrentLocation, targetNextLocation, AI_SUPPORT_CLASSES_COLOR_WHITE, true);
+			agent1.GraphicLine(agent1CurrentLocation, agent1NextLocation, AI_SUPPORT_CLASSES_COLOR_TOMATO, true);
+			agent1.GraphicClose(GRAPHIC_TYPE_PNG);
+		}
+		
+		if (target.CurrentLocation() == target.DestinationLocation())
+		{
+			targetArrived	= true;
+		}
+		
+		if (agent1.CurrentLocation() == agent1.DestinationLocation())
+		{
+			agent1Arrived	= true;
+		}
+		
 		if (simulationSeconds > 600)
 			break;
     }  
     
-
-   
-   
-/*
-//	locationDsm				targetInitialLocation, targetLocation, targetObjectiveLocation, targetNextLocation;
-	const int				groundLevel = 3300;
-	long int				simulationSeconds = 0;
-	double					mTargetToObjectiveSlope;
-	double					bTargetToObjectiveYCoordinatateWhileXIsZero;
-	int						visibilityInMeterstemporalLocation = 5;
-
-	
-    class DsmInformation    DsmInformationObject;
-    
-
-    class Location			targetInitialLocation(0,0), targetObjectiveLocation(200, 200), targetLocation;
-    class Location			agent1InitialLocation(10,0), agent1ObjectiveLocation(200, 200), agent1Location;
-     
-  
-    //	Set initial target and target objective locations
-	targetLocation	= targetInitialLocation;
-	targetPathSize	= AStarSearch(A_START_SEARCH_4_PIXELS_MOVEMENT, false, DsmInformationObject, targetInitialLocation, targetObjectiveLocation, targetPathList, "output/TargetPath.csv");
-	list <Location>::iterator it = targetPathList.begin();
-	
-	simulationSeconds	= 0;
-	while (targetLocation != targetObjectiveLocation)
-    {
-    	targetLocation.Modify((*it).Column(), (*it).Row());
- //    	cout << "[" << targetLocation.Column() << ", " << targetLocation.Row() << ", " << simulationSeconds << "]";
-   
-   		simulationSeconds++;
-    	++it;	
-//    	if (it != targetPathList.end())
-//    		cout << " => ";
-    }	
-
-
-    //	Create the output file with target path
-    DsmOutputFileCreationWithPath(PERSON_TYPE_TARGET, TARGET_PATH_FILE, DsmInformationObject, targetPathList, targetPathSize);
-
-    //	Set initial target and target objective locations
-	agent1Location	= agent1InitialLocation;
-	agent1PathSize = AStarSearch(A_START_SEARCH_12_PIXELS_MOVEMENT, true, DsmInformationObject, agent1InitialLocation, agent1ObjectiveLocation, agent1PathList, "output/Agent1Path.csv");
-	list <Location>::iterator it1 = agent1PathList.begin();
-	
-	simulationSeconds	= 0;
-	while (agent1Location != agent1ObjectiveLocation)
-    {
-    	agent1Location.Modify((*it1).Column(), (*it1).Row());
- //    	cout << "[" << targetLocation.Column() << ", " << targetLocation.Row() << ", " << simulationSeconds << "]";
-   
-   		simulationSeconds++;
-    	++it1;	
-//    	if (it != targetPathList.end())
-//    		cout << " => ";
-    }	
-    
-    //	Create the output file with target path
-    DsmOutputFileCreationWithPath(PERSON_TYPE_AGENT1, AGENT1_PATH_FILE, DsmInformationObject, agent1PathList, agent1PathSize);
- */   
-
-    
- /*
-    if (DsmInformationObject.LineOfSight(pointA, pointB) == true)
-    	cout << "true\n";
-    else
-    	cout << "false\n";
-    	
-    if (DsmInformationObject.LineOfSight(pointC, pointD) == true)
-    	cout << "true\n";
-    else
-    	cout << "false\n";
- */
-   
-/*
-   cout << "Model path length = " << modelPathLength << "\n";
-   model.GraphicOpen("output/Model", "Model graphic");
-   model.GraphicPreparation(true);
-   model.GraphicText(text, "Original cage6.tif");
-   model.GraphicClose(GRAPHIC_TYPE_PNG);
-   model.GraphicClose(GRAPHIC_TYPE_GEOTIFF);
-   
-	long int	simulationSeconds = 0;
-  
-	while (model.CurrentLocation() != model.DestinationLocation())
-    {
-		Location	currentLocation;
-		currentLocation	= model.NextLocation();
-		simulationSeconds++;
-		cout << "[" << currentLocation.Column() << ", " << currentLocation.Row() << ", " << simulationSeconds << "]\n"; 
-		if (simulationSeconds > 600)
-			break;
-    }	
- */
 	return EXIT_SUCCESS;
 	
 }	//	main()

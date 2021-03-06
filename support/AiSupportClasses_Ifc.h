@@ -4,7 +4,7 @@
 //
 // File:			AiSupportClasses_Ifc.h
 //
-// Version:			01.04
+// Version:			01.05
 //
 // Description:		Support classes for the AI home excercise interface file
 //
@@ -29,6 +29,7 @@
 //																and therefore, pixel in the north-east (up-right) is (Columns-1, Rows-1), where 
 //																Columns is the total number of columns of the DSM file, and Rows is the total
 //																number of rows of the DSM file
+//	06-03-2021	Pablo Daniel Jelsky		01			05			Added Timer class (for profiling and Tick() functions
 //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -45,7 +46,8 @@
 		/*---- system and platform files -------------------------------------------*/
 		#include <iostream>
 		#include <fstream> 
-		#include <string>		
+		#include <string>
+		#include <chrono>	// for timer object
 		/*---- library files -------------------------------------------------------*/
 		#include "/usr/include/gdal/gdal.h"
 		#include "/usr/include/gdal/gdal_priv.h"
@@ -109,10 +111,40 @@
 		* PUBLIC CLASS DEFINITIONS
 		****************************************************************************
 	*/
+	
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name		: Timer
+		// Programmer name	: Pablo Daniel Jelsky
+		// Last update date	: 06-03-2021
+		// Description		: This class gives support for timer and system clock functions
+		// Remarks			: This class will give support to Logger class and algorithms
+		//						for profiling issues
+		/////////////////////////////////////////////////////////////////////////////////
+		class Timer
+		{
+			public:
+				//	Public member functions
+				void Start(void);
+				long int Stop(void);
+				long int Tick(void);
+			
+				//	Default Constructor 
+				Timer(); 
+				//	Destructor
+				~Timer();
+
+			private:
+				//	Private variables
+				std::chrono::time_point<std::chrono::system_clock>	systemStart;
+				bool												running 	= false;
+				std::chrono::time_point<std::chrono::system_clock>	start;
+
+		};	//	class Timer
+		
 		/////////////////////////////////////////////////////////////////////////////////
 		// Class name		: Logger
 		// Programmer name	: Pablo Daniel Jelsky
-		// Last update date	: 26-02-2021
+		// Last update date	: 06-03-2021
 		// Description		: This class gives support for logging in a text file all
 		//						the events that are needed to follow the sequence of
 		//						events in the software
@@ -126,8 +158,10 @@
 				template <class GenericType> 
 				bool Write(GenericType loggerGenericType);
 				bool WriteLine(string loggerString);
+				class Timer& SystemTime(void);
 				
 				//	Operators
+				friend Logger& operator << (Logger& logger, const class Timer& loggerTimer);
 				friend Logger& operator << (Logger& logger, const int& loggerInteger);
 				friend Logger& operator << (Logger& logger, const long& loggerLong);
 				friend Logger& operator << (Logger& logger, const float& loggerFloat);
@@ -143,9 +177,10 @@
 
 			private:
 				//	Private variables
-				bool    	initialized 	= false;
-				string		filename		= "";
-				ofstream	outfile;
+				bool			initialized 	= false;
+				string			filename		= "";
+				ofstream		outfile;
+				class Timer		timer;
 
 		};	//	class Logger
 		
@@ -272,9 +307,9 @@
 				
 			private: 
 				//	Private variables
-				bool    		initialized				= false;
+				bool			initialized				= false;
 				DsmLocation		*pLocation				= NULL; 
-				int     		columns 				= AI_SUPPORT_CLASSES_INVALID_COLUMN;
+				int				columns 				= AI_SUPPORT_CLASSES_INVALID_COLUMN;
 				int				rows 					= AI_SUPPORT_CLASSES_INVALID_ROW;
 				double			groundLevelElevation	= AI_SUPPORT_CLASSES_INVALID_DSM_ELEVATION;
 				class Logger	logger;
@@ -293,16 +328,16 @@
 		{
 			public:
 				//	Public member functions
-				bool Open(string filename, string description = "", string author = "Pablo Daniel Jelsky", string software = "AI Home Exercise");
+				bool Open(string filename, string description = "", bool fromShadow = false, string author = "Pablo Daniel Jelsky", string software = "AI Home Exercise");
 				bool Close(graphicType typeOfGraphic);
-				bool Filename(string filename);
+				bool Filename(string filename, bool fromShadow = false);
 				void Columns(int columns);
 				int Columns(void);
 				void Rows(int rows);
 				int Rows(void);
 				bool Point(class Location point, AI_SUPPORT_CLASSES_color pixelColor);					//	for .png files
 				bool Point(class Location point, int elevation);										//	for GeoTIFF files
-				bool Line(class Location from, class Location to, AI_SUPPORT_CLASSES_color lineColor);
+				bool Line(class Location from, class Location to, AI_SUPPORT_CLASSES_color lineColor, bool copytToShadow = false);
 				bool Text(class Location from, string text, 
 					//	Default arguments
 					AI_SUPPORT_CLASSES_color textColor = AI_SUPPORT_CLASSES_COLOR_WHITE, 
@@ -310,6 +345,9 @@
 					string fontPathAndFilename = "/usr/share/fonts/truetype/ubuntu/Ubuntu-M.ttf",
 					double angle = 0.0			//	angle is the text angle in degrees
 					);
+					
+				//	Operators
+				Graphic& operator = (Graphic& graphic);
 			
 				//	Default Constructor 
 				Graphic(); 
@@ -330,6 +368,7 @@
 				
 				//	PNGWriter object for .png graphic file
 				class pngwriter	*pPngObject				= NULL;
+				class pngwriter	*pPngObjectShadow		= NULL;
 				//	GDAL objects for GeoTIFF graphic file
 				/* declare pointer variables that will hold memory
 				   * addresses (or "point to") for two GDALDataset
@@ -342,7 +381,7 @@
 				float			*pafWriteDspMap			= NULL;
 				
 				//	Private member functions
-				void _Update(void);
+				void _Update(bool fromShadow = false);
 				bool _IsInGraphic(Location location);
 
 		};	//	class Graphic

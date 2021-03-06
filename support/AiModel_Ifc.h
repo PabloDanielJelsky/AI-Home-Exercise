@@ -96,8 +96,9 @@
 		{ 
 			public:
 				//	Public member functions
-				bool GraphicOpen(string filename, string description = "");
+				bool GraphicOpen(string filename, string description = "", bool fromShadow = false);
 				bool GraphicPreparation(bool clearPreviousGraphic);
+				bool GraphicLine(Location from, Location to, AI_SUPPORT_CLASSES_color lineColor, bool copyToShadow = false);
 				bool GraphicText(class Location from, string text, 
 					//	Default arguments
 					AI_SUPPORT_CLASSES_color textColor = AI_SUPPORT_CLASSES_COLOR_WHITE, 
