@@ -325,9 +325,23 @@
 			
 		}	//	DsmInformation::DsmInformation()
 
-		//	Parametrized Constructor 
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: DsmInformation
+		// Function				: Parametrized constructor
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 26-02-2021
+		// Class description	: This class represents the information taken from a DSM file
+		//							A DSM (Digital Surface Model) is a computer graphics 
+		//							representation of elevation data to represent terrain
+		// Function description	:
+		// Remarks				:Set the default logger file to "DsmInformation.txt"
+		//							in "output" sub-directory
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: columns and rows
+		/////////////////////////////////////////////////////////////////////////////////
 		DsmInformation::DsmInformation(int columns, int rows) 
 		{ 
+			logger.Filename(DEFAULT_DSM_INFORMATION_FILE_NAME);
 			logger.WriteLine("Parametrized Constructor called"); 
 
 			this->initialized	= true;
@@ -338,7 +352,19 @@
 			
 		}	//	DsmInformation::DsmInformation()
 
-		//	Destructor
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: DsmInformation
+		// Function				: Destructor
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 26-02-2021
+		// Class description	: This class represents the information taken from a DSM file
+		//							A DSM (Digital Surface Model) is a computer graphics 
+		//							representation of elevation data to represent terrain
+		// Function description	:
+		// Remarks				:
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: None
+		/////////////////////////////////////////////////////////////////////////////////
 		DsmInformation::~DsmInformation() 
 		{
 			logger.WriteLine("Destructor called for cleanup");  
@@ -354,6 +380,25 @@
 			}
 			
 		}	//	DsmInformation::~DsmInformation()
+
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: TargetDsmInformation
+		// Function				: Destructor
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 06-03-2021
+		// Class description	: This class represents the information taken from a DSM file
+		//						A DSM (Digital Surface Model) is a computer graphics 
+		//						representation of elevation data to represent terrain but
+		//						specialized with info on target
+		// Function description	:
+		// Remarks				:  It is derived from DsmInformation class
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: None
+		/////////////////////////////////////////////////////////////////////////////////
+		TargetDsmInformation::~TargetDsmInformation()
+		{
+			
+		}	//	TargetDsmInformation::~TargetDsmInformation()
 		
 		/////////////////////////////////////////////////////////////////////////////////
 		// Class name			: Graphic
@@ -1334,7 +1379,7 @@
 		
 		/////////////////////////////////////////////////////////////////////////////////
 		// Class name			: Graphic
-		// Function				: Type
+		// Function				: Line
 		// Programmer name		: Pablo Daniel Jelsky
 		// Last update date		: 01-03-2021
 		// Class description	: This class represents a graphic
@@ -1343,28 +1388,136 @@
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: location of the start and end points of the line and
 		//							the color to be used in the line
+		//					Default parameters:
+		//							copyToShadow
 		/////////////////////////////////////////////////////////////////////////////////
 		bool Graphic::Line(class Location from, class Location to, AI_SUPPORT_CLASSES_color lineColor, bool copyToShadow)
 		{
 			if ((false == this->initialized) || (false == this->_IsInGraphic(from)) || (false == this->_IsInGraphic(to)))
 				return false;
 
-			(*this->pPngObject).line(from.Column(), from.Row(), to.Column(), to.Row(), 
+			(*this->pPngObject).line(
+				from.Column() + PNG_COLUMN_OFFSET_FROM_DSM_MAP,
+				from.Row() + PNG_ROW_OFFSET_FROM_DSM_MAP, 
+				to.Column() + PNG_COLUMN_OFFSET_FROM_DSM_MAP,
+				to.Row() + PNG_ROW_OFFSET_FROM_DSM_MAP, 
 				colorToRgb[lineColor].red * CONVERSION_FROM_8_BIT_TO_16_BIT_COLOR, 
 				colorToRgb[lineColor].green * CONVERSION_FROM_8_BIT_TO_16_BIT_COLOR, 
 				colorToRgb[lineColor].blue * CONVERSION_FROM_8_BIT_TO_16_BIT_COLOR);
 				
 			if (true == copyToShadow)
 			{
-				(*this->pPngObjectShadow).line(from.Column(), from.Row(), to.Column(), to.Row(), 
-					colorToRgb[lineColor].red * CONVERSION_FROM_8_BIT_TO_16_BIT_COLOR, 
-					colorToRgb[lineColor].green * CONVERSION_FROM_8_BIT_TO_16_BIT_COLOR, 
-					colorToRgb[lineColor].blue * CONVERSION_FROM_8_BIT_TO_16_BIT_COLOR);
+				(*this->pPngObjectShadow).line(
+				from.Column() + PNG_COLUMN_OFFSET_FROM_DSM_MAP,
+				from.Row() + PNG_ROW_OFFSET_FROM_DSM_MAP, 
+				to.Column() + PNG_COLUMN_OFFSET_FROM_DSM_MAP, 
+				to.Row() + PNG_ROW_OFFSET_FROM_DSM_MAP, 
+				colorToRgb[lineColor].red * CONVERSION_FROM_8_BIT_TO_16_BIT_COLOR, 
+				colorToRgb[lineColor].green * CONVERSION_FROM_8_BIT_TO_16_BIT_COLOR, 
+				colorToRgb[lineColor].blue * CONVERSION_FROM_8_BIT_TO_16_BIT_COLOR);
 			}
 
 			return true;
 
 		}   //  Graphic::Line()
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: Arrow
+		// Function				: Line
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 06-03-2021
+		// Class description	: This class represents a graphic
+		// Function description	: This member function draws an arrow with a specific color
+		// Remarks				: Currently supported formats (.png and GeoTIFF)
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: location of the start and end points of the arrow and
+		//							the color to be used in the arrow
+		//					Default parameters:
+		//							copyToShadow
+		/////////////////////////////////////////////////////////////////////////////////
+		bool Graphic::Arrow(class Location from, class Location to, AI_SUPPORT_CLASSES_color arrowColor, bool copyToShadow)
+		{
+			const int 		ARROW_SIZE 	= 1;
+			const double	HEAD_ANGLE	= 0.0;
+			
+			if ((false == this->initialized) || (false == this->_IsInGraphic(from)) || (false == this->_IsInGraphic(to)))
+				return false;
+				
+			(*this->pPngObject).arrow(
+				from.Column() + PNG_COLUMN_OFFSET_FROM_DSM_MAP,
+				from.Row() + PNG_ROW_OFFSET_FROM_DSM_MAP, 
+				to.Column() + PNG_COLUMN_OFFSET_FROM_DSM_MAP,
+				to.Row() + PNG_ROW_OFFSET_FROM_DSM_MAP, 
+				ARROW_SIZE,
+				HEAD_ANGLE,
+				colorToRgb[arrowColor].red * CONVERSION_FROM_8_BIT_TO_16_BIT_COLOR, 
+				colorToRgb[arrowColor].green * CONVERSION_FROM_8_BIT_TO_16_BIT_COLOR, 
+				colorToRgb[arrowColor].blue * CONVERSION_FROM_8_BIT_TO_16_BIT_COLOR);
+				
+			if (true == copyToShadow)
+			{
+				(*this->pPngObjectShadow).arrow(
+				from.Column() + PNG_COLUMN_OFFSET_FROM_DSM_MAP,
+				from.Row() + PNG_ROW_OFFSET_FROM_DSM_MAP, 
+				to.Column() + PNG_COLUMN_OFFSET_FROM_DSM_MAP,
+				to.Row() + PNG_ROW_OFFSET_FROM_DSM_MAP, 
+				ARROW_SIZE,
+				HEAD_ANGLE,
+				colorToRgb[arrowColor].red * CONVERSION_FROM_8_BIT_TO_16_BIT_COLOR, 
+				colorToRgb[arrowColor].green * CONVERSION_FROM_8_BIT_TO_16_BIT_COLOR, 
+				colorToRgb[arrowColor].blue * CONVERSION_FROM_8_BIT_TO_16_BIT_COLOR);
+			}
+
+			return true;
+			
+		}	//	Graphic::Arrow()
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: Graphic
+		// Function				: Cross
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 0-03-2021
+		// Class description	: This class represents a graphic
+		// Function description	: This member function set a cross to a specific color
+		// Remarks				: Currently supported formats (.png and GeoTIFF)
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: point location and specific color (relevant to .png)
+		//					Default parameters:
+		//							copyToShadow
+		/////////////////////////////////////////////////////////////////////////////////
+		bool Graphic::Cross(class Location at, AI_SUPPORT_CLASSES_color crossColor, bool copyToShadow)
+		{
+			const int CROSS_WIDTH 	= 3;
+			const int CROSS_HEIGTH	= 3;
+			
+			if ((false == this->initialized) || (false == this->_IsInGraphic(at)))
+				return false;
+
+			//	.png graphic cross with color
+			(*this->pPngObject).cross(
+				at.Column() + PNG_COLUMN_OFFSET_FROM_DSM_MAP, 
+				at.Row()  + PNG_ROW_OFFSET_FROM_DSM_MAP, 
+				CROSS_WIDTH,
+				CROSS_HEIGTH,
+				colorToRgb[crossColor].red * CONVERSION_FROM_8_BIT_TO_16_BIT_COLOR, 
+				colorToRgb[crossColor].green * CONVERSION_FROM_8_BIT_TO_16_BIT_COLOR, 
+				colorToRgb[crossColor].blue * CONVERSION_FROM_8_BIT_TO_16_BIT_COLOR);
+				
+			if (true == copyToShadow)
+			{
+				(*this->pPngObjectShadow).cross(
+					at.Column() + PNG_COLUMN_OFFSET_FROM_DSM_MAP, 
+					at.Row()  + PNG_ROW_OFFSET_FROM_DSM_MAP, 
+					CROSS_WIDTH,
+					CROSS_HEIGTH,
+					colorToRgb[crossColor].red * CONVERSION_FROM_8_BIT_TO_16_BIT_COLOR, 
+					colorToRgb[crossColor].green * CONVERSION_FROM_8_BIT_TO_16_BIT_COLOR, 
+					colorToRgb[crossColor].blue * CONVERSION_FROM_8_BIT_TO_16_BIT_COLOR);
+			}
+
+			return true;
+			
+		}	//	Graphic::Cross()
 
 		/////////////////////////////////////////////////////////////////////////////////
 		// Class name			: Graphic
@@ -1377,22 +1530,22 @@
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: point location and specific color (relevant to .png)
 		/////////////////////////////////////////////////////////////////////////////////
-		bool Graphic::Point(class Location point, AI_SUPPORT_CLASSES_color pixelColor)
+		bool Graphic::Point(class Location at, AI_SUPPORT_CLASSES_color pixelColor)
 		{
-			if ((false == this->initialized) || (false == this->_IsInGraphic(point)))
+			if ((false == this->initialized) || (false == this->_IsInGraphic(at)))
 				return false;
 
 			//	.png graphic point with color
 			(*this->pPngObject).plot(
-				point.Column() + PNG_COLUMN_OFFSET_FROM_DSM_MAP, 
-				point.Row()  + PNG_ROW_OFFSET_FROM_DSM_MAP, 
+				at.Column() + PNG_COLUMN_OFFSET_FROM_DSM_MAP, 
+				at.Row()  + PNG_ROW_OFFSET_FROM_DSM_MAP, 
 				colorToRgb[pixelColor].red * CONVERSION_FROM_8_BIT_TO_16_BIT_COLOR, 
 				colorToRgb[pixelColor].green * CONVERSION_FROM_8_BIT_TO_16_BIT_COLOR, 
 				colorToRgb[pixelColor].blue * CONVERSION_FROM_8_BIT_TO_16_BIT_COLOR);
 				
 			(*this->pPngObjectShadow).plot(
-				point.Column() + PNG_COLUMN_OFFSET_FROM_DSM_MAP, 
-				point.Row()  + PNG_ROW_OFFSET_FROM_DSM_MAP, 
+				at.Column() + PNG_COLUMN_OFFSET_FROM_DSM_MAP, 
+				at.Row()  + PNG_ROW_OFFSET_FROM_DSM_MAP, 
 				colorToRgb[pixelColor].red * CONVERSION_FROM_8_BIT_TO_16_BIT_COLOR, 
 				colorToRgb[pixelColor].green * CONVERSION_FROM_8_BIT_TO_16_BIT_COLOR, 
 				colorToRgb[pixelColor].blue * CONVERSION_FROM_8_BIT_TO_16_BIT_COLOR);
@@ -1412,7 +1565,7 @@
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: point location and elevation (relevant to GeoTIFF)
 		/////////////////////////////////////////////////////////////////////////////////
-		bool Graphic::Point(class Location point, int elevation)
+		bool Graphic::Point(class Location at, int elevation)
 		{
 			//	Inserts the elevation info into the DSM map
 			//		Because of unification of pixel coordinates
@@ -1420,10 +1573,10 @@
 			//		and info to GeoTIFF file is NW pixel as 0,0
 			int	internalRepresentationRows		= this->Rows();
 			int	internalRepresentationColumns	= this->Columns();
-			int	dsmRepresentationColumn			= point.Column();									// stays the same representation
-			int	dsmRepresentationRow			= (internalRepresentationRows-1) - point.Row();		// the order changes in the representation
+			int	dsmRepresentationColumn			= at.Column();									// stays the same representation
+			int	dsmRepresentationRow			= (internalRepresentationRows-1) - at.Row();		// the order changes in the representation
 			
-			if ((false == this->initialized) || (false == this->_IsInGraphic(point)))
+			if ((false == this->initialized) || (false == this->_IsInGraphic(at)))
 				return false;
 
 			//	GeoTIFF graphic point with elevation
@@ -1435,7 +1588,7 @@
 
 		/////////////////////////////////////////////////////////////////////////////////
 		// Class name			: Graphic
-		// Function				: Point
+		// Function				: Text
 		// Programmer name		: Pablo Daniel Jelsky
 		// Last update date		: 04-03-2021
 		// Class description	: This class represents a graphic

@@ -99,6 +99,8 @@
 				bool GraphicOpen(string filename, string description = "", bool fromShadow = false);
 				bool GraphicPreparation(bool clearPreviousGraphic);
 				bool GraphicLine(Location from, Location to, AI_SUPPORT_CLASSES_color lineColor, bool copyToShadow = false);
+				bool GraphicArrow(Location from, Location to, AI_SUPPORT_CLASSES_color arrowColor, bool copyToShadow = false);
+				bool GraphicCross(Location at, AI_SUPPORT_CLASSES_color crossColor, bool copyToShadow = false);
 				bool GraphicText(class Location from, string text, 
 					//	Default arguments
 					AI_SUPPORT_CLASSES_color textColor = AI_SUPPORT_CLASSES_COLOR_WHITE, 
@@ -149,7 +151,6 @@
 				//	Private member functions
 
 		};  //  class Model
-		
 
 		/////////////////////////////////////////////////////////////////////////////////
 		// Class name		: Target
@@ -197,6 +198,7 @@
 				//	Protected member function
 			private:
 				//	Private variables
+				TargetDsmInformation	targetDsmMapInfo;
 
 		};	//	class Agent
 		

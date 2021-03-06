@@ -211,7 +211,7 @@ int main()
 	Location pointB(10,10);
 	Location pointC(4,4);
 	Location pointD(150,150);
-	Location text(3,3);
+	Location textLocation(3,3);
 
 	bool					targetArrived = false, agent1Arrived = false;
 	long					targetPathLength, agent1PathLength, agent2PathLength;
@@ -241,13 +241,17 @@ int main()
 //	-	1.1)	Display the DSM file in Python / Matlab (in this case as .png file)
 	target.GraphicOpen("output/1_1_DsmOriginalFile", "DSM original input");
 	target.GraphicPreparation(true);
-	target.GraphicText(text, "Original cage6.tif");
+	target.GraphicText(textLocation, "Original cage6.tif");
 	target.GraphicClose(GRAPHIC_TYPE_PNG);
 	target.GraphicClose(GRAPHIC_TYPE_GEOTIFF);
 	
 	agent1.GraphicOpen("output/1_1_DsmOriginalFile - Agent", "DSM original input");
 	agent1.GraphicPreparation(true);
 	agent1.GraphicClose(GRAPHIC_TYPE_GEOTIFF);
+	
+	//	Draws a cross at the target objective
+	agent1.GraphicCross(targetObjective, AI_SUPPORT_CLASSES_COLOR_WHITE, true);
+	target.GraphicCross(targetObjective, AI_SUPPORT_CLASSES_COLOR_WHITE, true);
 	
 	long int	simulationSeconds = 0;
   
@@ -259,7 +263,8 @@ int main()
 		string		target_base_text		= "Target path progress over time on map second = ";
 		string		agent1_base_filename	= "output/agent/1_2_2_AgentOverTime_";
 		string		agent1_base_text		= "Agent path progress over time on map second = ";
-		string		filename, text;
+		string		steps_base_text			= "Step = ";
+		string		filename, text, steps_text;
 		
 		if (false == targetArrived)
 			targetNextLocation				= target.NextLocation();
@@ -268,6 +273,9 @@ int main()
 			agent1NextLocation				= agent1.NextLocation();
 			
 		simulationSeconds++;
+		
+		steps_text							= steps_base_text;
+		steps_text							+= std::to_string(simulationSeconds);
 		
 		if (false == targetArrived)
 		{
@@ -278,6 +286,7 @@ int main()
 			text							+= std::to_string(simulationSeconds);
 					
 			target.GraphicOpen(filename, text, true);
+			target.GraphicText(textLocation, steps_text);
 			target.GraphicLine(targetCurrentLocation, targetNextLocation, AI_SUPPORT_CLASSES_COLOR_WHITE, true);
 			target.GraphicClose(GRAPHIC_TYPE_PNG);
 		}
@@ -290,6 +299,7 @@ int main()
 			text							+= std::to_string(simulationSeconds);
 			
 			agent1.GraphicOpen(filename, text, true);
+			agent1.GraphicText(textLocation, steps_text);
 			agent1.GraphicLine(targetCurrentLocation, targetNextLocation, AI_SUPPORT_CLASSES_COLOR_WHITE, true);
 			agent1.GraphicLine(agent1CurrentLocation, agent1NextLocation, AI_SUPPORT_CLASSES_COLOR_TOMATO, true);
 			agent1.GraphicClose(GRAPHIC_TYPE_PNG);

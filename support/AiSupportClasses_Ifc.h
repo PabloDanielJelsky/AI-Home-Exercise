@@ -318,6 +318,38 @@
 		};  //  class DsmInformation
 		
 		/////////////////////////////////////////////////////////////////////////////////
+		// Class name		: TargetDsmInformation
+		// Programmer name	: Pablo Daniel Jelsky
+		// Last update date	: 06-03-2021
+		// Description		: This class represents the information taken from a DSM file
+		//						A DSM (Digital Surface Model) is a computer graphics 
+		//						representation of elevation data to represent terrain but
+		//						specialized with info on target
+		// Remarks			: It is derived from DsmInformation class
+		/////////////////////////////////////////////////////////////////////////////////
+		class TargetDsmInformation : public DsmInformation
+		{
+			public:
+				//	Public member functions
+				bool NonAllowedDistance(int column, int row, bool nonAllowedDistance);
+				bool NonAllowedDistance(Location location);
+				bool NonAllowedDistance(int column, int row);
+				//	Default Constructor 
+				TargetDsmInformation() : DsmInformation {} {};
+				//	Parametrized Constructors 
+				TargetDsmInformation(int columns, int rows) : DsmInformation {columns, rows} {}
+				//	Destructor
+				~TargetDsmInformation();
+
+			protected:
+				//	Protected member function
+			private:
+				//	Private variables
+
+		};	//	class TargetDsmInformation
+		
+		
+		/////////////////////////////////////////////////////////////////////////////////
 		// Class name		: Graphic
 		// Programmer name	: Pablo Daniel Jelsky
 		// Last update date	: 02-03-2021
@@ -335,16 +367,18 @@
 				int Columns(void);
 				void Rows(int rows);
 				int Rows(void);
-				bool Point(class Location point, AI_SUPPORT_CLASSES_color pixelColor);					//	for .png files
-				bool Point(class Location point, int elevation);										//	for GeoTIFF files
-				bool Line(class Location from, class Location to, AI_SUPPORT_CLASSES_color lineColor, bool copytToShadow = false);
+				bool Point(class Location at, AI_SUPPORT_CLASSES_color pixelColor);													//	for .png files
+				bool Point(class Location at, int elevation);																		//	for GeoTIFF files
+				bool Line(class Location from, class Location to, AI_SUPPORT_CLASSES_color lineColor, bool copyToShadow = false);	//	for .png files
+				bool Arrow(class Location from, class Location to, AI_SUPPORT_CLASSES_color arrowColor, bool copyToShadow = false);	//	for .png files
+				bool Cross(class Location at, AI_SUPPORT_CLASSES_color crossColor, bool copyToShadow = false);						//	for .png files
 				bool Text(class Location from, string text, 
 					//	Default arguments
 					AI_SUPPORT_CLASSES_color textColor = AI_SUPPORT_CLASSES_COLOR_WHITE, 
 					int fontSize = 12,
 					string fontPathAndFilename = "/usr/share/fonts/truetype/ubuntu/Ubuntu-M.ttf",
 					double angle = 0.0			//	angle is the text angle in degrees
-					);
+					);																												//	for .png files
 					
 				//	Operators
 				Graphic& operator = (Graphic& graphic);

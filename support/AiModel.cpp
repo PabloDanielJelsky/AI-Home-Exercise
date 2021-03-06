@@ -595,6 +595,56 @@
 		
 		/////////////////////////////////////////////////////////////////////////////////
 		// Class name			: Model
+		// Function				: GraphicArrow
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 06-03-2021
+		// Class description	: This base class represents the model that will be derived
+		//							as a person (class) that could be an agent, a target, etc
+		// Function description	: This public member function draws an arrow in the graphic
+		// Remarks				: Currently supported formats (.png and GeoTIFF)
+		//							returns true if the graphic was prepared,
+		//							false otherwise
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: from and to locations, arrow color
+		//					Default parameters:
+		//							copy to shadow
+		/////////////////////////////////////////////////////////////////////////////////
+		bool Model::GraphicArrow(Location from, Location to, 
+						AI_SUPPORT_CLASSES_color arrowColor, 
+						//	Default arguments
+						bool copyToShadow)
+		{
+			return (this->graphic.Arrow(from, to, arrowColor, copyToShadow));
+						
+		}	//	Model::GraphicArrow()
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: Model
+		// Function				: GraphicCross
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 06-03-2021
+		// Class description	: This base class represents the model that will be derived
+		//							as a person (class) that could be an agent, a target, etc
+		// Function description	: This public member function draws a cross in the graphic
+		// Remarks				: Currently supported formats (.png and GeoTIFF)
+		//							returns true if the graphic was prepared,
+		//							false otherwise
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: at location, cross color
+		//					Default parameters:
+		//							copy to shadow
+		/////////////////////////////////////////////////////////////////////////////////
+		bool Model::GraphicCross(Location at, 
+						AI_SUPPORT_CLASSES_color crossColor, 
+						//	Default arguments
+						bool copyToShadow)
+		{
+			return (this->graphic.Cross(at, crossColor, copyToShadow));
+						
+		}	//	Model::GraphicCross()
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: Model
 		// Function				: GraphicText
 		// Programmer name		: Pablo Daniel Jelsky
 		// Last update date		: 04-03-2021
