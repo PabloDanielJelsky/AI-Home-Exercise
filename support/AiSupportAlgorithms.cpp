@@ -151,32 +151,32 @@
 			int	dsmQuantityOfRows				= dsmInformation.Rows();
 			
 			//	To store the first enumerator, and the last one, depending in the quantity of pixels per each movement
-			directionEnumerator	directionFirst	= (true == possibilityOfNotMoving) ? DIRECTION_SAME_PLACE : DIRECTION_NORTH;
+			directionEnumerator	directionFirst	= (possibilityOfNotMoving) ? DIRECTION_SAME_PLACE : DIRECTION_NORTH;
 			directionEnumerator directionLast;
 			
 			// If the source is out of range
-			if (false == _IsValid(dsmInformation, sourceLocation)) 
+			if (!_IsValid(dsmInformation, sourceLocation)) 
 			{
 				printf("Source is invalid\n");
 				return EXIT_FAILURE;
 			}
 		 
 			// If the destination is out of range
-			if (false == _IsValid(dsmInformation, destinationLocation)) 
+			if (!_IsValid(dsmInformation, destinationLocation)) 
 			{
 				printf("Destination is invalid\n");
 				return EXIT_FAILURE;
 			}
 		 
 			// Either the source or the destination is blocked
-			if (false == _IsUnblocked(dsmInformation, sourceLocation) || false == _IsUnblocked(dsmInformation, destinationLocation)) 
+			if (!_IsUnblocked(dsmInformation, sourceLocation) || !_IsUnblocked(dsmInformation, destinationLocation)) 
 			{
 				printf("Source or the destination is not in 'ground' level\n");
 				return EXIT_FAILURE;
 			}
 		 
 			// If the destination cell is the same as source cell
-			if (true == _IsDestination(sourceLocation, destinationLocation)) 
+			if (_IsDestination(sourceLocation, destinationLocation)) 
 			{
 				printf("We are already at the destination\n");
 				return EXIT_FAILURE;
@@ -327,7 +327,7 @@
 			// To store the 'g', 'h' and 'f' of the successors
 			double 	gNew, hNew, fNew;
 		 
-			while (false == openList.empty()) 
+			while (!openList.empty()) 
 			{
 				pPair p = *openList.begin();
 		 
@@ -419,11 +419,11 @@
 					}	//	switch()
 					
 					// Only process this cell if this is a valid one
-					if (true == _IsValid(dsmInformation, temporalDsmLocation)) 
+					if (_IsValid(dsmInformation, temporalDsmLocation)) 
 					{
 						// If the destination cell is the same as the
 						// current successor
-						if (true == _IsDestination(temporalDsmLocation, destinationLocation)) 
+						if (_IsDestination(temporalDsmLocation, destinationLocation)) 
 						{
 							// Set the Parent of the destination cell
 							pCellDetails[(temporalDsmLocation.Row() * dsmQuantityOfColumns) + temporalDsmLocation.Column()].parentLocation.Modify(column, row);
@@ -441,8 +441,8 @@
 						// If the successor is already on the closed
 						// list or if it is blocked, then ignore it.
 						// Else do the following
-						else if (false == pClosedList[(temporalDsmLocation.Row() * dsmQuantityOfColumns) + temporalDsmLocation.Column()]
-								 && true == _IsUnblocked(dsmInformation, temporalDsmLocation)) 
+						else if (!pClosedList[(temporalDsmLocation.Row() * dsmQuantityOfColumns) + temporalDsmLocation.Column()]
+								 && _IsUnblocked(dsmInformation, temporalDsmLocation)) 
 						{
 							gNew	= pCellDetails[(row * dsmQuantityOfColumns) + column].g + distanceBetweenSuccessorAndCurrentCell;
 							hNew	= _CalculateHValueForAiHomeExercise(temporalDsmLocation, destinationLocation);
@@ -484,7 +484,7 @@
 			// reach the destination cell. This may happen when 
 			// there is no way to destination cell (due to
 			// blockages)
-			if (false == foundDest)
+			if (!foundDest)
 			{
 				printf("Failed to find the Destination Cell\n");
 				return EXIT_FAILURE;
@@ -538,7 +538,7 @@
 		bool _IsUnblocked(DsmInformation& dsmInformation, Location location)
 		{
 			// Returns true if the cell is not blocked else false
-			return ((true == dsmInformation.Obstacle(location)) ? false : true);
+			return ((dsmInformation.Obstacle(location)) ? false : true);
 			
 		}	//	_IsUnblocked()
 		

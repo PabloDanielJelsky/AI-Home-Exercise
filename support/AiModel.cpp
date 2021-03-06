@@ -320,6 +320,44 @@
 	*/
 		/////////////////////////////////////////////////////////////////////////////////
 		// Class name			: Model
+		// Function				: DsmMapFileColumns
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 06-03-2021
+		// Class description	: This base class represents the model that will be derived
+		//							as a person (class) that could be an agent, a target, etc
+		// Function description	: This public member function returns the number of 
+		//							columns in the input DSM file
+		// Remarks				:
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: None
+		/////////////////////////////////////////////////////////////////////////////////
+		int Model::DsmMapFileColumns(void)
+		{
+			return this->dsmMapInfo.Columns();
+			
+		}	//	Model::DsmMapFileColumns()
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: Model
+		// Function				: DsmMapFileColumns
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 06-03-2021
+		// Class description	: This base class represents the model that will be derived
+		//							as a person (class) that could be an agent, a target, etc
+		// Function description	: This public member function returns the number of 
+		//							columns in the input DSM file
+		// Remarks				:
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: None
+		/////////////////////////////////////////////////////////////////////////////////
+		int Model::DsmMapFileRows(void)
+		{
+			return this->dsmMapInfo.Rows();
+			
+		}	//	Model::DsmMapFileRows()
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: Model
 		// Function				: CurrentLocation
 		// Programmer name		: Pablo Daniel Jelsky
 		// Last update date		: 04-03-2021
@@ -333,12 +371,12 @@
 		bool Model::CurrentLocation(Location currentLocation)
 		{
 			//	Verify the location is a valid one
-			if (false == this->dsmMapInfo.IsInDsmMap(currentLocation))
+			if (!this->dsmMapInfo.IsInDsmMap(currentLocation))
 			{
 				this->logger << this->logger.SystemTime() << "While trying to set current location in DSM map: CURRENT LOCATION is NOT in DSM map => [" << currentLocation.Column() << ", " << currentLocation.Row() << "]\n";
 				return false;
 			}
-			if (false == this->dsmMapInfo.GroundLevel(currentLocation))
+			if (!this->dsmMapInfo.GroundLevel(currentLocation))
 			{
 				this->logger << this->logger.SystemTime() << "While trying to set current location in DSM map: CURRENT LOCATION is not at GROUND LEVEL in DSM map => [" << currentLocation.Column() << ", " << currentLocation.Row() << "]\n";
 				return false;
@@ -387,12 +425,12 @@
 		bool Model::DestinationLocation(Location destinationLocation)
 		{
 			//	Verify the location is a valid one
-			if (false == this->dsmMapInfo.IsInDsmMap(destinationLocation))
+			if (!this->dsmMapInfo.IsInDsmMap(destinationLocation))
 			{
 				this->logger << this->logger.SystemTime() << "While trying to set destination location in DSM map: DESTINATION LOCATION is NOT in DSM map => [" << destinationLocation.Column() << ", " << destinationLocation.Row() << "]\n";
 				return false;
 			}
-			if (false == this->dsmMapInfo.GroundLevel(destinationLocation))
+			if (!this->dsmMapInfo.GroundLevel(destinationLocation))
 			{
 				this->logger << this->logger.SystemTime() << "While trying to set destination location in DSM map: DESTINATION LOCATION is not at GROUND LEVEL in DSM map => [" << destinationLocation.Column() << ", " << destinationLocation.Row() << "]\n";
 				return false;
@@ -444,22 +482,22 @@
 			Location	destinationLocation		= this->DestinationLocation();
 			
 			//	Verify the locations are valid ones
-			if (false == this->dsmMapInfo.IsInDsmMap(currentLocation))
+			if (!this->dsmMapInfo.IsInDsmMap(currentLocation))
 			{
 				this->logger << this->logger.SystemTime() << "While trying to find path from source to destination: CURRENT LOCATION is NOT in DSM map => [" << currentLocation.Column() << ", " << currentLocation.Row() << "]\n";
 				return EXIT_FAILURE;
 			}
-			if (false == this->dsmMapInfo.IsInDsmMap(destinationLocation))
+			if (!this->dsmMapInfo.IsInDsmMap(destinationLocation))
 			{
 				this->logger << this->logger.SystemTime() << "While trying to find path from source to destination: DESTINATION LOCATION is NOT in DSM map => [" << destinationLocation.Column() << ", " << destinationLocation.Row() << "]\n";
 				return EXIT_FAILURE;
 			}
-			if (true == this->dsmMapInfo.Obstacle(currentLocation))
+			if (this->dsmMapInfo.Obstacle(currentLocation))
 			{
 				this->logger << this->logger.SystemTime() << "While trying to find path from source to destination: CURRENT LOCATION is an OBSTACLE in DSM map => [" << currentLocation.Column() << ", " << currentLocation.Row() << "]\n";
 				return EXIT_FAILURE;
 			}
-			if (true == this->dsmMapInfo.Obstacle(destinationLocation))
+			if (this->dsmMapInfo.Obstacle(destinationLocation))
 			{
 				this->logger << this->logger.SystemTime() << "While trying to find path from source to destination: DESTINATION LOCATION is an OBSTACLE in DSM map => [" << destinationLocation.Column() << ", " << destinationLocation.Row() << "]\n";
 				return EXIT_FAILURE;
@@ -497,7 +535,27 @@
 			return this->CurrentLocation();
 			
 		}	//	Model::NextLocation()
-				
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: Model
+		// Function				: LineOfSight
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 06-03-2021
+		// Class description	: This base class represents the model that will be derived
+		//							as a person (class) that could be an agent, a target, etc
+		// Function description	: This member function returns the visibility between
+		//							two location (line of sight = LOS)
+		// Remarks				:Returns true, if the locations are visible between them
+		//							false, otherwise
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: pointA and pointB (as Location)
+		/////////////////////////////////////////////////////////////////////////////////
+		bool Model::LineOfSight(Location pointA, Location pointB)
+		{
+			return (this->dsmMapInfo.LineOfSight(pointA, pointB));
+			
+		}	//	Model::LineOfSight()
+
 		/////////////////////////////////////////////////////////////////////////////////
 		// Class name			: Model
 		// Function				: GraphicOpen
@@ -589,6 +647,12 @@
 			//	Default arguments
 			bool copyToShadow)
 		{
+			if (from == to)
+			{
+				cout << "Locations are the same one, and therefore the line is not drawn...\n";
+				return false;
+			}
+			
 			return (this->graphic.Line(from, to, lineColor, copyToShadow));
 			
 		}	//	Model::GraphicLine()
@@ -614,6 +678,12 @@
 						//	Default arguments
 						bool copyToShadow)
 		{
+			if (from == to)
+			{
+				cout << "Locations are the same one, and therefore the arrow is not drawn...\n";
+				return false;
+			}
+			
 			return (this->graphic.Arrow(from, to, arrowColor, copyToShadow));
 						
 		}	//	Model::GraphicArrow()
@@ -731,7 +801,7 @@
 			//	Registering the GDAL drivers
 			this->_GdalDriverInitialization();
 			//	Raster the GeoTIFF input file inside the object for further use
-			if (false == _DsmInputFileRaster())
+			if (!_DsmInputFileRaster())
 			{
 				this->initialized	= false;
 				return;
@@ -772,7 +842,7 @@
 					return false;
 			}
 			
-			this->aStartSearchPixelsCouldStayOnPlace	= (true == possibilityOfNotMoving) ? true : false;
+			this->aStartSearchPixelsCouldStayOnPlace	= (possibilityOfNotMoving) ? true : false;
 			return true;
 			
 		}	//	 Model::_AStarAlgorithmConfiguration()

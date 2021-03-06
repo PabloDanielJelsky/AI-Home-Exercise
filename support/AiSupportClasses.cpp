@@ -685,7 +685,7 @@
 		/////////////////////////////////////////////////////////////////////////////////
 		double Location::LineIntercept(Location point)
 		{
-			double	intercept	= (this->Row() - (this->LineSlope(point) * this->Column()));
+			double	intercept	= ((double) (this->Row() - (double) (this->LineSlope(point) * this->Column())));
 		
 			return intercept;
 			
@@ -705,7 +705,7 @@
 		/////////////////////////////////////////////////////////////////////////////////
 		double Location::LineSlope(Location point)
 		{
-			double	slope		= (this->Row() - point.Row()) / (this->Column() - point.Column());
+			double	slope		= ((double) (this->Row() - point.Row()) / (double) (this->Column() - point.Column()));
 			
 			return slope;
 			
@@ -828,13 +828,32 @@
 			if (pointA.Column() == pointB.Column())
 			{
 				//	Both points are vertical one to the other
+				column	= pointA.Column();
+				
+				if (pointA.Row() > pointB.Row())
+				{
+					for (row = pointB.Row(); row <= pointA.Row(); row++)
+					{
+						if (this->Obstacle(column, row))
+							return false;
+					}
+				}
+				else if (pointB.Row() > pointA.Row())
+				{
+					for (row = pointA.Row(); row <= pointB.Row(); row++)
+					{
+						if (this->Obstacle(column, row))
+							return false;
+					}
+				}
 			}
 			else if (pointA.Column() > pointB.Column())
 			{
 				for (column = pointB.Column(); column <= pointA.Column(); column++)
 				{
 					row	= (int) (slope * column) + intercept;
-					if (false == this->Obstacle(column, row))
+					
+					if (this->Obstacle(column, row))
 						return false;
 				}
 			}
@@ -843,7 +862,8 @@
 				for (column = pointA.Column(); column <= pointB.Column(); column++)
 				{
 					row	= (int) (slope * column) + intercept;
-					if (false == this->Obstacle(column, row))
+					
+					if (this->Obstacle(column, row))
 						return false;
 				}
 			}
@@ -1044,7 +1064,7 @@
 			
 			
 			this->pLocation[(this->Columns() * row) + column].Obstacle(theLocationIsAnObstacle);
-			if (true == theLocationIsAnObstacle)
+			if (theLocationIsAnObstacle)
 				logger << "[" << column << "," << row << "] was set to be an obstacle\n";
 			else
 				logger << "[" << column << "," << row << "] was set not to be an obstacle\n";
@@ -1187,7 +1207,7 @@
 		/////////////////////////////////////////////////////////////////////////////////
 		bool Graphic::Open(string filename, string description, bool fromShadow, string author, string software)
 		{
-			if (false == this->Filename(filename, fromShadow))
+			if (!this->Filename(filename, fromShadow))
 				return false;
 				
 			//	Change the text information in the PNG header
@@ -1214,7 +1234,7 @@
 		{
 			int	row;
 			
-			if (false == this->initialized)
+			if (!this->initialized)
 				return false;
 				
 			switch (typeOfGraphic)
@@ -1366,7 +1386,7 @@
 		{
 			this->filename	= filename;
 			
-			if ((this->initialized == false || true == fromShadow) && this->Rows() != 0 && this->Columns() != 0)
+			if ((!this->initialized || fromShadow) && this->Rows() != 0 && this->Columns() != 0)
 			{
 				this->initialized	= true; 
 				this->_Update(fromShadow);
@@ -1393,7 +1413,7 @@
 		/////////////////////////////////////////////////////////////////////////////////
 		bool Graphic::Line(class Location from, class Location to, AI_SUPPORT_CLASSES_color lineColor, bool copyToShadow)
 		{
-			if ((false == this->initialized) || (false == this->_IsInGraphic(from)) || (false == this->_IsInGraphic(to)))
+			if ((!this->initialized) || (!this->_IsInGraphic(from)) || (!this->_IsInGraphic(to)))
 				return false;
 
 			(*this->pPngObject).line(
@@ -1405,7 +1425,7 @@
 				colorToRgb[lineColor].green * CONVERSION_FROM_8_BIT_TO_16_BIT_COLOR, 
 				colorToRgb[lineColor].blue * CONVERSION_FROM_8_BIT_TO_16_BIT_COLOR);
 				
-			if (true == copyToShadow)
+			if (copyToShadow)
 			{
 				(*this->pPngObjectShadow).line(
 				from.Column() + PNG_COLUMN_OFFSET_FROM_DSM_MAP,
@@ -1437,10 +1457,10 @@
 		/////////////////////////////////////////////////////////////////////////////////
 		bool Graphic::Arrow(class Location from, class Location to, AI_SUPPORT_CLASSES_color arrowColor, bool copyToShadow)
 		{
-			const int 		ARROW_SIZE 	= 1;
+			const int 		ARROW_SIZE 	= 5;
 			const double	HEAD_ANGLE	= 0.0;
 			
-			if ((false == this->initialized) || (false == this->_IsInGraphic(from)) || (false == this->_IsInGraphic(to)))
+			if ((!this->initialized) || (!this->_IsInGraphic(from)) || (!this->_IsInGraphic(to)))
 				return false;
 				
 			(*this->pPngObject).arrow(
@@ -1454,7 +1474,7 @@
 				colorToRgb[arrowColor].green * CONVERSION_FROM_8_BIT_TO_16_BIT_COLOR, 
 				colorToRgb[arrowColor].blue * CONVERSION_FROM_8_BIT_TO_16_BIT_COLOR);
 				
-			if (true == copyToShadow)
+			if (copyToShadow)
 			{
 				(*this->pPngObjectShadow).arrow(
 				from.Column() + PNG_COLUMN_OFFSET_FROM_DSM_MAP,
@@ -1490,7 +1510,7 @@
 			const int CROSS_WIDTH 	= 3;
 			const int CROSS_HEIGTH	= 3;
 			
-			if ((false == this->initialized) || (false == this->_IsInGraphic(at)))
+			if ((!this->initialized) || (!this->_IsInGraphic(at)))
 				return false;
 
 			//	.png graphic cross with color
@@ -1503,7 +1523,7 @@
 				colorToRgb[crossColor].green * CONVERSION_FROM_8_BIT_TO_16_BIT_COLOR, 
 				colorToRgb[crossColor].blue * CONVERSION_FROM_8_BIT_TO_16_BIT_COLOR);
 				
-			if (true == copyToShadow)
+			if (copyToShadow)
 			{
 				(*this->pPngObjectShadow).cross(
 					at.Column() + PNG_COLUMN_OFFSET_FROM_DSM_MAP, 
@@ -1532,7 +1552,7 @@
 		/////////////////////////////////////////////////////////////////////////////////
 		bool Graphic::Point(class Location at, AI_SUPPORT_CLASSES_color pixelColor)
 		{
-			if ((false == this->initialized) || (false == this->_IsInGraphic(at)))
+			if ((!this->initialized) || (!this->_IsInGraphic(at)))
 				return false;
 
 			//	.png graphic point with color
@@ -1576,7 +1596,7 @@
 			int	dsmRepresentationColumn			= at.Column();									// stays the same representation
 			int	dsmRepresentationRow			= (internalRepresentationRows-1) - at.Row();		// the order changes in the representation
 			
-			if ((false == this->initialized) || (false == this->_IsInGraphic(at)))
+			if ((!this->initialized) || (!this->_IsInGraphic(at)))
 				return false;
 
 			//	GeoTIFF graphic point with elevation
@@ -1610,7 +1630,7 @@
 		{
 			const double PI	= 3.141592653589793238463;
 			
-			if ((false == this->initialized) || (false == this->_IsInGraphic(from)))
+			if ((!this->initialized) || (!this->_IsInGraphic(from)))
 				return false;
 				
 			(*this->pPngObject).plot_text_utf8(
@@ -1661,7 +1681,7 @@
 		/////////////////////////////////////////////////////////////////////////////////
 		long int Timer::Stop(void)
 		{
-			if (true == this->running)
+			if (this->running)
 			{
 				long int	durationMilliseconds	= (long int) chrono::duration_cast<chrono::milliseconds>(std::chrono::high_resolution_clock::now() - this->start).count();
  
@@ -1986,14 +2006,14 @@
 			string	pngFilename		= this->filename + ".png";
 			string	geoTiffFilename	= this->filename + ".tif";
 
-			if (false == this->initialized)
+			if (!this->initialized)
 				return;
 
 			//	Update .png graphic file size (if not from shadow)
-			if (false == fromShadow)
+			if (!fromShadow)
 				(*this->pPngObject).resize(this->Columns(), this->Rows());
 			
-			if (false == fromShadow)
+			if (!fromShadow)
 				(*this->pPngObjectShadow).resize(this->Columns(), this->Rows());
 			else
 				(*this->pPngObject)	= (*this->pPngObjectShadow);
@@ -2003,7 +2023,7 @@
 
 			//	Update GeoTIFF graphic file
 				//	Create GDAL driver object whose Create() method will be used to create Geotiff writer object. */
-			if (false == fromShadow)
+			if (!fromShadow)
 			{
 				this->driverGeotiff 	= GetGDALDriverManager()->GetDriverByName("GTiff");
 				this->geotiffDataset	= this->driverGeotiff->Create(geoTiffFilename.c_str(), this->Columns(), this->Rows(), 1, GDT_Float32, NULL);

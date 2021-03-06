@@ -66,6 +66,8 @@
 //	-	1.4.1)		Display LOS between every agent ant the "target", if existent
 //	-	2)	Solution help tools
 //	-		-------------------
+//	-	2.1)	Map for every pixel at ground-level all the pixel that have LOS with it
+//	-	2.2)	Take a number of DSM locations and display the LOS between them
 
 //
 //	==========================================
@@ -142,6 +144,7 @@
 		****************************************************************************
 	*/
 		/*---- system and platform files -------------------------------------------*/
+		#include <iostream>
 		#include <cstdlib>
 		/*---- library files -------------------------------------------------------*/
 		#include "/usr/include/gdal/gdal.h"
@@ -176,17 +179,11 @@
 		/*---- context -------------------------------------------------------------*/
 		/*---- macros --------------------------------------------------------------*/
 		/*---- defines --------------------------------------------------------------*/
-		#define	NUMBER_OF_AGENTS	2
-		#define DSM_FILE        	"../Input/cage6.tif"
-		#define OUT_FILE        	"output/cage6.png"
-		#define TARGET_PATH_FILE	"output/cage6_with_TargetPath.png"
-		#define AGENT1_PATH_FILE	"output/cage6_with_Agent1Path.png"
-		#define AGENT2_PATH_FILE	"output/cage6_with_Agent2Path.png"
+		#define DSM_FILE	"../Input/cage6.tif"
 		
 		/*---- data declarations ---------------------------------------------------*/
-		typedef enum {PERSON_TYPE_TARGET, PERSON_TYPE_AGENT1, PERSON_TYPE_AGENT2} personType;
 		//	Logger support object created to log all the relevant events of this simulation
-		class Logger				LoggerObject("output/PabloAIHomeExercise.txt");
+		class Logger		LoggerObject("output/PabloAIHomeExercise.txt");
 		/*---- function prototypes -------------------------------------------------*/
 
 
@@ -202,125 +199,205 @@
 		* PRIVATE FUNCTION DEFINITIONS
 		****************************************************************************
 	*/
-
-int main()
-{
-	Location targetStart(2,2);
-	Location targetObjective(300,100);
-	
-	Location pointB(10,10);
-	Location pointC(4,4);
-	Location pointD(150,150);
-	Location textLocation(3,3);
-
-	bool					targetArrived = false, agent1Arrived = false;
-	long					targetPathLength, agent1PathLength, agent2PathLength;
-	list <DsmLocation> 		targetPathList, agent1PathList, agent2PathList;
-
-	class Agent				agent1(DSM_FILE, "Agent1");
-	agent1.CurrentLocation(targetStart);
-	agent1.DestinationLocation(targetObjective);
-	agent1PathLength 	= agent1.FindPath("output/Agent1Path.csv");
-	
-	class Target			target(DSM_FILE, "Target");
-	target.CurrentLocation(targetStart);
-	target.DestinationLocation(targetObjective);
-//	-	1.2.1)		Create the "target" path given start and objective points
-	targetPathLength 	= target.FindPath("output/TargetPath.csv");
-	
-	
-	class Agent				agent2(DSM_FILE, "Agent2");
-	agent2.CurrentLocation(targetStart);
-	agent2.DestinationLocation(targetObjective);
-	agent2PathLength 	= agent2.FindPath("output/Agent2Path.csv");
-   
-	cout << "Target path length = " << targetPathLength << "\n";
-	cout << "Agent 1 path length = " << agent1PathLength << "\n";
-	cout << "Agent 2 path length = " << agent2PathLength << "\n";
-	
-//	-	1.1)	Display the DSM file in Python / Matlab (in this case as .png file)
-	target.GraphicOpen("output/1_1_DsmOriginalFile", "DSM original input");
-	target.GraphicPreparation(true);
-	target.GraphicText(textLocation, "Original cage6.tif");
-	target.GraphicClose(GRAPHIC_TYPE_PNG);
-	target.GraphicClose(GRAPHIC_TYPE_GEOTIFF);
-	
-	agent1.GraphicOpen("output/1_1_DsmOriginalFile - Agent", "DSM original input");
-	agent1.GraphicPreparation(true);
-	agent1.GraphicClose(GRAPHIC_TYPE_GEOTIFF);
-	
-	//	Draws a cross at the target objective
-	agent1.GraphicCross(targetObjective, AI_SUPPORT_CLASSES_COLOR_WHITE, true);
-	target.GraphicCross(targetObjective, AI_SUPPORT_CLASSES_COLOR_WHITE, true);
-	
-	long int	simulationSeconds = 0;
-  
-	while (false == targetArrived || false == agent1Arrived)
-    {
-		Location	targetCurrentLocation	= target.CurrentLocation(), targetNextLocation;
-		Location	agent1CurrentLocation	= agent1.CurrentLocation(), agent1NextLocation;
-		string		target_base_filename	= "output/target/1_2_2_TargetOverTime_";
-		string		target_base_text		= "Target path progress over time on map second = ";
-		string		agent1_base_filename	= "output/agent/1_2_2_AgentOverTime_";
-		string		agent1_base_text		= "Agent path progress over time on map second = ";
-		string		steps_base_text			= "Step = ";
-		string		filename, text, steps_text;
+	static string _LosText(Location from, Location to)
+	{
+		string	losText;
 		
-		if (false == targetArrived)
-			targetNextLocation				= target.NextLocation();
-			
-		if (false == agent1Arrived)
-			agent1NextLocation				= agent1.NextLocation();
-			
-		simulationSeconds++;
+		losText	= "[" + std::to_string(from.Column()) + ", " + std::to_string(from.Row()) + "] => " + "[" + std::to_string(to.Column()) + ", " + std::to_string(to.Row()) + "]";
+		return losText;
 		
-		steps_text							= steps_base_text;
-		steps_text							+= std::to_string(simulationSeconds);
+	}	//	_LosText()
+	
+	static bool _DrawLineOfSightBetweenTwoLocationsInDsmMap(class Model &model, Location from, Location to, int exampleNumber)
+	{
+		Location 	lostextLocation(30,3);
+		bool		locationsHaveLos;
 		
-		if (false == targetArrived)
+		model.GraphicOpen("output/LOS example " + std::to_string(exampleNumber), _LosText(from, to), true);
+		
+		model.GraphicCross(from, AI_SUPPORT_CLASSES_COLOR_TOMATO, false);
+		model.GraphicCross(to, AI_SUPPORT_CLASSES_COLOR_WHITE, false);
+		
+		locationsHaveLos	= model.LineOfSight(from, to);
+		if (locationsHaveLos)
 		{
-//	-	1.2.2)		Display "target" path progress over time on map
-			filename						= target_base_filename;
-			filename						+= std::to_string(simulationSeconds);
-			text							= target_base_text;
-			text							+= std::to_string(simulationSeconds);
-					
-			target.GraphicOpen(filename, text, true);
-			target.GraphicText(textLocation, steps_text);
-			target.GraphicLine(targetCurrentLocation, targetNextLocation, AI_SUPPORT_CLASSES_COLOR_WHITE, true);
-			target.GraphicClose(GRAPHIC_TYPE_PNG);
+			model.GraphicText(lostextLocation, _LosText(from, to), AI_SUPPORT_CLASSES_COLOR_WHITE, 10);
+			model.GraphicArrow(from, to, AI_SUPPORT_CLASSES_COLOR_WHITE, false);
 		}
-			
-		if (false == agent1Arrived)
+		else
 		{
-			filename						= agent1_base_filename;
-			filename						+= std::to_string(simulationSeconds);
-			text							= agent1_base_text;
-			text							+= std::to_string(simulationSeconds);
-			
-			agent1.GraphicOpen(filename, text, true);
-			agent1.GraphicText(textLocation, steps_text);
-			agent1.GraphicLine(targetCurrentLocation, targetNextLocation, AI_SUPPORT_CLASSES_COLOR_WHITE, true);
-			agent1.GraphicLine(agent1CurrentLocation, agent1NextLocation, AI_SUPPORT_CLASSES_COLOR_TOMATO, true);
-			agent1.GraphicClose(GRAPHIC_TYPE_PNG);
+			model.GraphicText(lostextLocation, "There is not LOS between " + _LosText(from, to), AI_SUPPORT_CLASSES_COLOR_WHITE, 10);
 		}
+		model.GraphicClose(GRAPHIC_TYPE_PNG);
 		
-		if (target.CurrentLocation() == target.DestinationLocation())
-		{
-			targetArrived	= true;
-		}
+		return locationsHaveLos;
 		
-		if (agent1.CurrentLocation() == agent1.DestinationLocation())
-		{
-			agent1Arrived	= true;
-		}
-		
-		if (simulationSeconds > 600)
-			break;
-    }  
-    
-	return EXIT_SUCCESS;
-	
-}	//	main()
+	}	//	_DrawLineOfSightBetweenTwoLocationsInDsmMap()
 
+	/*
+		************************************************************************************
+		************************************************************************************
+		************************************************************************************
+		* MAIN PROGRAM --- MAIN PROGRAM --- MAIN PROGRAM --- MAIN PROGRAM --- MAIN PROGRAM *
+		* MAIN PROGRAM --- MAIN PROGRAM --- MAIN PROGRAM --- MAIN PROGRAM --- MAIN PROGRAM *
+		* MAIN PROGRAM --- MAIN PROGRAM --- MAIN PROGRAM --- MAIN PROGRAM --- MAIN PROGRAM *
+		************************************************************************************
+		************************************************************************************
+		************************************************************************************
+	*/
+	int main(int argc, char *argv[])
+	{
+		Location				targetStart(5, 5);
+		Location				targetObjective(300,100);
+		
+		Location				textLocation(3, 3);
 
+		bool					targetArrived = false, agent1Arrived = false;
+		long					targetPathLength, agent1PathLength, agent2PathLength;
+		list <DsmLocation> 		targetPathList, agent1PathList, agent2PathList;
+
+		class Agent				agent1(DSM_FILE, "Agent1");
+		agent1.CurrentLocation(targetStart);
+		agent1.DestinationLocation(targetObjective);
+		agent1PathLength 		= agent1.FindPath("output/Agent1Path.csv");
+		
+		class Target			target(DSM_FILE, "Target");
+		target.CurrentLocation(targetStart);
+		target.DestinationLocation(targetObjective);
+//	-	1.2.1)		Create the "target" path given start and objective points - Begin
+		targetPathLength		= target.FindPath("output/TargetPath.csv");
+//	-	1.2.1)		Create the "target" path given start and objective points - End
+		
+		class Agent				agent2(DSM_FILE, "Agent2");
+		agent2.CurrentLocation(targetStart);
+		agent2.DestinationLocation(targetObjective);
+		agent2PathLength		= agent2.FindPath("output/Agent2Path.csv");
+		
+		switch (argc)
+		{
+			case 1:
+			//	Default case: takes "hard-coded" arguments from inside the SW
+				break;
+			case 2:
+			default:
+		   // Tell the user how to run the program
+				std::cerr << "usage: " << argv[0] << " <target_start_column> <target_start_row>" << std::endl;
+				/* "Usage messages" are a conventional way of telling the user
+				* how to run a program if they enter the command incorrectly.
+				*/
+				return EXIT_FAILURE;
+			case 3:
+				{
+					int commandLineColumn	= atoi(argv[1]);
+					int commandLineRow		= atoi(argv[2]);
+					Location commandLineLocation(commandLineColumn, commandLineRow);
+
+					if (!target.CurrentLocation(commandLineLocation))
+					{
+						std::cerr << "error while selecting new target start location" << std::endl;
+						return EXIT_FAILURE;
+					}
+					targetStart	= commandLineLocation;
+					std::cout << "new target start location selected" << std::endl;
+					break;
+				}
+		}
+
+		cout << "DSM input map file dimensions are " << target.DsmMapFileColumns() << " columns by " << target.DsmMapFileRows() << " rows\n";
+		cout << "Target path length = " << targetPathLength << "\n";
+		cout << "Agent 1 path length = " << agent1PathLength << "\n";
+		cout << "Agent 2 path length = " << agent2PathLength << "\n";
+		
+//	-	1.1)	Display the DSM file in Python / Matlab (in this case as .png file) - Begin
+		target.GraphicOpen("output/1_1_DsmOriginalFile", "DSM original input");
+		target.GraphicPreparation(true);
+		target.GraphicText(textLocation, "Original cage6.tif");
+		target.GraphicClose(GRAPHIC_TYPE_PNG);
+		target.GraphicClose(GRAPHIC_TYPE_GEOTIFF);
+//	-	1.1)	Display the DSM file in Python / Matlab (in this case as .png file) - End
+		
+		agent1.GraphicOpen("output/1_1_DsmOriginalFile - Agent", "DSM original input");
+		agent1.GraphicPreparation(true);
+		agent1.GraphicClose(GRAPHIC_TYPE_GEOTIFF);
+		
+//	-	2.2)	Take a number of DSM locations and display the LOS between them - Begin
+		long unsigned int		losPointBeingTested;
+		Location				losPointsToBeTested[] = {{10, 10}, {20, 10}, {30, 30}, {150, 150}, {300, 100}, {300, 300}, {10, 150}, {20, 180}, {30, 190}, {1, 1}, {20, 5}, {5, 20}, {5, 5}};
+		for (losPointBeingTested = 0; losPointBeingTested < (sizeof(losPointsToBeTested)/sizeof(losPointsToBeTested[0])); losPointBeingTested++)
+		_DrawLineOfSightBetweenTwoLocationsInDsmMap(target, targetStart, losPointsToBeTested[losPointBeingTested], losPointBeingTested+1);
+//	-	2.2)	Take a number of DSM locations and display the LOS between them - End
+
+		//	Draws a cross at the target objective
+		agent1.GraphicCross(targetObjective, AI_SUPPORT_CLASSES_COLOR_WHITE, true);
+		target.GraphicCross(targetObjective, AI_SUPPORT_CLASSES_COLOR_WHITE, true);
+		
+		long int	simulationSeconds = 0;
+	  
+		while (!targetArrived || !agent1Arrived)
+		{
+			Location	targetCurrentLocation	= target.CurrentLocation(), targetNextLocation;
+			Location	agent1CurrentLocation	= agent1.CurrentLocation(), agent1NextLocation;
+			string		target_base_filename	= "output/target/1_2_2_TargetOverTime_";
+			string		target_base_text		= "Target path progress over time on map second = ";
+			string		agent1_base_filename	= "output/agent/1_2_2_AgentOverTime_";
+			string		agent1_base_text		= "Agent path progress over time on map second = ";
+			string		steps_base_text			= "Step = ";
+			string		filename, text, steps_text;
+			
+			if (!targetArrived)
+				targetNextLocation				= target.NextLocation();
+				
+			if (!agent1Arrived)
+				agent1NextLocation				= agent1.NextLocation();
+				
+			simulationSeconds++;
+			
+			steps_text							= steps_base_text;
+			steps_text							+= std::to_string(simulationSeconds);
+			
+			if (!targetArrived)
+			{
+//	-	1.2.2)		Display "target" path progress over time on map - Begin
+				filename						= target_base_filename;
+				filename						+= std::to_string(simulationSeconds);
+				text							= target_base_text;
+				text							+= std::to_string(simulationSeconds);
+						
+				target.GraphicOpen(filename, text, true);
+				target.GraphicText(textLocation, steps_text);
+				target.GraphicLine(targetCurrentLocation, targetNextLocation, AI_SUPPORT_CLASSES_COLOR_WHITE, true);
+				target.GraphicClose(GRAPHIC_TYPE_PNG);
+//	-	1.2.2)		Display "target" path progress over time on map - End
+			}
+				
+			if (!agent1Arrived)
+			{
+				filename						= agent1_base_filename;
+				filename						+= std::to_string(simulationSeconds);
+				text							= agent1_base_text;
+				text							+= std::to_string(simulationSeconds);
+				
+				agent1.GraphicOpen(filename, text, true);
+				agent1.GraphicText(textLocation, steps_text);
+				agent1.GraphicLine(targetCurrentLocation, targetNextLocation, AI_SUPPORT_CLASSES_COLOR_WHITE, true);
+				agent1.GraphicLine(agent1CurrentLocation, agent1NextLocation, AI_SUPPORT_CLASSES_COLOR_TOMATO, true);
+				agent1.GraphicClose(GRAPHIC_TYPE_PNG);
+			}
+			
+			if (target.CurrentLocation() == target.DestinationLocation())
+			{
+				targetArrived	= true;
+			}
+			
+			if (agent1.CurrentLocation() == agent1.DestinationLocation())
+			{
+				agent1Arrived	= true;
+			}
+			
+			if (simulationSeconds > 600)
+				break;
+		}  
+		
+		return EXIT_SUCCESS;
+		
+	}	//	main()

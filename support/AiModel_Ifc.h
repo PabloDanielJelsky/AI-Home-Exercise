@@ -96,6 +96,8 @@
 		{ 
 			public:
 				//	Public member functions
+				int DsmMapFileColumns(void);
+				int DsmMapFileRows(void);
 				bool GraphicOpen(string filename, string description = "", bool fromShadow = false);
 				bool GraphicPreparation(bool clearPreviousGraphic);
 				bool GraphicLine(Location from, Location to, AI_SUPPORT_CLASSES_color lineColor, bool copyToShadow = false);
@@ -115,6 +117,7 @@
 				bool DestinationLocation(Location destinationLocation);
 				Location& DestinationLocation(void);
 				Location& NextLocation(void);
+				bool LineOfSight(Location pointA, Location pointB);
 
 				//	Default Constructor 
 				Model();
