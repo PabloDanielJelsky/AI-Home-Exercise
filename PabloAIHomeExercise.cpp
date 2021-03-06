@@ -113,8 +113,8 @@
 //											|					|					(also writes a CSV file with the found path)
 //			-----------------------------------------			Timer
 //			|										|			(AiSupportClasses module)
-			|										|			(for system time and "stopper")
-			|										|
+//			|										|			(for system time and "stopper")
+//			|										|
 //			GDAL library							PNGWriter library
 //			(to create GeoTIFF DSM output file)		(to create .png output file)
 //																|
@@ -247,13 +247,11 @@ int main()
 	
 	agent1.GraphicOpen("output/1_1_DsmOriginalFile - Agent", "DSM original input");
 	agent1.GraphicPreparation(true);
-//	agent1.GraphicText(text, "Original cage6.tif");
-//	agent1.GraphicClose(GRAPHIC_TYPE_PNG);
 	agent1.GraphicClose(GRAPHIC_TYPE_GEOTIFF);
 	
 	long int	simulationSeconds = 0;
   
-	while (targetArrived == false && agent1Arrived == false)
+	while (false == targetArrived || false == agent1Arrived)
     {
 		Location	targetCurrentLocation	= target.CurrentLocation(), targetNextLocation;
 		Location	agent1CurrentLocation	= agent1.CurrentLocation(), agent1NextLocation;

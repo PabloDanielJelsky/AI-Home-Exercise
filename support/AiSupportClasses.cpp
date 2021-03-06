@@ -538,7 +538,8 @@
 			if (this->initialized == false)
 				return false;
 				
-			this->outfile << "{" << this->timer.Tick() << "} - " << loggerString << endl;
+//			this->outfile << "{" << this->timer.Tick() << "} - " << loggerString << endl;
+			this->outfile << loggerString << endl;
 			return true;
 			
 		}	//	Logger::WriteLine()
