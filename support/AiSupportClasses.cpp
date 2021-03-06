@@ -555,7 +555,7 @@
 		template <class GenericType> 
 		bool Logger::Write(GenericType loggerGenericType)
 		{
-			if (this->initialized == false)
+			if (!this->initialized)
 				return false;
 				
 			this->outfile << loggerGenericType;
@@ -580,7 +580,7 @@
 		/////////////////////////////////////////////////////////////////////////////////
 		bool Logger::WriteLine(string loggerString)
 		{
-			if (this->initialized == false)
+			if (!this->initialized)
 				return false;
 				
 //			this->outfile << "{" << this->timer.Tick() << "} - " << loggerString << endl;
@@ -606,7 +606,7 @@
 		/////////////////////////////////////////////////////////////////////////////////
 		bool Logger::Filename(string filename)
 		{
-			if (this->initialized == false && this->filename == "")
+			if (!this->initialized && this->filename == "")
 			{
 				this->initialized	= true;
 				this->filename		= filename;
@@ -885,7 +885,7 @@
 		/////////////////////////////////////////////////////////////////////////////////
 		int DsmInformation::Rows(void)
 		{
-			return (this->rows);
+			return this->rows;
 			
 		}   //  DsmInformation::Rows()
  
@@ -902,7 +902,7 @@
 		/////////////////////////////////////////////////////////////////////////////////
 		int DsmInformation::Columns(void)
 		{
-			return (this->columns);
+			return this->columns;
 			
 		}   //  DsmInformation::Columns()
 
@@ -926,7 +926,7 @@
 
 			this->rows	= rows;
 			
-			if (this->initialized == false && this->Columns() != 0)
+			if (!this->initialized && 0 != this->Columns())
 			{
 				logger.Write("Initializing internal array (");
 				logger.Write(this->Columns());
@@ -959,7 +959,7 @@
 			
 			this->columns	= columns;
 			
-			if (this->initialized == false && this->Rows() != 0)
+			if (!this->initialized && 0 != this->Rows())
 			{
 				logger.Write("Initializing internal array (");
 				logger.Write(columns);
@@ -1340,7 +1340,7 @@
 		{
 			this->rows	= rows;
 
-			if (this->initialized == false && this->Columns() != 0 && this->filename != "")
+			if (!this->initialized && 0 != this->Columns() && this->filename != "")
 			{
 				this->initialized	= true; 
 				this->_Update();
@@ -1363,7 +1363,7 @@
 		{
 			this->columns	= columns;
 			
-			if (this->initialized == false && this->Rows() != 0 && this->filename != "")
+			if (!this->initialized && 0 != this->Rows() && this->filename != "")
 			{
 				this->initialized	= true; 
 				this->_Update();
@@ -1386,7 +1386,7 @@
 		{
 			this->filename	= filename;
 			
-			if ((!this->initialized || fromShadow) && this->Rows() != 0 && this->Columns() != 0)
+			if ((!this->initialized || fromShadow) && 0 != this->Rows() && 0 != this->Columns())
 			{
 				this->initialized	= true; 
 				this->_Update(fromShadow);
@@ -1413,7 +1413,7 @@
 		/////////////////////////////////////////////////////////////////////////////////
 		bool Graphic::Line(class Location from, class Location to, AI_SUPPORT_CLASSES_color lineColor, bool copyToShadow)
 		{
-			if ((!this->initialized) || (!this->_IsInGraphic(from)) || (!this->_IsInGraphic(to)))
+			if (!this->initialized || !this->_IsInGraphic(from) || !this->_IsInGraphic(to))
 				return false;
 
 			(*this->pPngObject).line(
@@ -1460,7 +1460,7 @@
 			const int 		ARROW_SIZE 	= 5;
 			const double	HEAD_ANGLE	= 0.0;
 			
-			if ((!this->initialized) || (!this->_IsInGraphic(from)) || (!this->_IsInGraphic(to)))
+			if (!this->initialized || !this->_IsInGraphic(from) || !this->_IsInGraphic(to))
 				return false;
 				
 			(*this->pPngObject).arrow(
@@ -1510,7 +1510,7 @@
 			const int CROSS_WIDTH 	= 3;
 			const int CROSS_HEIGTH	= 3;
 			
-			if ((!this->initialized) || (!this->_IsInGraphic(at)))
+			if (!this->initialized || !this->_IsInGraphic(at))
 				return false;
 
 			//	.png graphic cross with color
@@ -1552,7 +1552,7 @@
 		/////////////////////////////////////////////////////////////////////////////////
 		bool Graphic::Point(class Location at, AI_SUPPORT_CLASSES_color pixelColor)
 		{
-			if ((!this->initialized) || (!this->_IsInGraphic(at)))
+			if (!this->initialized || !this->_IsInGraphic(at))
 				return false;
 
 			//	.png graphic point with color
@@ -1596,7 +1596,7 @@
 			int	dsmRepresentationColumn			= at.Column();									// stays the same representation
 			int	dsmRepresentationRow			= (internalRepresentationRows-1) - at.Row();		// the order changes in the representation
 			
-			if ((!this->initialized) || (!this->_IsInGraphic(at)))
+			if (!this->initialized || !this->_IsInGraphic(at))
 				return false;
 
 			//	GeoTIFF graphic point with elevation
@@ -1630,7 +1630,7 @@
 		{
 			const double PI	= 3.141592653589793238463;
 			
-			if ((!this->initialized) || (!this->_IsInGraphic(from)))
+			if (!this->initialized || !this->_IsInGraphic(from))
 				return false;
 				
 			(*this->pPngObject).plot_text_utf8(
