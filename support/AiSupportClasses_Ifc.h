@@ -70,7 +70,11 @@
 		#define	AI_SUPPORT_CLASSES_INVALID_ROW				-1
 		#define AI_SUPPORT_CLASSES_INVALID_DSM_ELEVATION	-999999999
 		/*---- enums --------------------------------------------------------------*/
-		typedef enum {GRAPHIC_TYPE_PNG, GRAPHIC_TYPE_GEOTIFF} graphicType;
+		typedef enum {
+						AI_SUPPORT_CLASSES_GRAPHIC_TYPE_PNG, 
+						AI_SUPPORT_CLASSES_GRAPHIC_TYPE_GEOTIFF
+						
+					} AI_SUPPORT_CLASSES_graphicType;
 		typedef enum {
 						AI_SUPPORT_CLASSES_COLOR_BLACK,			 	//	(0,0,0)
 						AI_SUPPORT_CLASSES_COLOR_RED,				//	(255,0,0)
@@ -119,6 +123,7 @@
 		// Description		: This class gives support for timer and system clock functions
 		// Remarks			: This class will give support to Logger class and algorithms
 		//						for profiling issues
+		//
 		/////////////////////////////////////////////////////////////////////////////////
 		class Timer
 		{
@@ -149,6 +154,7 @@
 		//						the events that are needed to follow the sequence of
 		//						events in the software
 		// Remarks			:
+		//
 		/////////////////////////////////////////////////////////////////////////////////
 		class Logger
 		{
@@ -190,6 +196,7 @@
 		// Last update date	: 27-02-2021
 		// Description		: This class represents a specific location
 		// Remarks			:
+		//
 		/////////////////////////////////////////////////////////////////////////////////
 		class Location
 		{
@@ -232,6 +239,7 @@
 		// Last update date	: 27-02-2021
 		// Description		: This class represents a specific location for DSM maps
 		// Remarks			: It is derived from Location class
+		//
 		/////////////////////////////////////////////////////////////////////////////////
 		class DsmLocation : public Location
 		{
@@ -276,6 +284,7 @@
 		//						A DSM (Digital Surface Model) is a computer graphics 
 		//						representation of elevation data to represent terrain
 		// Remarks			:
+		//
 		/////////////////////////////////////////////////////////////////////////////////
 		class DsmInformation
 		{ 
@@ -331,6 +340,7 @@
 		//						representation of elevation data to represent terrain but
 		//						specialized with info on target
 		// Remarks			: It is derived from DsmInformation class
+		//
 		/////////////////////////////////////////////////////////////////////////////////
 		class TargetDsmInformation : public DsmInformation
 		{
@@ -373,13 +383,14 @@
 		// Last update date	: 02-03-2021
 		// Description		: This class represents a graphic
 		// Remarks			: Currently supported formats (.png and GeoTIFF)
+		//
 		/////////////////////////////////////////////////////////////////////////////////
 		class Graphic
 		{
 			public:
 				//	Public member functions
 				bool Open(string filename, string description = "", bool fromShadow = false, string author = "Pablo Daniel Jelsky", string software = "AI Home Exercise");
-				bool Close(graphicType typeOfGraphic);
+				bool Close(AI_SUPPORT_CLASSES_graphicType typeOfGraphic);
 				bool Filename(string filename, bool fromShadow = false);
 				void Columns(int columns);
 				int Columns(void);

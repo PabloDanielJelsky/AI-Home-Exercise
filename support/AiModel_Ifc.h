@@ -91,12 +91,13 @@
 		//							current position to destination position
 		//						graphic object to be created
 		//						logger class to send info to text files
-		//						
+		//
 		/////////////////////////////////////////////////////////////////////////////////
 		class Model
 		{ 
 			public:
 				//	Public member functions
+				class DsmInformation &DsmMap(void);
 				int DsmMapFileColumns(void);
 				int DsmMapFileRows(void);
 				bool GraphicOpen(string filename, string description = "", bool fromShadow = false);
@@ -111,7 +112,7 @@
 					string fontPathAndFilename = "/usr/share/fonts/truetype/ubuntu/Ubuntu-M.ttf",
 					double angle = 0.0			//	angle is the text angle in degrees
 					);
-				bool GraphicClose(graphicType typeOfGraphic);
+				bool GraphicClose(AI_SUPPORT_CLASSES_graphicType typeOfGraphic);
 				int FindPath(string csvModelPathFilename);
 				bool CurrentLocation(Location currentLocation);
 				Location& CurrentLocation(void);
@@ -130,13 +131,13 @@
 			protected:
 				//	Protected member functions
 				void _Initialize(string geoTiffFilename, string modelName);
-				bool _AStarAlgorithmConfiguration(aStarSearchPixelsMovementType aStarSearchPixelsMovementTypeForFindPath, bool possibilityOfNotMoving);
+				bool _AStarAlgorithmConfiguration(AI_SUPPORT_ALGORITHMS_pixelsMovementType aStarSearchPixelsMovementTypeForFindPath, bool possibilityOfNotMoving);
 				void _GdalDriverInitialization(void);
 				bool _DsmInputFileRaster(void);
 				
 				//	Protected variables
 				class DsmInformation							dsmMapInfo;
-				aStarSearchPixelsMovementType					aStarSearchPixelsMovementTypeForFindPath 	= A_START_SEARCH_4_PIXELS_MOVEMENT;
+				AI_SUPPORT_ALGORITHMS_pixelsMovementType		aStarSearchPixelsMovementTypeForFindPath 	= AI_SUPPORT_ALGORITHMS_4_PIXELS_MOVEMENT;
 				bool 											aStartSearchPixelsCouldStayOnPlace			= false;
 				list <class Location>							pathList;
 				class Logger									logger;
@@ -162,6 +163,7 @@
 		// Last update date	: 06-03-2021
 		// Description		: This class represents a target person
 		// Remarks			: It is derived from Model class
+		//
 		/////////////////////////////////////////////////////////////////////////////////
 		class Target : public Model
 		{
@@ -172,7 +174,7 @@
 				Target(string geoTiffFilename, string modelName) : Model { geoTiffFilename, modelName } 
 				{
 					this->_Initialize(geoTiffFilename, modelName);
-					this->_AStarAlgorithmConfiguration(A_START_SEARCH_4_PIXELS_MOVEMENT, false);
+					this->_AStarAlgorithmConfiguration(AI_SUPPORT_ALGORITHMS_4_PIXELS_MOVEMENT, false);
 				}
 				//	Destructor
 				~Target();
@@ -192,6 +194,7 @@
 		// Description		: This class represents an agent person
 		// Remarks			: It is derived from Target class 
 		//						(the agent also could be a target of another agent)
+		//
 		/////////////////////////////////////////////////////////////////////////////////
 		class Agent : public Target
 		{
@@ -223,7 +226,7 @@
 				//	Parametrized Constructors 
 				Agent(string geoTiffFilename, string modelName) : Target {geoTiffFilename, modelName}
 				{
-					this->_AStarAlgorithmConfigurationForTarget(A_START_SEARCH_4_PIXELS_MOVEMENT, false);
+					this->_AStarAlgorithmConfigurationForTarget(AI_SUPPORT_ALGORITHMS_4_PIXELS_MOVEMENT, false);
 					this->targetDsmMapInfo	= this->dsmMapInfo;
 				}
 				//	Destructor
@@ -231,10 +234,10 @@
 
 			protected:
 				//	Protected member function
-				bool _AStarAlgorithmConfigurationForTarget(aStarSearchPixelsMovementType aStarSearchPixelsMovementTypeForFindPath, bool possibilityOfNotMoving);
+				bool _AStarAlgorithmConfigurationForTarget(AI_SUPPORT_ALGORITHMS_pixelsMovementType aStarSearchPixelsMovementTypeForFindPath, bool possibilityOfNotMoving);
 				bool _ListOfPossibleTargets(list <Location>& targetPossibleList, int maximumNumberOfPossibleTargets = 10);
 				//	Protected variables
-				aStarSearchPixelsMovementType	aStarSearchPixelsMovementTypeForFindPathForTarget 	= A_START_SEARCH_4_PIXELS_MOVEMENT;
+				AI_SUPPORT_ALGORITHMS_pixelsMovementType	aStarSearchPixelsMovementTypeForFindPathForTarget 	= AI_SUPPORT_ALGORITHMS_4_PIXELS_MOVEMENT;
 				bool 							aStartSearchPixelsCouldStayOnPlaceForTarget			= false;
 				int								minimumDistanceToTarget								= AI_MODEL_MINIMUM_DISTANCE_FROM_AGENT_TO_TARGET;
 				class TargetDsmInformation		targetDsmMapInfo;

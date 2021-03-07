@@ -4,7 +4,7 @@
 //
 // File:			AiSupportAlgorithms.cpp
 //
-// Version:			01.01
+// Version:			01.02
 //
 // Description:		Support algorithms for the AI home excercise source file
 //
@@ -26,6 +26,9 @@
 //																and therefore, pixel in the north-east (up-right) is (Columns-1, Rows-1), where 
 //																Columns is the total number of columns of the DSM file, and Rows is the total
 //																number of rows of the DSM file
+//	07-02-2021	Pablo Daniel Jelsky		01			02			Addition of new SwissArmyKnife class that provides new decisions for different
+//																	algorithms. Also new class Astar that should have inside the functions for
+//																	A* algorithm
 //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -119,6 +122,7 @@
 		/*---- function prototypes -------------------------------------------------*/
 
 
+
 	/*
 		****************************************************************************
 		* PUBLIC FUNCTION DEFINITIONS
@@ -141,7 +145,7 @@
 		//							source and destination locations (as DsmLocation)
 		//							and the CSV target path filen name
 		/////////////////////////////////////////////////////////////////////////////////
-		long AStarSearch(aStarSearchPixelsMovementType typeOfPixelMovement, bool possibilityOfNotMoving, 
+		long AStarSearch(AI_SUPPORT_ALGORITHMS_pixelsMovementType typeOfPixelMovement, bool possibilityOfNotMoving, 
 							DsmInformation& dsmInformation, Location sourceLocation, 
 							Location destinationLocation, list <Location>& targetPathList, 
 							string csvTargetPathFilename)
@@ -184,7 +188,7 @@
 			
 			switch (typeOfPixelMovement)
 			{
-				case A_START_SEARCH_4_PIXELS_MOVEMENT:
+				case AI_SUPPORT_ALGORITHMS_4_PIXELS_MOVEMENT:
 					/*
 						 Generating all the 4 successor of this cell
 				 
@@ -206,7 +210,7 @@
 					//	Implying exactly moving 1 pixel each time
 					directionLast	= DIRECTION_WEST;
 					break;
-				case A_START_SEARCH_8_PIXELS_MOVEMENT:
+				case AI_SUPPORT_ALGORITHMS_8_PIXELS_MOVEMENT:
 					/*
 						 Generating all the 8 successor of this cell
 				 
@@ -231,7 +235,7 @@
 					//	Implying moving to all adjacent pixels each time
 					directionLast	= DIRECTION_SOUTH_WEST;
 					break;
-				case A_START_SEARCH_12_PIXELS_MOVEMENT:
+				case AI_SUPPORT_ALGORITHMS_12_PIXELS_MOVEMENT:
 					/*
 						 Generating all the 12 successor of this cell
 						 
@@ -646,13 +650,474 @@
 		* PUBLIC CLASS CONSTRUCTORS AND DESTRUCTORS DEFINITIONS
 		****************************************************************************
 	*/
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: SwissArmyKnife
+		// Function				: Default constructor
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 07-03-2021
+		// Class description	: This class implements many tools that will help us with
+		//							the decision in the high-level algorithm
+		// Function description	:
+		// Remarks				:
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: None
+		/////////////////////////////////////////////////////////////////////////////////
+		SwissArmyKnife::SwissArmyKnife() 
+		{ 
+			this->MovementType(AI_SUPPORT_ALGORITHMS_4_PIXELS_MOVEMENT, false);
+			
+		}	//	SwissArmyKnife::SwissArmyKnife() 
 
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: SwissArmyKnife
+		// Function				: Parametrized constructor
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 07-03-2021
+		// Class description	: This class implements many tools that will help us with
+		//							the decision in the high-level algorithm
+		// Function description	: This constructor takes as parameter the characteristics
+		//							of pixel movement
+		// Remarks				:
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: pixel movement type and if the object could also
+		//							stay in place (not moving)
+		/////////////////////////////////////////////////////////////////////////////////
+		SwissArmyKnife::SwissArmyKnife(AI_SUPPORT_ALGORITHMS_pixelsMovementType pixelMovementType, bool couldStayInPlace)
+		{ 
+			this->MovementType(pixelMovementType, couldStayInPlace);
+			
+		}	//	SwissArmyKnife::SwissArmyKnife()      
+
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: SwissArmyKnife
+		// Function				: Destructor
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 07-03-2021
+		// Class description	: This class implements many tools that will help us with
+		//							the decision in the high-level algorithmm
+		// Function description	:
+		// Remarks				:
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: None
+		/////////////////////////////////////////////////////////////////////////////////
+		SwissArmyKnife::~SwissArmyKnife() 
+		{ 
+		}	//	SwissArmyKnife::~SwissArmyKnife()
+	
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: Astar
+		// Function				: Default constructor
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 07-03-2021
+		// Class description	: This class implements the A* algorithm
+		// Function description	:
+		// Remarks				:
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: None
+		/////////////////////////////////////////////////////////////////////////////////
+		Astar::Astar() 
+		{ 
+			this->_Init();
+			
+		}	//	Astar::Astar() 
+
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: Astar
+		// Function				: Parametrized constructor
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 07-03-2021
+		// Class description	: This class implements the A* algorithm
+		// Function description	: This constructor takes as parameter the characteristics
+		//							of pixel movement
+		// Remarks				:
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: pixel movement type and if the object could also
+		//							stay in place (not moving)
+		/////////////////////////////////////////////////////////////////////////////////
+		Astar::Astar(AI_SUPPORT_ALGORITHMS_pixelsMovementType pixelMovementType, bool couldStayInPlace)
+		{ 
+			this->_Init();
+			
+			this->pixelMovementType						= pixelMovementType;
+			this->couldStayInPlace						= couldStayInPlace;
+			
+		}	//	Astar::Astar()      
+
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: Astar
+		// Function				: Destructor
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 07-03-2021
+		// Class description	: This class implements the A* algorithm
+		// Function description	:
+		// Remarks				:
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: None
+		/////////////////////////////////////////////////////////////////////////////////
+		Astar::~Astar() 
+		{ 
+			if ("" != this->csvSource2DestinationPathFilename)
+				this->csvSource2DestinationPathFile.close();
+			
+		}	//	Astar::~Astar()
 	/*
 		****************************************************************************
 		* PUBLIC CLASS MEMBER FUNCTION DEFINITIONS
 		****************************************************************************
 	*/
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: SwissArmyKnife
+		// Function				: MovementType
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 07-03-2021
+		// Class description	: This class implements many tools that will help us with
+		//							the decision in the high-level algorithmm
+		// Function description	: This public member function sets the pixel movement
+		//							characteristics of the object
+		// Remarks				: 
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: pixel movement type and boolean deciding if the object
+		//							has the capability of also stay in place (not moving)
+		/////////////////////////////////////////////////////////////////////////////////
+		bool SwissArmyKnife::MovementType(AI_SUPPORT_ALGORITHMS_pixelsMovementType pixelMovementType, bool couldStayInPlace)
+		{
+			this->pixelMovementType		= pixelMovementType;
+			this->couldStayInPlace		= couldStayInPlace;
+			
+			return true;
+			
+		}	//	SwissArmyKnife::MovementType()
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: SwissArmyKnife
+		// Function				: PossibleMovements
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 07-03-2021
+		// Class description	: This class implements many tools that will help us with
+		//							the decision in the high-level algorithmm
+		// Function description	: This public member function returns back all the
+		//							possible movements of an object given its location
+		// Remarks				: There is no DSM constraint because there is no
+		//							DSM file as a parameter
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: list to be return with possible movements locations,
+		//							original location
+		/////////////////////////////////////////////////////////////////////////////////
+		bool SwissArmyKnife::PossibleMovements(list <Location>& locationsList, Location &location)
+		{
+			int				column 	= location.Column();
+			int				row		= location.Row();
 
+			//	To store the first enumerator, and the last one, depending in the quantity of pixels per each movement
+			directionEnumerator	directionFirst	= (this->couldStayInPlace) ? DIRECTION_SAME_PLACE : DIRECTION_NORTH;
+			directionEnumerator directionLast;
+			
+			switch (this->pixelMovementType)
+			{
+				case AI_SUPPORT_ALGORITHMS_4_PIXELS_MOVEMENT:
+					/*
+						 Generating all the 4 successor of this cell
+				 
+									N 
+									| 
+									|
+							  W----Cell----E
+									| 
+									|
+									S
+				 
+							Cell-->Popped Cell		(column, row)
+							N -->  North			(column, row+1)
+							S -->  South			(column, row-1)
+							E -->  East				(column+1, row)
+							W -->  West				(column-1, row)
+					*/	
+					
+					//	Implying exactly moving 1 pixel each time
+					directionLast	= DIRECTION_WEST;
+					break;
+				case AI_SUPPORT_ALGORITHMS_8_PIXELS_MOVEMENT:
+					/*
+						 Generating all the 8 successor of this cell
+				 
+							N.W		N		N.E
+								|	|	  | 
+								  |	|  |
+							  W----Cell----E
+								  |	|  |
+								|	|	  |
+							S.W		S		S.E
+				 
+							Cell-->Popped Cell		(column, row)
+							N -->  North			(column, row+1)
+							S -->  South			(column, row-1)
+							E -->  East				(column+1, row)
+							W -->  West				(column-1, row)
+							N.E--> North-East  		(column+1, row+1)
+							N.W--> North-West  		(column-1, row+1)
+							S.E--> South-East  		(column+1, row-1)
+							S.W--> South-West  		(column-1, row-1)
+					*/	
+					//	Implying moving to all adjacent pixels each time
+					directionLast	= DIRECTION_SOUTH_WEST;
+					break;
+				case AI_SUPPORT_ALGORITHMS_12_PIXELS_MOVEMENT:
+					/*
+						 Generating all the 12 successor of this cell
+						 
+						 
+						 			N
+						 			|
+									|
+							N.W		N		N.E
+								|	|	  | 
+								  |	|  |
+						W----W----Cell----E----E
+								  |	|  |
+								|	|	  |
+							S.W		S		S.E
+									|
+									|
+									S 
+							Cell-->Popped Cell		(column, row)
+							N -->  North			(column, row+1)
+							S -->  South			(column, row-1)
+							E -->  East				(column+1, row)
+							W -->  West				(column-1, row)
+							N.E--> North-East  		(column+1, row+1)
+							N.W--> North-West  		(column-1, row+1)
+							S.E--> South-East  		(column+1, row-1)
+							S.W--> South-West  		(column-1, row-1)
+							N.N--> North-North		(column, row+2)
+							S.S--> South-South		(column, row-2)
+							E.E--> East-East		(column+2, row)
+							W.W--> West-West		(column-2, row)
+					*/	
+					//	Implying moving up to two pixels each time
+					directionLast	= DIRECTION_WEST_WEST;
+					break;
+				default:
+					break;
+			}
+			
+			for (int direction = (int) directionFirst; direction <= (int) directionLast; direction++)
+			{		
+				Location	possibleLocation;
+
+				switch (direction)
+				{
+					case DIRECTION_SAME_PLACE:
+						// Stay at the same place, do NOT do anything
+						possibleLocation.Modify(column, row);
+						break;
+					case DIRECTION_NORTH:
+						//----------- 1st Successor (North) ------------
+						possibleLocation.Modify(column, row + 1);
+						break;
+					case DIRECTION_SOUTH:
+						//----------- 2nd Successor (South) ------------
+						possibleLocation.Modify(column, row - 1);
+						break;
+					case DIRECTION_EAST:
+						//----------- 3rd Successor (East) ------------
+						possibleLocation.Modify(column + 1, row);
+							break;
+					case DIRECTION_WEST:
+						//----------- 4th Successor (West) ------------
+						possibleLocation.Modify(column - 1, row);
+						break;
+					case DIRECTION_NORTH_EAST:
+						//----------- 5th Successor (North-East) ------------
+						possibleLocation.Modify(column + 1, row + 1);
+						break;
+					case DIRECTION_NORTH_WEST:
+						//----------- 6th Successor (North-West) ------------
+						possibleLocation.Modify(column - 1, row + 1);
+						break;
+					case DIRECTION_SOUTH_EAST:
+						//----------- 7th Successor (South-East) ------------
+						possibleLocation.Modify(column + 1, row - 1);
+						break;
+					case DIRECTION_SOUTH_WEST:
+						//----------- 8th Successor (South-West) ------------
+						possibleLocation.Modify(column - 1, row - 1);
+						break;
+					case DIRECTION_NORTH_NORTH:
+						//----------- 9th Successor (North-North) ------------
+						possibleLocation.Modify(column, row + 2);
+						break;
+					case DIRECTION_SOUTH_SOUTH:
+						//----------- 10th Successor (South-South) ------------
+						possibleLocation.Modify(column, row - 2);
+						break;
+					case DIRECTION_EAST_EAST:
+						//----------- 11th Successor (East-East) ------------
+						possibleLocation.Modify(column + 2, row);
+						break;
+					case DIRECTION_WEST_WEST:
+						//----------- 12th Successor (West-West) ------------
+						possibleLocation.Modify(column - 2, row);
+						break;
+					default:
+						cout << "The direction " << direction << " is not a valid one\n";
+						return false;
+
+				}	//	switch()
+				
+				//	do not enter into the list the locations with column or row less than 0
+				if (possibleLocation.Column() >=0 && possibleLocation.Row() >= 0)
+				{
+					locationsList.push_back(possibleLocation);
+				}
+			}
+			
+			return true;
+			
+		}	//	SwissArmyKnife::PossibleMovements()
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: SwissArmyKnife
+		// Function				: PossibleMovements
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 07-03-2021
+		// Class description	: This class implements many tools that will help us with
+		//							the decision in the high-level algorithmm
+		// Function description	: This public member function returns back all the
+		//							possible movements of an object given its location
+		// Remarks				: 
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: list to be return with possible movements locations,
+		//							DSM map, original location
+		/////////////////////////////////////////////////////////////////////////////////
+		void SwissArmyKnife::PossibleMovements(list <Location>& locationsList, Location &location, DsmInformation &dsmMapInfo)
+		{
+			//	First bring ALL the possible movements list without DSM constraints
+			this->PossibleMovements(locationsList, location);
+			//	And now "fine-tune" with DSM map info
+			
+			// Iterate over the list using Iterators and erase elements
+			// that are not in the DSM map or the locations that are an
+			//	obstacle while iterating through list
+			std::list<Location>::iterator it = locationsList.begin();
+			while (it != locationsList.end()) 
+			{
+				// Remove elements while iterating
+				if ((!dsmMapInfo.IsInDsmMap(*it)) || (dsmMapInfo.Obstacle(*it)))
+				{
+					//	Remove from the list location that are not in the DSM map or the locations that are an obstacle
+					// erase() makes the passed iterator invalid
+					// But returns the iterator to the next of deleted element
+					it	= locationsList.erase(it);
+				}
+				else
+					it++;
+			}
+
+		}	//	SwissArmyKnife::PossibleMovements()
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: SwissArmyKnife
+		// Function				: PossibleMovements
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 07-03-2021
+		// Class description	: This class implements many tools that will help us with
+		//							the decision in the high-level algorithmm
+		// Function description	: This public member function returns back the information
+		//							regarding LOS "quality" of potential observed person
+		//							next movements
+		// Remarks				: The function returns also the quantity of possible LOS
+		//							potential observer locations
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: observer "potential" locations, observed "potential"
+		//							locations, DSM map information, and the function
+		//							brings back the information about the LOS positions
+		//					Default parameters:
+		//							minimum potential distance from observer to observed
+		//							(if the minimum distance is less that this one,
+		//							then, this location won't  be inserted in the list
+		//							of potential observer locations)
+		//
+		/////////////////////////////////////////////////////////////////////////////////
+		int SwissArmyKnife::PossibleLineOfSightLocations(
+				list <Location>& observerLocationsList, 
+				list <Location>& observedLocationsList, 
+				DsmInformation &dsmMapInfo, 
+				list <AI_SUPPORT_ALGORITHMS_losInfo>& observerLosInfoList,
+				double minimumPotentialDistanceFromObserverToObserved)
+		{
+			AI_SUPPORT_ALGORITHMS_losInfo	observerLosInfo;
+			std::list<Location>::iterator 	observerLocationIterator;
+			std::list<Location>::iterator 	observedLocationIterator;
+			int								observerPotentialLocationsWithLos = 0;
+			int								losBetweenObserverAndObserved;
+			double							minimumLosDistance;
+			double							maximumLosDistance;
+			
+			//	Iterate between all the observer possible locations
+			observerLocationIterator = observerLocationsList.begin();
+			while (observerLocationIterator != observerLocationsList.end()) 
+			{
+				losBetweenObserverAndObserved	= 0;
+				minimumLosDistance				= -1.0;
+				maximumLosDistance				= -1.0;
+				
+				//	And also iterate between all the observed possible locations
+				observedLocationIterator = observedLocationsList.begin();
+				while (observedLocationIterator != observedLocationsList.end()) 
+				{
+					if (dsmMapInfo.LineOfSight(*observerLocationIterator, *observedLocationIterator))
+					{
+						double	distanceBetweenObserverAndObserved;
+						
+
+						//	If there exists a LOS between observer and observed,
+						//	calculate the distance between these two points
+						distanceBetweenObserverAndObserved	= (*observerLocationIterator).Distance((*observedLocationIterator));
+
+						if (!losBetweenObserverAndObserved)
+						{
+							//	If it was the first observation, then, maximum and minimum are the same
+							minimumLosDistance	=	maximumLosDistance	= distanceBetweenObserverAndObserved;
+						}
+						else
+						{
+							//	If it is not the first observation, then calculate the maximum and the minimum
+							minimumLosDistance	= std::min(minimumLosDistance, distanceBetweenObserverAndObserved);
+							maximumLosDistance	= std::max(maximumLosDistance, distanceBetweenObserverAndObserved);
+						}
+						
+						//	Increment number of points with LOS for this observer location
+						losBetweenObserverAndObserved++;
+					}
+					observedLocationIterator++;
+				}
+				
+				if (losBetweenObserverAndObserved)
+				{
+					//	If there was at least one potential LOS between the observer location and "potentials" observed locations
+					if (minimumPotentialDistanceFromObserverToObserved <= minimumLosDistance)
+					{
+						//	If the minimum LOS distance calculated for this "potential" observer location
+						//	was greater than the minimum defined by the decision
+						
+						//	Fill the LOS info structure
+						observerLosInfo.location.Modify(((*observerLocationIterator)).Column(), ((*observerLocationIterator)).Row());
+						observerLosInfo.losToPotentialLocations	= losBetweenObserverAndObserved;
+						observerLosInfo.minimumLosDistance		= minimumLosDistance;
+						observerLosInfo.maximumLosDistance		= maximumLosDistance;
+						//	Insert the strucure into the LOS info list for observer locations
+						observerLosInfoList.push_back(observerLosInfo);
+						//	Increment the quantity of potential LOS locations for observer
+						observerPotentialLocationsWithLos++;
+					}
+				}
+				
+				observerLocationIterator++;
+			}
+			
+			return observerPotentialLocationsWithLos;
+			
+		}	//	SwissArmyKnife::PossibleLineOfSightLocations()
 
 	/*
 		****************************************************************************
@@ -665,4 +1130,24 @@
 		* PRIVATE CLASS MEMBER FUNCTION DEFINITIONS
 		****************************************************************************
 	*/	
+	
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: Astar
+		// Function				: _Init
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 07-03-2021
+		// Class description	: This class implements the A* algorithm
+		// Function description	: This private member function initiates the object and
+		//							will be used by the constructors
+		// Remarks				:
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: None
+		/////////////////////////////////////////////////////////////////////////////////
+		void Astar::_Init(void) 
+		{ 
+			this->initialized							= false;
+			this->csvSource2DestinationPathFilename		= "";
+			dsmInformation								= nullptr;
+			
+		}	//	Astar::_Init() 
 

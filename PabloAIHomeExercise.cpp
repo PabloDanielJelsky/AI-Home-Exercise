@@ -4,7 +4,7 @@
 //
 // File:			PabloAiHomeExercise.cpp
 //
-// Version:			01.01
+// Version:			01.02
 //
 // Description:		Pablo's AI home excercise source file
 //
@@ -26,6 +26,8 @@
 //																and therefore, pixel in the north-east (up-right) is (Columns-1, Rows-1), where 
 //																Columns is the total number of columns of the DSM file, and Rows is the total
 //																number of rows of the DSM file
+//	07-03-2021	Pablo Daniel Jelsky		01			02			Addition of use of new SwissArmyKnife class that provides decisions on
+//																	different situations for agent.
 //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -249,7 +251,7 @@
 		{
 			model.GraphicText(lostextLocation, "There is not LOS between " + _LosText(from, to), AI_SUPPORT_CLASSES_COLOR_WHITE, 10);
 		}
-		model.GraphicClose(GRAPHIC_TYPE_PNG);
+		model.GraphicClose(AI_SUPPORT_CLASSES_GRAPHIC_TYPE_PNG);
 		
 		return locationsHaveLos;
 		
@@ -268,10 +270,15 @@
 	*/
 	int main(int argc, char *argv[])
 	{
-		Location				targetStart(5, 5);
-		Location				targetObjective(300,100);
+		class SwissArmyKnife	targetAlgorithm(AI_SUPPORT_ALGORITHMS_4_PIXELS_MOVEMENT, false);
+		class SwissArmyKnife	agentAlgorithm(AI_SUPPORT_ALGORITHMS_12_PIXELS_MOVEMENT, true);
+		list <class Location>	targetPotentialMovements;
+		list <class Location>	agentPotentialMovements;
 		
-		Location				textLocation(3, 3);
+		class Location			targetStart(5, 5);
+		class Location			targetObjective(300,100);
+		
+		class Location			textLocation(3, 3);
 
 		bool					targetArrived = false, agent1Arrived = false;
 		long					targetPathLength, agent1PathLength, agent2PathLength;
@@ -333,13 +340,13 @@
 		target.GraphicOpen("output/1_1_DsmOriginalFile", "DSM original input");
 		target.GraphicPreparation(true);
 		target.GraphicText(textLocation, "Original cage6.tif");
-		target.GraphicClose(GRAPHIC_TYPE_PNG);
-		target.GraphicClose(GRAPHIC_TYPE_GEOTIFF);
+		target.GraphicClose(AI_SUPPORT_CLASSES_GRAPHIC_TYPE_PNG);
+		target.GraphicClose(AI_SUPPORT_CLASSES_GRAPHIC_TYPE_GEOTIFF);
 //	-	1.1)	Display the DSM file in Python / Matlab (in this case as .png file) - End
 		
 		agent1.GraphicOpen("output/1_1_DsmOriginalFile - Agent", "DSM original input");
 		agent1.GraphicPreparation(true);
-		agent1.GraphicClose(GRAPHIC_TYPE_GEOTIFF);
+		agent1.GraphicClose(AI_SUPPORT_CLASSES_GRAPHIC_TYPE_GEOTIFF);
 		
 //	-	2.2)	Take a number of DSM locations and display the LOS between them - Begin
 		long unsigned int		losPointBeingTested;
@@ -351,6 +358,57 @@
 		//	Draws a cross at the target objective
 		agent1.GraphicCross(targetObjective, AI_SUPPORT_CLASSES_COLOR_WHITE, true);
 		target.GraphicCross(targetObjective, AI_SUPPORT_CLASSES_COLOR_WHITE, true);
+		
+		
+//	ONLY FOR TEST
+		{
+			class Location			observer(10, 12);
+			class Location			observed(15, 20);
+			int	quantityOfLosPotentialLocationsForObserver;
+			list <AI_SUPPORT_ALGORITHMS_losInfo> observerLosInfoList;
+			
+			targetAlgorithm.PossibleMovements(targetPotentialMovements, observer, target.DsmMap());
+			agentAlgorithm.PossibleMovements(agentPotentialMovements, observed, target.DsmMap());
+			
+			cout << "target possible movements\n";
+			std::list<Location>::iterator it = targetPotentialMovements.begin();
+			while (it != targetPotentialMovements.end()) 
+			{
+				cout << "[" << it->Column() << ", " << it->Row() << "]\n";
+				it++;
+			}
+			
+			cout << "agent possible movements\n";
+			it = agentPotentialMovements.begin();
+			while (it != agentPotentialMovements.end()) 
+			{
+				cout << "[" << it->Column() << ", " << it->Row() << "]\n";
+				it++;
+			}
+			
+			quantityOfLosPotentialLocationsForObserver = agentAlgorithm.PossibleLineOfSightLocations
+			(
+				agentPotentialMovements, 
+				targetPotentialMovements, 
+				target.DsmMap(), 
+				observerLosInfoList,
+				10
+			);
+			cout << "Potential observer locations with LOS to observed = " << quantityOfLosPotentialLocationsForObserver << "\n";
+			std::list<AI_SUPPORT_ALGORITHMS_losInfo>::iterator it1 = observerLosInfoList.begin();
+			while (it1 != observerLosInfoList.end()) 
+			{
+				cout << "[" << (*it1).location.Column() << ", " << (*it1).location.Row() << "]\n";
+				cout << "Minimum/Maximum [" << (*it1).minimumLosDistance << ", " << (*it1).maximumLosDistance << "]\n";
+				cout << "Quantity LOS = " << (*it1).losToPotentialLocations << "\n";
+				it1++;
+			}
+			
+		}
+
+
+
+//	ONLY FOR TEST
 		
 		long int	simulationSeconds = 0;
 	  
@@ -387,7 +445,7 @@
 				target.GraphicOpen(filename, text, true);
 				target.GraphicText(textLocation, steps_text);
 				target.GraphicLine(targetCurrentLocation, targetNextLocation, AI_SUPPORT_CLASSES_COLOR_WHITE, true);
-				target.GraphicClose(GRAPHIC_TYPE_PNG);
+				target.GraphicClose(AI_SUPPORT_CLASSES_GRAPHIC_TYPE_PNG);
 //	-	1.2.2)		Display "target" path progress over time on map - End
 			}
 				
@@ -402,7 +460,7 @@
 				agent1.GraphicText(textLocation, steps_text);
 				agent1.GraphicLine(targetCurrentLocation, targetNextLocation, AI_SUPPORT_CLASSES_COLOR_WHITE, true);
 				agent1.GraphicLine(agent1CurrentLocation, agent1NextLocation, AI_SUPPORT_CLASSES_COLOR_TOMATO, true);
-				agent1.GraphicClose(GRAPHIC_TYPE_PNG);
+				agent1.GraphicClose(AI_SUPPORT_CLASSES_GRAPHIC_TYPE_PNG);
 			}
 			
 			if (target.CurrentLocation() == target.DestinationLocation())

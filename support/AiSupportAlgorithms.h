@@ -4,7 +4,7 @@
 //
 // File:			AiSupportAlgorithms.h
 //
-// Version:			01.01
+// Version:			01.02
 //
 // Description:		Support algorithms for the AI home excercise include file
 //
@@ -26,6 +26,9 @@
 //																and therefore, pixel in the north-east (up-right) is (Columns-1, Rows-1), where 
 //																Columns is the total number of columns of the DSM file, and Rows is the total
 //																number of rows of the DSM file
+//	07-02-2021	Pablo Daniel Jelsky		01			02			Addition of new SwissArmyKnife class that provides new decisions for different
+//																	algorithms. Also new class Astar that should have inside the functions for
+//																	A* algorithm
 //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -40,11 +43,11 @@
 		****************************************************************************
 	*/
 		/*---- system and platform files -------------------------------------------*/
-		#include <cstdlib>	// for abs() and realloc()
-		#include <stack>	// for stacks
-		#include <utility>	// for pairs
-		#include <set>		// for sets
-		#include <cstring>	// for memset
+		#include <cstdlib>		//	for abs() and realloc()
+		#include <stack>		//	for stacks
+		#include <set>			//	for sets
+		#include <cstring>		//	for memset
+		#include <algorithm>	//	for max and min
 		/*---- library files -------------------------------------------------------*/
 		/*---- program files -------------------------------------------------------*/
 		#include "AiSupportAlgorithms_Ifc.h"
@@ -75,10 +78,12 @@
 		/*---- defines --------------------------------------------------------------*/
 		#define	FLT_MAX	99999999999
 		/*---- data declarations ---------------------------------------------------*/
-		typedef enum {DIRECTION_SAME_PLACE, 
+		typedef enum {
+						DIRECTION_SAME_PLACE, 
 						DIRECTION_NORTH, DIRECTION_SOUTH, DIRECTION_EAST, DIRECTION_WEST,
 						DIRECTION_NORTH_EAST, DIRECTION_NORTH_WEST, DIRECTION_SOUTH_EAST, DIRECTION_SOUTH_WEST,
 						DIRECTION_NORTH_NORTH, DIRECTION_SOUTH_SOUTH, DIRECTION_EAST_EAST, DIRECTION_WEST_WEST
+						
 					} directionEnumerator;
 
 		// Creating a shortcut for pair<double, pair<int, int>> type

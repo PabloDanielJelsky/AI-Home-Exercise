@@ -184,7 +184,7 @@
 		Model::Model(string geoTiffFilename, string modelName)
 		{
 			this->_Initialize(geoTiffFilename, modelName);
-			this->_AStarAlgorithmConfiguration(A_START_SEARCH_4_PIXELS_MOVEMENT, false);
+			this->_AStarAlgorithmConfiguration(AI_SUPPORT_ALGORITHMS_4_PIXELS_MOVEMENT, false);
 			
 		}	//	Model::Model()
 		
@@ -276,6 +276,24 @@
 		* PUBLIC CLASS MEMBER FUNCTION DEFINITIONS
 		****************************************************************************
 	*/
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: Model
+		// Function				: DsmMapFileColumns
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 07-03-2021
+		// Class description	: This base class represents the model that will be derived
+		//							as a person (class) that could be an agent, a target, etc
+		// Function description	: This public member function returns the DSM map info
+		// Remarks				:
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: None
+		/////////////////////////////////////////////////////////////////////////////////
+		class DsmInformation & Model::DsmMap(void)
+		{
+			return this->dsmMapInfo;
+			
+		}	//	Model::DsmMap()
+		
 		/////////////////////////////////////////////////////////////////////////////////
 		// Class name			: Model
 		// Function				: DsmMapFileColumns
@@ -583,8 +601,6 @@
 			Location	currentLocation			= this->CurrentLocation();
 			Location	destinationLocation		= targetLocation;
 			list <class Location>				tentativeLocationsClosedEnoughToTarget;
-			Location	tentativeTargetLocation;
-			bool		dsmMapReset				= false;
 			
 			//	Verify the locations are valid ones
 			if (!this->dsmMapInfo.IsInDsmMap(currentLocation))
@@ -610,36 +626,11 @@
 			
 			//	Reset the DSM map and including all the forbidden locations (close enough to target)
 			//	TODO: MUCH BETTER, NOT HARD CODED
-			//	EAST
+			Location	tentativeTargetLocation;
+			bool		dsmMapReset				= false;
+			//	EAST (perform the others but before function)
 			tentativeTargetLocation	= destinationLocation;
 			tentativeTargetLocation.Modify(destinationLocation.Column()-1, destinationLocation.Row());
-			if (!this->dsmMapInfo.Obstacle(tentativeTargetLocation.Column(), tentativeTargetLocation.Row()))
-			{
-				//	If the location is a valid one
-				DsmMapForTargetResetIncludingForbiddenLocations(targetLocation, AI_MODEL_MINIMUM_DISTANCE_FROM_AGENT_TO_TARGET, dsmMapReset ? false : true);
-				dsmMapReset	= true;
-			}
-			//	WEST
-			tentativeTargetLocation	= destinationLocation;
-			tentativeTargetLocation.Modify(destinationLocation.Column()+1, destinationLocation.Row());
-			if (!this->dsmMapInfo.Obstacle(tentativeTargetLocation.Column(), tentativeTargetLocation.Row()))
-			{
-				//	If the location is a valid one
-				DsmMapForTargetResetIncludingForbiddenLocations(targetLocation, AI_MODEL_MINIMUM_DISTANCE_FROM_AGENT_TO_TARGET, dsmMapReset ? false : true);
-				dsmMapReset	= true;
-			}
-			//	SOUTH
-			tentativeTargetLocation	= destinationLocation;
-			tentativeTargetLocation.Modify(destinationLocation.Column(), destinationLocation.Row()-1);
-			if (!this->dsmMapInfo.Obstacle(tentativeTargetLocation.Column(), tentativeTargetLocation.Row()))
-			{
-				//	If the location is a valid one
-				DsmMapForTargetResetIncludingForbiddenLocations(targetLocation, AI_MODEL_MINIMUM_DISTANCE_FROM_AGENT_TO_TARGET, dsmMapReset ? false : true);
-				dsmMapReset	= true;
-			}
-			//	NORTH
-			tentativeTargetLocation	= destinationLocation;
-			tentativeTargetLocation.Modify(destinationLocation.Column(), destinationLocation.Row()+1);
 			if (!this->dsmMapInfo.Obstacle(tentativeTargetLocation.Column(), tentativeTargetLocation.Row()))
 			{
 				//	If the location is a valid one
@@ -859,7 +850,7 @@
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: graphic type (.png or GeoTIFF)
 		/////////////////////////////////////////////////////////////////////////////////
-		bool Model::GraphicClose(graphicType typeOfGraphic)
+		bool Model::GraphicClose(AI_SUPPORT_CLASSES_graphicType typeOfGraphic)
 		{
 			this->graphic.Close(typeOfGraphic);
 			
@@ -931,13 +922,13 @@
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: None
 		/////////////////////////////////////////////////////////////////////////////////
-		bool Model::_AStarAlgorithmConfiguration(aStarSearchPixelsMovementType aStarSearchPixelsMovementTypeForFindPath, bool possibilityOfNotMoving)
+		bool Model::_AStarAlgorithmConfiguration(AI_SUPPORT_ALGORITHMS_pixelsMovementType aStarSearchPixelsMovementTypeForFindPath, bool possibilityOfNotMoving)
 		{
 			switch (aStarSearchPixelsMovementTypeForFindPath)
 			{
-				case A_START_SEARCH_4_PIXELS_MOVEMENT:
-				case A_START_SEARCH_8_PIXELS_MOVEMENT:
-				case A_START_SEARCH_12_PIXELS_MOVEMENT:
+				case AI_SUPPORT_ALGORITHMS_4_PIXELS_MOVEMENT:
+				case AI_SUPPORT_ALGORITHMS_8_PIXELS_MOVEMENT:
+				case AI_SUPPORT_ALGORITHMS_12_PIXELS_MOVEMENT:
 					this->aStarSearchPixelsMovementTypeForFindPath	= aStarSearchPixelsMovementTypeForFindPath;
 					break;
 				default:
@@ -963,13 +954,13 @@
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: None
 		/////////////////////////////////////////////////////////////////////////////////
-		bool Agent::_AStarAlgorithmConfigurationForTarget(aStarSearchPixelsMovementType aStarSearchPixelsMovementTypeForFindPath, bool possibilityOfNotMoving)
+		bool Agent::_AStarAlgorithmConfigurationForTarget(AI_SUPPORT_ALGORITHMS_pixelsMovementType aStarSearchPixelsMovementTypeForFindPath, bool possibilityOfNotMoving)
 		{
 			switch (aStarSearchPixelsMovementTypeForFindPath)
 			{
-				case A_START_SEARCH_4_PIXELS_MOVEMENT:
-				case A_START_SEARCH_8_PIXELS_MOVEMENT:
-				case A_START_SEARCH_12_PIXELS_MOVEMENT:
+				case AI_SUPPORT_ALGORITHMS_4_PIXELS_MOVEMENT:
+				case AI_SUPPORT_ALGORITHMS_8_PIXELS_MOVEMENT:
+				case AI_SUPPORT_ALGORITHMS_12_PIXELS_MOVEMENT:
 					this->aStarSearchPixelsMovementTypeForFindPathForTarget	= aStarSearchPixelsMovementTypeForFindPath;
 					break;
 				default:

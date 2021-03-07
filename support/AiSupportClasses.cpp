@@ -1413,7 +1413,7 @@
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: graphic type
 		/////////////////////////////////////////////////////////////////////////////////
-		bool Graphic::Close(graphicType typeOfGraphic)
+		bool Graphic::Close(AI_SUPPORT_CLASSES_graphicType typeOfGraphic)
 		{
 			int	row;
 			
@@ -1422,13 +1422,13 @@
 				
 			switch (typeOfGraphic)
 			{
-				case GRAPHIC_TYPE_PNG:
+				case AI_SUPPORT_CLASSES_GRAPHIC_TYPE_PNG:
 					//	Close the instance of the class, and write the image to disk.
 //					(*pPngObject).close();
 					(*pPngObject).write_png();
 					break;
 					
-				case GRAPHIC_TYPE_GEOTIFF:
+				case AI_SUPPORT_CLASSES_GRAPHIC_TYPE_GEOTIFF:
 					{
 						CPLErr		rasterIoError;
 						const int	BAND_TO_BE_WRITTEN	= 1;
