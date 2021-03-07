@@ -397,7 +397,6 @@
 		/////////////////////////////////////////////////////////////////////////////////
 		TargetDsmInformation::~TargetDsmInformation()
 		{
-			
 		}	//	TargetDsmInformation::~TargetDsmInformation()
 		
 		/////////////////////////////////////////////////////////////////////////////////
@@ -711,6 +710,46 @@
 			
 		}	//	Location::LineSlope()
 		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: Location
+		// Function				: Distance
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 06-03-2021
+		// Class description	: This class represents a specific location
+		// Function description	: This member function returns the distance between
+		//							2 points
+		// Remarks				:Returns the distance between them
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: point location
+		/////////////////////////////////////////////////////////////////////////////////
+		double Location::Distance(Location point)
+		{
+			double	distance, columm_distance, row_distance;
+			row_distance	= (double) (this->Row() - point.Row());
+			columm_distance	= (double) (this->Column() - point.Column());
+			distance		= sqrt((row_distance * row_distance) + (columm_distance * columm_distance));
+			
+			return distance;
+			
+		}	//	Location::Distance()
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: Location
+		// Function				: Distance
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 06-03-2021
+		// Class description	: This class represents a specific location
+		// Function description	: This member function returns the distance between
+		//							2 points
+		// Remarks				:Returns the distance between them
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: two points location
+		/////////////////////////////////////////////////////////////////////////////////
+		double Location::Distance(Location& pointA, Location pointB)
+		{
+			return pointA.Distance(pointB);
+			
+		}	//	Location::Distance()
 			
 		/////////////////////////////////////////////////////////////////////////////////
 		// Class name			: DsmLocation
@@ -762,7 +801,7 @@
 		/////////////////////////////////////////////////////////////////////////////////
 		double DsmLocation::Elevation(void)
 		{
-			return (this->elevation);
+			return this->elevation;
 			
 		}	//	DsmLocation::Elevation()
 		
@@ -920,19 +959,19 @@
 		/////////////////////////////////////////////////////////////////////////////////
 		void DsmInformation::Rows(int rows)
 		{
-			logger.Write("Called rows(");
-			logger.Write(rows);
-			logger.WriteLine(")");
+			this->logger.Write("Called rows(");
+			this->logger.Write(rows);
+			this->	logger.WriteLine(")");
 
 			this->rows	= rows;
 			
 			if (!this->initialized && 0 != this->Columns())
 			{
-				logger.Write("Initializing internal array (");
-				logger.Write(this->Columns());
-				logger.Write("x");
-				logger.Write(rows);
-				logger.WriteLine(")");
+				this->logger.Write("Initializing internal array (");
+				this->logger.Write(this->Columns());
+				this->logger.Write("x");
+				this->logger.Write(rows);
+				this->logger.WriteLine(")");
 				this->pLocation		= new DsmLocation[this->Columns() * rows];   
 				this->initialized	= true; 
 			}
@@ -953,19 +992,19 @@
 		/////////////////////////////////////////////////////////////////////////////////
 		void DsmInformation::Columns(int columns)
 		{
-			logger.Write("Called columns(");
-			logger.Write(columns);
-			logger.WriteLine(")");
+			this->logger.Write("Called columns(");
+			this->logger.Write(columns);
+			this->logger.WriteLine(")");
 			
 			this->columns	= columns;
 			
 			if (!this->initialized && 0 != this->Rows())
 			{
-				logger.Write("Initializing internal array (");
-				logger.Write(columns);
-				logger.Write("x");
-				logger.Write(this->Rows());
-				logger.WriteLine(")");
+				this->logger.Write("Initializing internal array (");
+				this->logger.Write(columns);
+				this->logger.Write("x");
+				this->logger.Write(this->Rows());
+				this->logger.WriteLine(")");
 				this->pLocation		= new DsmLocation[columns * this->Rows()];  
 				this->initialized	= true; 
 			}
@@ -1021,17 +1060,17 @@
 		{
 			if (row > this->Rows())
 			{
-				logger << "Input row: " << row << " is greater than the maximum number of rows: " << this->Rows() << "\n";
+				this->logger << "Input row: " << row << " is greater than the maximum number of rows: " << this->Rows() << "\n";
 				return false;
 			} 
 			if (column > this->Columns())
 			{
-				logger << "Input column: " << column << " is greater than the maximum number of columns: " << this->Columns() << "\n";
+				this->logger << "Input column: " << column << " is greater than the maximum number of columns: " << this->Columns() << "\n";
 				return false;
 			}
 			
 			this->pLocation[(this->Columns() * row) + column].Elevation(elevation);
-			logger << "[" << column << "," << row << "] elevation set to " << elevation << "\n";
+			this->logger << "[" << column << "," << row << "] elevation set to " << elevation << "\n";
 			
 			return true;
 			
@@ -1053,21 +1092,21 @@
 		{
 			if (row > this->Rows())
 			{
-				logger << "Input row: " << row << " is greater than the maximum number of rows: " << this->Rows() << "\n";
+				this->logger << "Input row: " << row << " is greater than the maximum number of rows: " << this->Rows() << "\n";
 				return false;
 			} 
 			if (column > this->Columns())
 			{
-				logger << "Input column: " << column << " is greater than the maximum number of columns: " << this->Columns() << "\n";
+				this->logger << "Input column: " << column << " is greater than the maximum number of columns: " << this->Columns() << "\n";
 				return false;
 			}
 			
 			
 			this->pLocation[(this->Columns() * row) + column].Obstacle(theLocationIsAnObstacle);
 			if (theLocationIsAnObstacle)
-				logger << "[" << column << "," << row << "] was set to be an obstacle\n";
+				this->logger << "[" << column << "," << row << "] was set to be an obstacle\n";
 			else
-				logger << "[" << column << "," << row << "] was set not to be an obstacle\n";
+				this->logger << "[" << column << "," << row << "] was set not to be an obstacle\n";
 			
 			return true;
 			
@@ -1187,6 +1226,150 @@
 			
 		}	//	DsmInformation::GroundLevel()
 		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: TargetDsmInformation
+		// Function				: DsmMapForTargetReset
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 06-03-2021
+		// Class description	: This class represents the information taken from a DSM file
+		//							A DSM (Digital Surface Model) is a computer graphics 
+		//							representation of elevation data to represent terrain but
+		//							specialized with info on target
+		// Function description	: This member function updates the internal DSM
+		//							map (in agent) with the information from target DSM
+		// Remarks				: 
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: source DSM map
+		/////////////////////////////////////////////////////////////////////////////////
+		void TargetDsmInformation::DsmMapForTargetReset(DsmInformation& sourceDsmMap, 
+					// Default parameters
+					bool includingForbiddenCloseToTargetLocations,
+					Location targetLocation,
+					int minimumDistanceToTarget,
+					bool clearPreviousObstacles)
+		{
+			int	column, row;
+			int	columns = sourceDsmMap.Columns();
+			int	rows	= sourceDsmMap.Rows();
+			
+			for (row = 0; row < rows; row++)
+			{
+				for (column = 0; column < columns; column++)
+				{
+					if (clearPreviousObstacles)
+					{
+						//	Copy elevation from dsmInformation object
+						this->Elevation(column, row, sourceDsmMap.Elevation(column, row));
+						//	Copy obstacle from dsmInformation object
+						this->Obstacle(column, row, sourceDsmMap.Obstacle(column, row));
+					}
+					
+					if (includingForbiddenCloseToTargetLocations)
+					{
+						Location	currentLocation(column, row);
+						
+						if (currentLocation.Distance(targetLocation) < minimumDistanceToTarget)
+						{
+							if (!this->Obstacle(currentLocation))
+							{
+								//	If the location is close enough to target
+								//		and it is NOT an obstacle,
+								//		the set this position as a forbidden one
+								this->ForbiddenDistance(column, row, true);
+							}
+						}
+					}
+				}
+			}
+			
+		}	//	TargetDsmInformation::DsmMapForTargetReset()
+		
+ 		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: TargetDsmInformation
+		// Function				: ForbiddenDistance
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 06-03-2021
+		// Class description	: This class represents the information taken from a DSM file
+		//						A DSM (Digital Surface Model) is a computer graphics 
+		//						representation of elevation data to represent terrain but
+		//						specialized with info on target
+		// Function description	: This member function defines location close enough to
+		//							target
+		// Remarks				:
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: column, row and boolean deciding if the location could
+		//							is a forbidden distance from target
+		/////////////////////////////////////////////////////////////////////////////////
+		bool TargetDsmInformation::ForbiddenDistance(int column, int row, bool forbiddenDistance)
+		{
+			if (row > this->Rows())
+			{
+				this->logger << "Input row: " << row << " is greater than the maximum number of rows: " << this->Rows() << "\n";
+				return false;
+			} 
+			if (column > this->Columns())
+			{
+				this->logger << "Input column: " << column << " is greater than the maximum number of columns: " << this->Columns() << "\n";
+				return false;
+			}
+			
+			
+			this->pLocation[(this->Columns() * row) + column].Obstacle(forbiddenDistance);
+			this->pLocation[(this->Columns() * row) + column].Elevation(ELEVATION_TO_DEFINE_PROXIMITY_TO_TARGET);
+			
+			if (forbiddenDistance)
+				this->logger << "[" << column << "," << row << "] was set to be at forbidden distance\n";
+			else
+				this->logger << "[" << column << "," << row << "] was set not to be at forbidden distance\n";
+			
+			return true;
+			
+		}	//	TargetDsmInformation::ForbiddenDistance()
+		
+ 		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: TargetDsmInformation
+		// Function				: ForbiddenDistance
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 01-03-2021
+		// Class description	: This class represents the information taken from a DSM file
+		//						A DSM (Digital Surface Model) is a computer graphics 
+		//						representation of elevation data to represent terrain but
+		//						specialized with info on target
+		// Function description	: This member function returns if the location is close
+		//							enough to target
+		// Remarks				:Returns true, if the location is close enough to target,
+		//							false otherwise
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: location
+		/////////////////////////////////////////////////////////////////////////////////
+		bool TargetDsmInformation::ForbiddenDistance(Location location)
+		{
+			return (this->pLocation[(location.Row() * this->Columns()) + location.Column()].Obstacle());
+			
+		}   //  TargetDsmInformation::ForbiddenDistance()
+		
+ 		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: DsmInformation
+		// Function				: ForbiddenDistance
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 01-03-2021
+		// Class description	: TThis class represents the information taken from a DSM file
+		//						A DSM (Digital Surface Model) is a computer graphics 
+		//						representation of elevation data to represent terrain but
+		//						specialized with info on target
+		// Function description	: This member function returns if the location is close
+		//							enough to target
+		// Remarks				:Returns true, if the location is close enough to target,
+		//							false otherwise
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: column, row 
+		/////////////////////////////////////////////////////////////////////////////////
+		bool TargetDsmInformation::ForbiddenDistance(int column, int row)
+		{
+			return (this->pLocation[(row * this->Columns()) + column].Obstacle());
+			
+		}   //  TargetDsmInformation::ForbiddenDistance()
+
 		/////////////////////////////////////////////////////////////////////////////////
 		// Class name			: Graphic
 		// Function				: Open
@@ -1442,8 +1625,8 @@
 		}   //  Graphic::Line()
 		
 		/////////////////////////////////////////////////////////////////////////////////
-		// Class name			: Arrow
-		// Function				: Line
+		// Class name			: Graphic
+		// Function				: Arrow
 		// Programmer name		: Pablo Daniel Jelsky
 		// Last update date		: 06-03-2021
 		// Class description	: This class represents a graphic
@@ -1917,6 +2100,79 @@
 
 		}	//	Graphic::operator =
 
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: DsmInformation
+		// Function				: = operator (location assignment operator)
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 06-03-2021
+		// Class description	: This class represents all the needed info for DSM maps
+		// Operator description	: This operator (=) is used to assign DSM information to another
+		// Remarks				:
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: DSM map information
+		/////////////////////////////////////////////////////////////////////////////////
+		DsmInformation& DsmInformation::operator = (DsmInformation &dsmInformation)
+		{
+			if (this != &dsmInformation)
+			{
+				int	column, row;
+				int	columns = this->Columns();
+				int	rows	= this->Rows();
+				
+				for (row = 0; row < rows; row++)
+				{
+					for (column = 0; column < columns; column++)
+					{
+						//	Copy elevation from dsmInformation object
+						this->Elevation(column, row, dsmInformation.Elevation(column, row));
+						//	Copy obstacle from dsmInformation object
+						this->Obstacle(column, row, dsmInformation.Obstacle(column, row));
+					}
+				}
+			}
+
+			return (*this);
+
+		}	//	DsmLocation::operator =
+
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: TargetDsmInformation
+		// Function				: = operator (location assignment operator)
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 06-03-2021
+		// Class description	: This class represents the information taken from a DSM file
+		//						A DSM (Digital Surface Model) is a computer graphics 
+		//						representation of elevation data to represent terrain but
+		//						specialized with info on target
+		// Operator description	: This operator (=) is used to assign DSM information to another
+		// Remarks				:
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: DSM map information
+		/////////////////////////////////////////////////////////////////////////////////
+		TargetDsmInformation& TargetDsmInformation::operator = (DsmInformation &dsmInformation)
+		{
+			if (this != &dsmInformation)
+			{
+				int	column, row;
+				int	columns = this->Columns();
+				int	rows	= this->Rows();
+				
+				for (row = 0; row < rows; row++)
+				{
+					for (column = 0; column < columns; column++)
+					{
+						//	Copy elevation from dsmInformation object
+						this->Elevation(column, row, dsmInformation.Elevation(column, row));
+						//	Copy obstacle from dsmInformation object
+						this->Obstacle(column, row, dsmInformation.Obstacle(column, row));
+					}
+				}
+			}
+
+			return (*this);
+
+		}	//	TargetDsmInformation::operator =
+		
 	/*
 		****************************************************************************
 		* PROTECTED CLASS MEMBER FUNCTION DEFINITIONS
@@ -2031,6 +2287,7 @@
 			}
 
 		}	//	Graphic::_Update()
+
 
 
 

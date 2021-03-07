@@ -64,11 +64,32 @@
 //	-	1.3.1)		Display "agents" path progress over time on map
 //	-	1.4)	LOS (Line Of Sight)
 //	-	1.4.1)		Display LOS between every agent ant the "target", if existent
+//
 //	-	2)	Solution help tools
 //	-		-------------------
 //	-	2.1)	Map for every pixel at ground-level all the pixel that have LOS with it
 //	-	2.2)	Take a number of DSM locations and display the LOS between them
-
+//
+//	-	3)	Working with "only" one agent
+//	-		-----------------------------
+//	-	3.1)	Write a function that will return the progress command to the agent given his and the "target" current locations: 
+//					CalculateNextLocation(TargetCurrentLocation, AgentCurrentLocation)__
+//	-	3.2)	Progress command will take in account the potential next location of both the "target" and the "agent" so that will have LOS 
+//					between "agent" and "target" as much as possible time
+//
+//	-	4)	Working with a couple of agents - Central calculation
+//	-		-----------------------------------------------------
+//	-	4.1)	Like in the previous section, but the function should give guidance to both agents: CalculateNextLocationForAgent2(TargetCurrentLocation, AgentCurrentLocation)__
+//	-	4.2)	It is desirable that there will be some kind of coordination between both commands so that one agent will complement the other
+//
+//	-	5)	Working with a couple of followers - Distributed calculation
+//	-		------------------------------------------------------------
+//	-	5.1)	Write a function that will return the progress command to a_single agent given his, the second agent and the "target" current locations:
+//					CalculateNextLocation3(TargetCurrentLocation, OtherAgentCurrentLocation, AgentCurrentLocation)__
+//	-	5.2)	The function (for each agent) are not related between them
+//	-	5.3)	The function will give guidance every 2 seconds, once the function will work with agent1, and the next second will work with agent2, 
+//					therefore the function(s) won't work with the same input
+//	-	5.4)	It is desirable that there will be some kind of coordination between both commands so that one agent will complement the other
 //
 //	==========================================
 //	==========================================

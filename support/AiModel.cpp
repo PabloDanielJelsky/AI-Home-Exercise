@@ -222,28 +222,7 @@
 		Target::Target()
 		{
 		}	//	Target::Target()
-	
-		/////////////////////////////////////////////////////////////////////////////////
-		// Class name			: Target
-		// Function				: Parametrized constructor
-		// Programmer name		: Pablo Daniel Jelsky
-		// Last update date		: 05-03-2021
-		// Class description	: This class represents the target class derived
-		//							from model class
-		// Function description	: This constructors take as parameter GeoTIFF file that
-		//							will be the base of the DSM information map
-		// Remarks				: 
-		/////////////////////////////////////////////////////////////////////////////////
-		// Arguments			: string geoTiffFilename (name of the GeoTIFF file)
-		//						 string modelName (name that will be used for logger and .csv files)
-		/////////////////////////////////////////////////////////////////////////////////
-		Target::Target(string geoTiffFilename, string modelName)
-		{
-			this->_Initialize(geoTiffFilename, modelName);
-			this->_AStarAlgorithmConfiguration(A_START_SEARCH_4_PIXELS_MOVEMENT, false);
-			
-		}	//	Target::Target()
-		
+
 		/////////////////////////////////////////////////////////////////////////////////
 		// Class name			: Target
 		// Function				: Destructor
@@ -275,28 +254,7 @@
 		Agent::Agent()
 		{
 		}	//	Agent::Agent()
-		
-		/////////////////////////////////////////////////////////////////////////////////
-		// Class name			: Agent
-		// Function				: Parametrized constructor
-		// Programmer name		: Pablo Daniel Jelsky
-		// Last update date		: 05-03-2021
-		// Class description	: This class represents the agent class derived
-		//							from target class
-		// Function description	: This constructors take as parameter GeoTIFF file that
-		//							will be the base of the DSM information map
-		// Remarks				: 
-		/////////////////////////////////////////////////////////////////////////////////
-		// Arguments			: string geoTiffFilename (name of the GeoTIFF file)
-		//						 string modelName (name that will be used for logger and .csv files)
-		/////////////////////////////////////////////////////////////////////////////////
-		Agent::Agent(string geoTiffFilename, string modelName)
-		{
-			this->_Initialize(geoTiffFilename, modelName);
-			this->_AStarAlgorithmConfiguration(A_START_SEARCH_12_PIXELS_MOVEMENT, true);
-			
-		}	//	Agent::Agent()
-		
+
 		/////////////////////////////////////////////////////////////////////////////////
 		// Class name			: Agent
 		// Function				: Destructor
@@ -555,6 +513,151 @@
 			return (this->dsmMapInfo.LineOfSight(pointA, pointB));
 			
 		}	//	Model::LineOfSight()
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: Agent
+		// Function				: DsmMapForTargetReset
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 06-03-2021
+		// Class description	: This base class represents an agent person
+		// Function description	: This member function updates the internal DSM
+		//							map (in agent) with the information from target DSM
+		// Remarks				:
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: 
+		/////////////////////////////////////////////////////////////////////////////////
+		void Agent::DsmMapForTargetReset(void)
+		{
+			this->targetDsmMapInfo.DsmMapForTargetReset(this->dsmMapInfo);
+			
+		}	//	Agent::DsmMapForTargetReset()
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: Agent
+		// Function				: DsmMapForTargetResetIncludingForbiddenLocations
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 06-03-2021
+		// Class description	: This base class represents an agent person
+		// Function description	: This member function updates the internal DSM
+		//							map (in agent) with the information from target DSM,
+		//							including the marking of locations that are close
+		//							enough to target
+		// Remarks				:
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: target location, minimum distance to target and
+		//							boolean indicating if need to clear previous
+		//							obstacles
+		/////////////////////////////////////////////////////////////////////////////////
+		void Agent::DsmMapForTargetResetIncludingForbiddenLocations(
+						Location targetLocation,
+						//	Default parameter
+						int minimumDistanceToTarget,
+						bool clearPreviousObstacles)
+		{
+			TargetLocation(targetLocation);
+			this->targetDsmMapInfo.DsmMapForTargetReset(this->dsmMapInfo, true, targetLocation, minimumDistanceToTarget, clearPreviousObstacles);
+			
+		}	//	Agent::DsmMapForTargetResetIncludingForbiddenLocations()
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: Agent
+		// Function				: FindPathToFollowTarget
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 06-03-2021
+		// Class description	: This base class represents an agent person
+		// Function description	: This member function updates the internal DSM
+		//							map (in agent) with the information from target DSM,
+		//							including the marking of locations that are close
+		//							enough to target
+		// Remarks				:
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: number of steps to target
+		/////////////////////////////////////////////////////////////////////////////////
+		int Agent::FindPathToFollowTarget(
+									string csvAgentPathFilename,
+									Location targetLocation,
+									//	Default parameter
+									int minimumDistanceToTarget)
+		{
+			int 		agentPathLength;
+			Location	currentLocation			= this->CurrentLocation();
+			Location	destinationLocation		= targetLocation;
+			list <class Location>				tentativeLocationsClosedEnoughToTarget;
+			Location	tentativeTargetLocation;
+			bool		dsmMapReset				= false;
+			
+			//	Verify the locations are valid ones
+			if (!this->dsmMapInfo.IsInDsmMap(currentLocation))
+			{
+				this->logger << this->logger.SystemTime() << "While trying to find path from agent to target: AGENT CURRENT LOCATION is NOT in DSM map => [" << currentLocation.Column() << ", " << currentLocation.Row() << "]\n";
+				return EXIT_FAILURE;
+			}
+			if (!this->dsmMapInfo.IsInDsmMap(destinationLocation))
+			{
+				this->logger << this->logger.SystemTime() << "While trying to find path from agent to target: TARGET LOCATION is NOT in DSM map => [" << destinationLocation.Column() << ", " << destinationLocation.Row() << "]\n";
+				return EXIT_FAILURE;
+			}
+			if (this->dsmMapInfo.Obstacle(currentLocation))
+			{
+				this->logger << this->logger.SystemTime() << "While trying to find path from agent to target: AGENT CURRENT LOCATION is an OBSTACLE in DSM map => [" << currentLocation.Column() << ", " << currentLocation.Row() << "]\n";
+				return EXIT_FAILURE;
+			}
+			if (this->dsmMapInfo.Obstacle(destinationLocation))
+			{
+				this->logger << this->logger.SystemTime() << "While trying to find path from agent to target: TARGET LOCATION is an OBSTACLE in DSM map => [" << destinationLocation.Column() << ", " << destinationLocation.Row() << "]\n";
+				return EXIT_FAILURE;
+			}
+			
+			//	Reset the DSM map and including all the forbidden locations (close enough to target)
+			//	TODO: MUCH BETTER, NOT HARD CODED
+			//	EAST
+			tentativeTargetLocation	= destinationLocation;
+			tentativeTargetLocation.Modify(destinationLocation.Column()-1, destinationLocation.Row());
+			if (!this->dsmMapInfo.Obstacle(tentativeTargetLocation.Column(), tentativeTargetLocation.Row()))
+			{
+				//	If the location is a valid one
+				DsmMapForTargetResetIncludingForbiddenLocations(targetLocation, AI_MODEL_MINIMUM_DISTANCE_FROM_AGENT_TO_TARGET, dsmMapReset ? false : true);
+				dsmMapReset	= true;
+			}
+			//	WEST
+			tentativeTargetLocation	= destinationLocation;
+			tentativeTargetLocation.Modify(destinationLocation.Column()+1, destinationLocation.Row());
+			if (!this->dsmMapInfo.Obstacle(tentativeTargetLocation.Column(), tentativeTargetLocation.Row()))
+			{
+				//	If the location is a valid one
+				DsmMapForTargetResetIncludingForbiddenLocations(targetLocation, AI_MODEL_MINIMUM_DISTANCE_FROM_AGENT_TO_TARGET, dsmMapReset ? false : true);
+				dsmMapReset	= true;
+			}
+			//	SOUTH
+			tentativeTargetLocation	= destinationLocation;
+			tentativeTargetLocation.Modify(destinationLocation.Column(), destinationLocation.Row()-1);
+			if (!this->dsmMapInfo.Obstacle(tentativeTargetLocation.Column(), tentativeTargetLocation.Row()))
+			{
+				//	If the location is a valid one
+				DsmMapForTargetResetIncludingForbiddenLocations(targetLocation, AI_MODEL_MINIMUM_DISTANCE_FROM_AGENT_TO_TARGET, dsmMapReset ? false : true);
+				dsmMapReset	= true;
+			}
+			//	NORTH
+			tentativeTargetLocation	= destinationLocation;
+			tentativeTargetLocation.Modify(destinationLocation.Column(), destinationLocation.Row()+1);
+			if (!this->dsmMapInfo.Obstacle(tentativeTargetLocation.Column(), tentativeTargetLocation.Row()))
+			{
+				//	If the location is a valid one
+				DsmMapForTargetResetIncludingForbiddenLocations(targetLocation, AI_MODEL_MINIMUM_DISTANCE_FROM_AGENT_TO_TARGET, dsmMapReset ? false : true);
+				dsmMapReset	= true;
+			}
+			
+			//	Look for a possible list of targets to be used with A* algorithm
+			_ListOfPossibleTargets(tentativeLocationsClosedEnoughToTarget, 5);
+
+			//	Activate
+			agentPathLength = AStarSearch(this->aStarSearchPixelsMovementTypeForFindPath, this->aStartSearchPixelsCouldStayOnPlace, 
+				this->targetDsmMapInfo, currentLocation, destinationLocation,  
+				this->pathList, csvAgentPathFilename);
+				
+			return agentPathLength;
+		
+		}	//	Agent::FindPathToFollowTarget()
 
 		/////////////////////////////////////////////////////////////////////////////////
 		// Class name			: Model
@@ -821,7 +924,7 @@
 		// Last update date		: 05-03-2021
 		// Class description	: This base class represents the model that will be derived
 		//							as a person (class) that could be an agent, a target, etc
-		// Function description	: This private member function configures the A* algorithm
+		// Function description	: This protected member function configures the A* algorithm
 		// Remarks				: The Geospatial Data Abstraction Library (GDAL) is a computer 
 		//							software library for reading and writing raster and vector 
 		//							geospatial data formats
@@ -846,6 +949,38 @@
 			return true;
 			
 		}	//	 Model::_AStarAlgorithmConfiguration()
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: Agent
+		// Function				: _AStarAlgorithmConfiguration
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 06-03-2021
+		// Class description	: This class represents an agent person
+		// Function description	: This protected member function configures the A* algorithm
+		// Remarks				: The Geospatial Data Abstraction Library (GDAL) is a computer 
+		//							software library for reading and writing raster and vector 
+		//							geospatial data formats
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: None
+		/////////////////////////////////////////////////////////////////////////////////
+		bool Agent::_AStarAlgorithmConfigurationForTarget(aStarSearchPixelsMovementType aStarSearchPixelsMovementTypeForFindPath, bool possibilityOfNotMoving)
+		{
+			switch (aStarSearchPixelsMovementTypeForFindPath)
+			{
+				case A_START_SEARCH_4_PIXELS_MOVEMENT:
+				case A_START_SEARCH_8_PIXELS_MOVEMENT:
+				case A_START_SEARCH_12_PIXELS_MOVEMENT:
+					this->aStarSearchPixelsMovementTypeForFindPathForTarget	= aStarSearchPixelsMovementTypeForFindPath;
+					break;
+				default:
+					this->logger << this->logger.SystemTime() << "Parameter aStarSearchPixelsMovementTypeForFindPath = " << aStarSearchPixelsMovementTypeForFindPathForTarget << "is not a valid one in _AStarAlgorithmConfiguration()\n";
+					return false;
+			}
+			
+			this->aStartSearchPixelsCouldStayOnPlaceForTarget	= (possibilityOfNotMoving) ? true : false;
+			return true;
+			
+		}	//	 Agent::_AStarAlgorithmConfigurationForTarget()
 		
 		/////////////////////////////////////////////////////////////////////////////////
 		// Class name			: Model
@@ -937,10 +1072,10 @@
 					CPLErr	rasterIoError;
 					
 					//  Fetching a Raster Band
-					GDALRasterBand  *poBand;
-					int             nBlockXSize, nBlockYSize;
-					int             bGotMin, bGotMax;
-					double          adfMinMax[2];
+					GDALRasterBand	*poBand;
+					int				nBlockXSize, nBlockYSize;
+					int				bGotMin, bGotMax;
+					double			adfMinMax[2];
 					
 					poBand = this->poDataset->GetRasterBand(BAND_TO_BE_FETCHED);
 					poBand->GetBlockSize(&nBlockXSize, &nBlockYSize);
@@ -952,10 +1087,10 @@
 					
 					if (!(bGotMin && bGotMax))
 					{
-					    GDALComputeRasterMinMax((GDALRasterBandH) poBand, true, adfMinMax);
-					    this->dsmMapInfo.GroundLevel(adfMinMax[0]);
-					    this->logger << "\t\tMinimum elevation = " << adfMinMax[0] << ", maximum elevation = " << adfMinMax[1] << "\n";
-					    this->logger << "\t\tDSM map ground level set to " << this->dsmMapInfo.GroundLevel() << "\n";
+						GDALComputeRasterMinMax((GDALRasterBandH) poBand, true, adfMinMax);
+						this->dsmMapInfo.GroundLevel(adfMinMax[0]);
+						this->logger << "\t\tMinimum elevation = " << adfMinMax[0] << ", maximum elevation = " << adfMinMax[1] << "\n";
+						this->logger << "\t\tDSM map ground level set to " << this->dsmMapInfo.GroundLevel() << "\n";
 					}
 					if (poBand->GetOverviewCount() > 0)
 					{
@@ -967,11 +1102,11 @@
 						this->logger << "\t\tBand has a color table with " << poBand->GetColorTable()->GetColorEntryCount() << " entries.\n";
 					}
 					
-					//  Reading Raster Data
-					//  Reading Raster Data
-					//  Reading Raster Data
-					int   nXSize = poBand->GetXSize();
-					int	  nYSize = poBand->GetYSize();
+					//	Reading Raster Data
+					//	Reading Raster Data
+					//	Reading Raster Data
+					int		nXSize = poBand->GetXSize();
+					int		nYSize = poBand->GetYSize();
 					
 					this->pafScanline = (float *) CPLMalloc(sizeof(float)*nXSize*nYSize);
 					if (NULL == this->pafScanline)
@@ -1035,13 +1170,36 @@
 			return true;
 
 		}   //  Model::_DsmInputFileRaster()
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: Agent
+		// Function				: _ListOfPossibleTargets
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 06-03-2021
+		// Class description	: This base class represents the agent person
+		// Function description	: This protected member function gets a list of possible
+		//							targets that will suit the A* search with all the 
+		//							constraints
+		// Remarks				: 
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: list of possible targets, maximum number of possible targets
+		/////////////////////////////////////////////////////////////////////////////////
+		bool Agent::_ListOfPossibleTargets(list <Location>& targetPossibleList, int maximumNumberOfPossibleTargets)
+		{
+			Location	temporalLocation;
+			
+//			targetPossibleList.push_back(temporalLocation);
+			
+			return true;
+
+		}	//	Agent::_ListOfPossibleTargets()
 	/*
 		****************************************************************************
 		* PRIVATE CLASS MEMBER FUNCTION DEFINITIONS
 		****************************************************************************
 	*/
 
-		
+
 
 
 

@@ -57,6 +57,7 @@
 		/*---- name spaces declarations --------------------------------------------*/
 		using namespace std;
 		/*---- defines --------------------------------------------------------------*/
+		#define	AI_MODEL_MINIMUM_DISTANCE_FROM_AGENT_TO_TARGET	10
 		/*---- enums --------------------------------------------------------------*/
 		/*---- data declarations ---------------------------------------------------*/
 		/*---- function prototypes -------------------------------------------------*/
@@ -134,22 +135,22 @@
 				bool _DsmInputFileRaster(void);
 				
 				//	Protected variables
+				class DsmInformation							dsmMapInfo;
 				aStarSearchPixelsMovementType					aStarSearchPixelsMovementTypeForFindPath 	= A_START_SEARCH_4_PIXELS_MOVEMENT;
 				bool 											aStartSearchPixelsCouldStayOnPlace			= false;
+				list <class Location>							pathList;
+				class Logger									logger;
 				
 			private: 
 				//	Private variables
 				bool    										initialized									= false;
 				string											geoTiffFilename;
 				string											modelName;
-				class DsmInformation							dsmMapInfo;
 				GDALDataset  									*poDataset									= NULL;
 				float 											*pafScanline								= NULL;
 				class Location									currentLocation, destinationLocation;
 				unordered_map <int, AI_SUPPORT_CLASSES_color>	elevationColor;
-				list <class Location>							pathList;
 				class Graphic									graphic;
-				class Logger									logger;
 				
 				//	Private member functions
 
@@ -158,7 +159,7 @@
 		/////////////////////////////////////////////////////////////////////////////////
 		// Class name		: Target
 		// Programmer name	: Pablo Daniel Jelsky
-		// Last update date	: 05-03-2021
+		// Last update date	: 06-03-2021
 		// Description		: This class represents a target person
 		// Remarks			: It is derived from Model class
 		/////////////////////////////////////////////////////////////////////////////////
@@ -168,12 +169,17 @@
 				//	Default Constructor 
 				Target(); 
 				//	Parametrized Constructors 
-				Target(string geoTiffFilename, string modelName);
+				Target(string geoTiffFilename, string modelName) : Model { geoTiffFilename, modelName } 
+				{
+					this->_Initialize(geoTiffFilename, modelName);
+					this->_AStarAlgorithmConfiguration(A_START_SEARCH_4_PIXELS_MOVEMENT, false);
+				}
 				//	Destructor
 				~Target();
 
 			protected:
 				//	Protected member function
+				//	Protected variables
 			private:
 				//	Private variables
 
@@ -182,7 +188,7 @@
 		/////////////////////////////////////////////////////////////////////////////////
 		// Class name		: Agent
 		// Programmer name	: Pablo Daniel Jelsky
-		// Last update date	: 05-03-2021
+		// Last update date	: 06-03-2021
 		// Description		: This class represents an agent person
 		// Remarks			: It is derived from Target class 
 		//						(the agent also could be a target of another agent)
@@ -190,18 +196,51 @@
 		class Agent : public Target
 		{
 			public:
+				//	Public member functions
+				void DsmMapForTargetReset(void);
+				void DsmMapForTargetResetIncludingForbiddenLocations(
+						Location targetLocation,
+						//	Default parameter
+						int minimumDistanceToTarget = AI_MODEL_MINIMUM_DISTANCE_FROM_AGENT_TO_TARGET,
+						bool clearPreviousObstacles = true);
+						
+				void TargetLocation(Location targetLocation) {	this->currentTargetLocation	= currentTargetLocation;}
+				Location& TargetLocation(void) {	return this->currentTargetLocation;}
+				void FirstTargetLocation(Location targetLocation) {		this->firstTargetLocation	= currentTargetLocation;}
+				Location& FirstTargetLocation(void) {	return this->firstTargetLocation;}
+				double TargetLineIntercept(void) {	return this->firstTargetLocation.LineIntercept(this->currentTargetLocation);}
+				double TargetLineSlope(void) {	return this->firstTargetLocation.LineSlope(this->currentTargetLocation);}
+				double Distance(Location pointA, Location pointB) {	return pointA.Distance(pointB);}
+				
+				int FindPathToFollowTarget(
+									string csvAgentPathFilename,
+									Location targetLocation,
+									//	Default parameter
+									int minimumDistanceToTarget = AI_MODEL_MINIMUM_DISTANCE_FROM_AGENT_TO_TARGET);
+				
 				//	Default Constructor 
 				Agent(); 
 				//	Parametrized Constructors 
-				Agent(string geoTiffFilename, string modelName);
+				Agent(string geoTiffFilename, string modelName) : Target {geoTiffFilename, modelName}
+				{
+					this->_AStarAlgorithmConfigurationForTarget(A_START_SEARCH_4_PIXELS_MOVEMENT, false);
+					this->targetDsmMapInfo	= this->dsmMapInfo;
+				}
 				//	Destructor
 				~Agent();
 
 			protected:
 				//	Protected member function
+				bool _AStarAlgorithmConfigurationForTarget(aStarSearchPixelsMovementType aStarSearchPixelsMovementTypeForFindPath, bool possibilityOfNotMoving);
+				bool _ListOfPossibleTargets(list <Location>& targetPossibleList, int maximumNumberOfPossibleTargets = 10);
+				//	Protected variables
+				aStarSearchPixelsMovementType	aStarSearchPixelsMovementTypeForFindPathForTarget 	= A_START_SEARCH_4_PIXELS_MOVEMENT;
+				bool 							aStartSearchPixelsCouldStayOnPlaceForTarget			= false;
+				int								minimumDistanceToTarget								= AI_MODEL_MINIMUM_DISTANCE_FROM_AGENT_TO_TARGET;
+				class TargetDsmInformation		targetDsmMapInfo;
+				Location						firstTargetLocation, currentTargetLocation;
 			private:
 				//	Private variables
-				TargetDsmInformation	targetDsmMapInfo;
 
 		};	//	class Agent
 		

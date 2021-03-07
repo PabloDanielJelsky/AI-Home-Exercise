@@ -200,6 +200,8 @@
 				int Row(void);
 				double LineIntercept(Location point);
 				double LineSlope(Location point);
+				double Distance(Location point);
+				double Distance(Location& pointA, Location pointB);
 
 				//	Operators
 				friend ostream& operator << (ostream& ostream, const Location& location);
@@ -302,17 +304,20 @@
 				//	Destructor
 				~DsmInformation();
 				
+				//	Assignment operator
+				DsmInformation& operator = (DsmInformation &dsmInformation);
+				
 			protected:
 				//	Protected member functions
-				
+				class Logger	logger;
+				DsmLocation		*pLocation				= NULL; 
 			private: 
 				//	Private variables
 				bool			initialized				= false;
-				DsmLocation		*pLocation				= NULL; 
 				int				columns 				= AI_SUPPORT_CLASSES_INVALID_COLUMN;
 				int				rows 					= AI_SUPPORT_CLASSES_INVALID_ROW;
 				double			groundLevelElevation	= AI_SUPPORT_CLASSES_INVALID_DSM_ELEVATION;
-				class Logger	logger;
+
 				//	Private member functions
 
 		};  //  class DsmInformation
@@ -331,24 +336,37 @@
 		{
 			public:
 				//	Public member functions
-				bool NonAllowedDistance(int column, int row, bool nonAllowedDistance);
-				bool NonAllowedDistance(Location location);
-				bool NonAllowedDistance(int column, int row);
+				void DsmMapForTargetReset(DsmInformation& sourceDsmMap,
+					// Default parameters
+					bool includingForbiddenCloseToTargetLocations = false,
+					Location targetLocation = {0,0},
+					int minimumDistanceToTarget = 10,
+					bool clearPreviousObstacles = true);
+					
+				bool ForbiddenDistance(int column, int row, bool forbiddenDistance);
+				bool ForbiddenDistance(Location location);
+				bool ForbiddenDistance(int column, int row);
+				
 				//	Default Constructor 
 				TargetDsmInformation() : DsmInformation {} {};
 				//	Parametrized Constructors 
-				TargetDsmInformation(int columns, int rows) : DsmInformation {columns, rows} {}
+				TargetDsmInformation(int columns, int rows) : DsmInformation {columns, rows} 
+				{
+				}
 				//	Destructor
 				~TargetDsmInformation();
+				
+				//	Assignment operator
+				TargetDsmInformation& operator = (DsmInformation &dsmInformation);
 
 			protected:
 				//	Protected member function
 			private:
+				//	Private member function
 				//	Private variables
 
 		};	//	class TargetDsmInformation
-		
-		
+
 		/////////////////////////////////////////////////////////////////////////////////
 		// Class name		: Graphic
 		// Programmer name	: Pablo Daniel Jelsky

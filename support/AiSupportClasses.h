@@ -45,6 +45,7 @@
 	*/
 		/*---- system and platform files -------------------------------------------*/
 		#include <string>
+		#include <math.h>	// for sqrt
 		/*---- library files -------------------------------------------------------*/
 		/*---- program files -------------------------------------------------------*/
 		#include "AiSupportClasses_Ifc.h"
@@ -66,13 +67,14 @@
 		/*---- context -------------------------------------------------------------*/
 		/*---- macros --------------------------------------------------------------*/
 		/*---- defines --------------------------------------------------------------*/
-		#define	DEFAULT_DSM_INFORMATION_FILE_NAME		"output/DsmInformation.txt"
-		#define	MAXIMUM_COLOR							255
-		#define	HALF_COLOR								128
-		#define	NO_COLOR								0
-		#define	CONVERSION_FROM_8_BIT_TO_16_BIT_COLOR	257
-		#define	PNG_COLUMN_OFFSET_FROM_DSM_MAP			1	// DSM map starts at (0,0) whereas .png file in (1,1)
-		#define	PNG_ROW_OFFSET_FROM_DSM_MAP				1	// DSM map starts at (0,0) whereas .png file in (1,1)
+		#define	DEFAULT_DSM_INFORMATION_FILE_NAME			"output/DsmInformation.txt"
+		#define	MAXIMUM_COLOR								255
+		#define	HALF_COLOR									128
+		#define	NO_COLOR									0
+		#define	CONVERSION_FROM_8_BIT_TO_16_BIT_COLOR		257
+		#define	PNG_COLUMN_OFFSET_FROM_DSM_MAP				1	// DSM map starts at (0,0) whereas .png file in (1,1)
+		#define	PNG_ROW_OFFSET_FROM_DSM_MAP					1	// DSM map starts at (0,0) whereas .png file in (1,1)
+		#define	ELEVATION_TO_DEFINE_PROXIMITY_TO_TARGET		100000
 		/*---- data declarations ---------------------------------------------------*/
 		typedef struct
 		{

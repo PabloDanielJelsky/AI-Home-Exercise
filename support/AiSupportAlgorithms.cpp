@@ -283,9 +283,9 @@
 			
 			//	Create the .csv target path file
 			std::ofstream csvTargetPathFile;
-      		csvTargetPathFile.open (csvTargetPathFilename);
-      		//	Create the header
-      		csvTargetPathFile << "Column, Row, Step, Elevation\n";
+			csvTargetPathFile.open (csvTargetPathFilename);
+			//	Create the header
+			csvTargetPathFile << "Column, Row, Step, Elevation\n";
 		 
 			for (row = 0; row < dsmQuantityOfRows; row++) 
 			{
@@ -413,7 +413,10 @@
 							break;
 						default:
 							printf("The direction %d is not a valid one\n", direction);
-							csvTargetPathFile.close();
+							
+							if ("" != csvTargetPathFilename)
+								csvTargetPathFile.close();
+								
 							return EXIT_FAILURE;
 							
 					}	//	switch()
@@ -436,6 +439,7 @@
 							delete [] pCellDetails;
 							
 							csvTargetPathFile.close();
+								
 							return (targetPathSize-1);
 						}
 						// If the successor is already on the closed
