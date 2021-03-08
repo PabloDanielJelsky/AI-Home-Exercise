@@ -164,6 +164,7 @@
 		Model::Model()
 		{
 			this->initialized	= false;
+			this->_AStarAlgorithmConfiguration(AI_SUPPORT_ALGORITHMS_4_PIXELS_MOVEMENT, false);
 			
 		}	//	Model::Model()
 		
@@ -221,6 +222,8 @@
 		/////////////////////////////////////////////////////////////////////////////////
 		Target::Target()
 		{
+			this->_AStarAlgorithmConfiguration(AI_SUPPORT_ALGORITHMS_4_PIXELS_MOVEMENT, false);
+			
 		}	//	Target::Target()
 
 		/////////////////////////////////////////////////////////////////////////////////
@@ -253,6 +256,8 @@
 		/////////////////////////////////////////////////////////////////////////////////
 		Agent::Agent()
 		{
+			this->_AStarAlgorithmConfiguration(AI_SUPPORT_ALGORITHMS_12_PIXELS_MOVEMENT, true);
+			
 		}	//	Agent::Agent()
 
 		/////////////////////////////////////////////////////////////////////////////////
@@ -456,6 +461,7 @@
 			int 		modelPathLength;
 			Location	currentLocation			= this->CurrentLocation();
 			Location	destinationLocation		= this->DestinationLocation();
+			long int	algorithmDuration[3];
 			
 			//	Verify the locations are valid ones
 			if (!this->dsmMapInfo.IsInDsmMap(currentLocation))
@@ -479,9 +485,16 @@
 				return EXIT_FAILURE;
 			}
 			
+			algorithmDuration[0]	= this->Tick();
+			cout << "Start tick = " << algorithmDuration[0] << endl;
 			modelPathLength = AStarSearch(this->aStarSearchPixelsMovementTypeForFindPath, this->aStartSearchPixelsCouldStayOnPlace, 
 				this->dsmMapInfo, this->CurrentLocation(), this->DestinationLocation(), 
 				this->pathList, csvModelPathFilename);
+			algorithmDuration[1]	= this->Tick();
+			cout << "End tick = " << algorithmDuration[1] << endl;
+			algorithmDuration[2]	= algorithmDuration[1] - algorithmDuration[0];
+			cout << "Algorithm time for " << currentLocation << " to " << destinationLocation << " is " << algorithmDuration[2] << " milliseconds" << endl;
+			
 				
 			return modelPathLength;
 			

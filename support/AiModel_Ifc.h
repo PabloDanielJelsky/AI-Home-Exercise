@@ -120,6 +120,7 @@
 				Location& DestinationLocation(void);
 				Location& NextLocation(void);
 				bool LineOfSight(Location pointA, Location pointB);
+				long int Tick() { return this->timer.Tick();}
 
 				//	Default Constructor 
 				Model();
@@ -141,6 +142,7 @@
 				bool 											aStartSearchPixelsCouldStayOnPlace			= false;
 				list <class Location>							pathList;
 				class Logger									logger;
+				Timer											timer;
 				
 			private: 
 				//	Private variables
@@ -226,8 +228,8 @@
 				//	Parametrized Constructors 
 				Agent(string geoTiffFilename, string modelName) : Target {geoTiffFilename, modelName}
 				{
-					this->_AStarAlgorithmConfigurationForTarget(AI_SUPPORT_ALGORITHMS_4_PIXELS_MOVEMENT, false);
-					this->targetDsmMapInfo	= this->dsmMapInfo;
+					this->_Initialize(geoTiffFilename, modelName);
+					this->_AStarAlgorithmConfiguration(AI_SUPPORT_ALGORITHMS_12_PIXELS_MOVEMENT, true);
 				}
 				//	Destructor
 				~Agent();

@@ -211,7 +211,8 @@
 				double Distance(Location& pointA, Location pointB);
 
 				//	Operators
-				friend ostream& operator << (ostream& ostream, const Location& location);
+//				friend ostream& operator << (ostream& ostream, const Location& location);
+				friend ostream& operator << (ostream& ostream, Location& location);
 				Location& operator = (Location& location);
 				bool operator == (Location& location);
 				bool operator != (Location& location);
