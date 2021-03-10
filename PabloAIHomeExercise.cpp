@@ -429,7 +429,7 @@
 
 //	ONLY FOR TEST
 		
-		long int	simulationSeconds = 0;
+		int	simulationSeconds = 0;
 	  
 		while (!targetArrived || !agent1Arrived)
 		{
@@ -518,8 +518,14 @@
 		//	Set target (current and objective locations)
 		lonelyAgent.CurrentLocation({5,40});
 		lonelyAgent.DestinationLocation(targetObjective);
-
-	  
+		
+		//	Create the .csv DSM map for lonely agent and target file
+		std::ofstream csvLonelyAgentFile;
+		csvLonelyAgentFile.open ("output/LonelyAgent.csv");
+		//	Create the header
+		csvLonelyAgentFile << "Target, Target, Agent, Agent\n";
+		csvLonelyAgentFile << "Column, Row, Column, Row, Distance, LOS\n";
+		
 		while (!targetArrived)
 		{
 			Location								targetCurrentLocation			= target.CurrentLocation(), targetNextLocation;
@@ -596,10 +602,14 @@
 			
 			if (!targetArrived)
 			{
+				char cString[10];
+				sprintf(cString, "%04d", simulationSeconds);
+				std::string	cppString(cString);
+				
 //	-	3.2)	Progress command will take in account the potential next location of both the "target" and the "agent" so that will have LOS 
 //					between "agent" and "target" as much as possible time	- Begin
 				filename								= agent_and_target_base_filename;
-				filename								+= std::to_string(simulationSeconds);
+				filename								+= cppString; // std::to_string(cString);//std::to_string(simulationSeconds);
 				text									= agent_and_target_base_text;
 				text									+= std::to_string(simulationSeconds);
 						
@@ -613,6 +623,11 @@
 				lonelyAgent.GraphicClose(AI_SUPPORT_CLASSES_GRAPHIC_TYPE_PNG);
 //	-	3.2)	Progress command will take in account the potential next location of both the "target" and the "agent" so that will have LOS 
 //					between "agent" and "target" as much as possible time	- End
+
+				//	Update the .csv DSM map for lonely agent and target file with the current information
+				double	distanceBetweenTargetAndAgent	= lonelyAgentNextLocation.Distance(targetNextLocation);
+				bool 	losBetweenAgentAndTarget		= target.DsmMap().LineOfSight(targetNextLocation, targetNextLocation);
+				csvLonelyAgentFile << targetNextLocation.Column() << "," << targetNextLocation.Row() << "," << lonelyAgentNextLocation.Column() << "," << lonelyAgentNextLocation.Row() << "," << distanceBetweenTargetAndAgent << "," << losBetweenAgentAndTarget << endl;
 			}
 				
 			if (target.CurrentLocation() == target.DestinationLocation())
@@ -624,6 +639,9 @@
 			if (simulationSeconds > 600)
 				break;
 		}  
+		
+		//	Close the .csv DSM map for lonely agent and target file
+		csvLonelyAgentFile.close();
 		
 		return EXIT_SUCCESS;
 		
