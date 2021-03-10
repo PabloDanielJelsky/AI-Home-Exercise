@@ -216,16 +216,26 @@ CalculateNextLocation3 = function(TargetCurrentLocation, OtherFollowerCurrentLoc
 
 ```{r}
 # view raster attributes
-DsmTestRaster   <- raster("/home/pablo/Documents/Software Engineering/AI home exercise/Solution/output/Model.tif")
-plot(DsmTestRaster)
+#DsmTestRaster   <- raster("/home/pablo/Documents/Software Engineering/AI home exercise/Solution/output/Model.tif")
+#plot(DsmTestRaster)
 ```
 
+![](/home/pablo/Documents/Software Engineering/AI home exercise/Solution/output/lonelyAgent/lonelyAgent.gif)
 
 ```{r}
-library(gifski)
-png_files <- list.files("/home/pablo/Documents/Software Engineering/AI home exercise/Solution/output/lonelyAgent/", pattern = ".*png$", full.names = TRUE)
+#library(magick)
+#animatedGif = image_read("/home/pablo/Documents/Software Engineering/AI home exercise/Solution/output/lonelyAgent/lonelyAgent.gif")
+#image_display(animatedGif, animate = TRUE)
+#library(purrr)
+#list.files(path = "/home/pablo/Documents/Software Engineering/AI home exercise/Solution/output/lonelyAgent/", pattern = "*.png", full.names = T) %>% 
+#  map(image_read) %>% # reads each path file
+#  image_join() %>% # joins image
+#  image_animate(fps=2) %>% # animates, can opt for number of loops
+#  image_write("/home/pablo/Documents/Software Engineering/AI home #exercise/Solution/output/lonelyAgent/ndwi_aug_hgm.gif") # write to current dir
+#library(gifski)
+#png_files <- list.files("/home/pablo/Documents/Software Engineering/AI home exercise/Solution/output/lonelyAgent/", pattern = ".*png$", full.names = TRUE)
 #gifski(png_files, gif_file = "/home/pablo/Documents/Software Engineering/AI home exercise/Solution/output/agent/1_2_2_AgentOverTime.gif", width = 800, height = 600, delay = 1)
-gifski(png_files, gif_file = "/home/pablo/Documents/Software Engineering/AI home exercise/Solution/output/lonelyAgent/1_2_2_AgentOverTime.gif",width = 800, height = 600,  delay = 0.07)
+#gifski(png_files, gif_file = "/home/pablo/Documents/Software Engineering/AI home exercise/Solution/output/lonelyAgent/1_2_2_AgentOverTime.gif",width = 800, height = 600,  delay = 0.07)
 
 # Algorithm for agent
 ## Build a list of possible NEXT locations both for agent and target with SwissArmyKnife.PossibleMovements() given as input parameters: type of movement of person, current location and DSM map info, and receiving as output the list of possible NEXT movements
