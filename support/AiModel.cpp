@@ -495,7 +495,8 @@
 			cout << "End tick = " << algorithmDuration[1] << endl;
 			algorithmDuration[2]	= algorithmDuration[1] - algorithmDuration[0];
 			cout << "Algorithm time for " << currentLocation << " to " << destinationLocation << " is " << algorithmDuration[2] << " milliseconds" << endl;
-			
+			this->logger << this->logger.SystemTime() << "Algorithm time for [" << currentLocation.Column() << ", " <<  currentLocation.Row()
+				<< "] to [" << destinationLocation.Column() << "," << destinationLocation.Row() << "] is " << algorithmDuration[2] << " milliseconds\n";
 				
 			return modelPathLength;
 			
