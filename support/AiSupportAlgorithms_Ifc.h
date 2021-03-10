@@ -58,20 +58,33 @@
 		using namespace std;
 		/*---- defines --------------------------------------------------------------*/
 		/*---- enums --------------------------------------------------------------*/
-		typedef enum { 
-						AI_SUPPORT_ALGORITHMS_4_PIXELS_MOVEMENT, 
-						AI_SUPPORT_ALGORITHMS_8_PIXELS_MOVEMENT, 
-						AI_SUPPORT_ALGORITHMS_12_PIXELS_MOVEMENT 
+		typedef enum 
+		{ 
+			AI_SUPPORT_ALGORITHMS_4_PIXELS_MOVEMENT, 
+			AI_SUPPORT_ALGORITHMS_8_PIXELS_MOVEMENT, 
+			AI_SUPPORT_ALGORITHMS_12_PIXELS_MOVEMENT 
 						
-					} AI_SUPPORT_ALGORITHMS_pixelsMovementType;
+		} AI_SUPPORT_ALGORITHMS_pixelsMovementType;
 
 		/*---- data declarations ---------------------------------------------------*/
 		typedef struct
 		{
-			class Location	location;
 			int				losToPotentialLocations;
-			double			minimumLosDistance;
-			double			maximumLosDistance;
+			int				minimumLosDistance;
+			int				maximumLosDistance;
+			int				closestObstacleDistance;
+			
+		}	AI_SUPPORT_ALGORITHMS_ranking;
+		
+		typedef struct
+		{
+			class Location					location;
+			int								losToPotentialLocations;
+			double							minimumLosDistance;
+			double							maximumLosDistance;
+			double							closestObstacleDistance;
+			AI_SUPPORT_ALGORITHMS_ranking	ranking;
+			int								importance;
 
 		}	AI_SUPPORT_ALGORITHMS_losInfo;
 		
@@ -104,15 +117,38 @@
 		{
 			public:
 				//	Public member functions
+				double ClosestObstacleDistance(Location &currentLocation, DsmInformation &dsmMapInfo);
 				bool MovementType(AI_SUPPORT_ALGORITHMS_pixelsMovementType pixelMovementType, bool couldStayInPlace);
-				bool PossibleMovements(list <Location>& locationsList, Location &location);
-				void PossibleMovements(list <Location>& locationsList, Location &location, DsmInformation &dsmMapInfo);
+				
+				//	Information function members
+				bool PossibleMovements(list <Location>& locationsList, Location &currentLocation);
+				void PossibleMovements(list <Location>& locationsList, Location &currentLocation, DsmInformation &dsmMapInfo);
 				int PossibleLineOfSightLocations(
 								list <Location>& observerLocationsList, 
 								list <Location>& observedLocationsList, 
 								DsmInformation &dsmMapInfo, 
 								list <AI_SUPPORT_ALGORITHMS_losInfo>& observerLosInfoList,
 								double minimumPotentialDistanceFromObserverToObserved = 0);
+								
+				//	Order function members
+				void OrderInfoListByLos(list <AI_SUPPORT_ALGORITHMS_losInfo>& observerLosInfoList);
+				void OrderInfoListByMinimumDistanceToObserved(list <AI_SUPPORT_ALGORITHMS_losInfo>& observerLosInfoList, bool orderByMinimumDistanceFirst = true);
+				void OrderInfoListByMinimumDistanceToObstacle(list <AI_SUPPORT_ALGORITHMS_losInfo>& observerLosInfoList, bool orderByMinimumDistanceFirst = false);
+				
+				//	Ranking function members
+				void Ranking(list <AI_SUPPORT_ALGORITHMS_losInfo>& observerLosInfoList);
+				void RankingOrder(list <AI_SUPPORT_ALGORITHMS_losInfo>& observerLosInfoList,
+								unsigned short relativeImportanceMoreLosLocations,
+								unsigned short relativeImportanceClosestMinimumDistanceToObserved,
+								unsigned short relativeImportanceClosestMaximumDistanceToObserved,
+								unsigned short relativeImportanceClosestDistanceToObstacle,
+								bool betterMoreLosLocations = true,
+								bool betterClosestMinimumDistanceToObserved = true,
+								bool betterClosestMaximumDistanceToObserved = true,
+								bool betterClosestDistanceToObstacle = false);
+								
+				//	Logs function members
+				bool Obstacles2Csv(DsmInformation &dsmMapInfo, string csvObstaclesFilename);
 				
 				//	Default Constructor 
 				SwissArmyKnife(); 

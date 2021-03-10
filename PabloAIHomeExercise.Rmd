@@ -221,6 +221,22 @@ plot(DsmTestRaster)
 ```
 
 
+```{r}
+library(gifski)
+png_files <- list.files("/home/pablo/Documents/Software Engineering/AI home exercise/Solution/output/agent/", pattern = ".*png$", full.names = FALSE)
+#gifski(png_files, gif_file = "/home/pablo/Documents/Software Engineering/AI home exercise/Solution/output/agent/1_2_2_AgentOverTime.gif", width = 800, height = 600, delay = 1)
+gifski(png_files, gif_file = "/home/pablo/Documents/Software Engineering/AI home exercise/Solution/output/agent/1_2_2_AgentOverTime.gif", delay = 1)
+
+# Algorithm for agent
+## Build a list of possible NEXT locations both for agent and target with SwissArmyKnife.PossibleMovements() given as input parameters: type of movement of person, current location and DSM map info, and receiving as output the list of possible NEXT movements
+## Filter from this list only the locations that have LOS between agent and target and also that will be at a minimum distance of the ALLOWED distance (10 meters in this case) with SwissArmyKnife.PossibleLineOfSightLocations() given as input parameters: list of possible NEXT movements from both agent and target, DSM map info, and minimum ALLOWED distance between both agent and target. The output received from this function is a new list having all the possible NEXT movements for agent, that will have LOS with target caring for the minimum allowed distance.
+## Order the last list by minimum distance from target and quantity of potential LOS with target with the following functions: SwissArmyKnife.OrderInfoListByLos() and SwissArmyKnife.OrderInfoListByMinimumDistance(), in order to have priority (and use it) with the possible movement that will have the greater potential for LOS with target and minimum distance with it.
+
+
+
+
+
+```
 
 
 

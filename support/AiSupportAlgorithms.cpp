@@ -508,6 +508,145 @@
 		****************************************************************************
 	*/	
 		/////////////////////////////////////////////////////////////////////////////////
+		// Module name			: SwissArmyKnife
+		// Function				: _CompareLosQuantityOfPossibleLocations
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 09-03-2021
+		// Module description	: This module implements many tools that will help us with
+		//							the decision in the high-level algorithmm
+		// Function description	: This private member function compares between two 
+		//							LOS info quantity of possible locations and decides
+		//							which has more
+		// Remarks				: 
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: two LOS info structures
+		//
+		/////////////////////////////////////////////////////////////////////////////////
+		static bool _CompareLosQuantityOfPossibleLocations(const AI_SUPPORT_ALGORITHMS_losInfo& first, const AI_SUPPORT_ALGORITHMS_losInfo& second)
+		{
+			//	Returns true if first goes first in returned list, false otherwise
+
+			return (first.losToPotentialLocations > second.losToPotentialLocations);
+			
+		}	//	_CompareLosQuantityOfPossibleLocations()
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Module name			: SwissArmyKnife
+		// Function				: _CompareMinimumDistanceFirst
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 09-03-2021
+		// Module description	: This module implements many tools that will help us with
+		//							the decision in the high-level algorithmm
+		// Function description	: This private member function compares between two 
+		//							LOS info minimum distance and returns true if first one
+		//							has minimum LOS, false otherwise
+		// Remarks				: 
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: two LOS info structures
+		//
+		/////////////////////////////////////////////////////////////////////////////////
+		static bool _CompareMinimumDistanceToObservedFirst(const AI_SUPPORT_ALGORITHMS_losInfo& first, const AI_SUPPORT_ALGORITHMS_losInfo& second)
+		{
+			//	Returns true if first goes first in returned list, false otherwise
+		
+			return (first.minimumLosDistance < second.minimumLosDistance);
+			
+		}	//	_CompareMinimumDistanceToObservedFirst()
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Module name			: SwissArmyKnife
+		// Function				: _CompareMinimumDistanceToObservedLast
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 09-03-2021
+		// Module description	: This module implements many tools that will help us with
+		//							the decision in the high-level algorithmm
+		// Function description	: This private member function compares between two 
+		//							LOS info minimum distance and returns true if second one
+		//							has minimum LOS, false otherwise
+		// Remarks				: 
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: two LOS info structures
+		//
+		/////////////////////////////////////////////////////////////////////////////////
+		static bool _CompareMinimumDistanceToObservedLast(const AI_SUPPORT_ALGORITHMS_losInfo& first, const AI_SUPPORT_ALGORITHMS_losInfo& second)
+		{
+			//	Returns true if second goes first in returned list, false otherwise
+		
+			return (first.minimumLosDistance > second.minimumLosDistance);
+			
+		}	//	_CompareMinimumDistanceToObservedLast()
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Module name			: SwissArmyKnife
+		// Function				: _CompareMinimumDistanceToObstacleFirst
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 10-03-2021
+		// Module description	: This module implements many tools that will help us with
+		//							the decision in the high-level algorithmm
+		// Function description	: This private member function compares between two 
+		//							LOS info minimum distance to obstacle and returns true 
+		//							if first has minimum distance to obstacle, otherwise
+		//							false
+		// Remarks				: 
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: two LOS info structures
+		//
+		/////////////////////////////////////////////////////////////////////////////////
+		static bool _CompareMinimumDistanceToObstacleFirst(const AI_SUPPORT_ALGORITHMS_losInfo& first, const AI_SUPPORT_ALGORITHMS_losInfo& second)
+		{
+			//	Returns true if first goes first in returned list, false otherwise
+		
+			return (first.closestObstacleDistance < second.closestObstacleDistance);
+			
+		}	//	_CompareMinimumDistanceToObstacleFirst()
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Module name			: SwissArmyKnife
+		// Function				: _CompareMinimumDistanceToObstacleLast
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 10-03-2021
+		// Module description	: This module implements many tools that will help us with
+		//							the decision in the high-level algorithmm
+		// Function description	: This private member function compares between two 
+		//							LOS info minimum distance to obstacle and returns true 
+		//							if second has minimum distance to obstacle, otherwise
+		//							false
+		// Remarks				: 
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: two LOS info structures
+		//
+		/////////////////////////////////////////////////////////////////////////////////
+		static bool _CompareMinimumDistanceToObstacleLast(const AI_SUPPORT_ALGORITHMS_losInfo& first, const AI_SUPPORT_ALGORITHMS_losInfo& second)
+		{
+			//	Returns true if second goes first in returned list, false otherwise
+		
+			return (first.closestObstacleDistance > second.closestObstacleDistance);
+			
+		}	//	_CompareMinimumDistanceToObstacleLast()
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Module name			: SwissArmyKnife
+		// Function				: _CompareRanking
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 10-03-2021
+		// Module description	: This module implements many tools that will help us with
+		//							the decision in the high-level algorithmm
+		// Function description	: This private member function compares between two 
+		//							LOS info rankings and returns true if first one
+		//							has better ranking, false otherwise
+		// Remarks				: 
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: two LOS info structures
+		//
+		/////////////////////////////////////////////////////////////////////////////////
+		static bool _CompareRanking(const AI_SUPPORT_ALGORITHMS_losInfo& first, const AI_SUPPORT_ALGORITHMS_losInfo& second)
+		{
+			//	Returns true if first goes first in returned list, false otherwise
+			return (first.importance > second.importance);
+			
+		}	//	_CompareRanking()
+		
+		/////////////////////////////////////////////////////////////////////////////////
 		// Module name			: A* (pronounced "A-star")
 		// Function				: _IsValid
 		// Programmer name		: Pablo Daniel Jelsky
@@ -785,8 +924,45 @@
 			this->couldStayInPlace		= couldStayInPlace;
 			
 			return true;
-			
+		
 		}	//	SwissArmyKnife::MovementType()
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: SwissArmyKnife
+		// Function				: ClosestObstacleDistance
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 10-03-2021
+		// Class description	: This class implements many tools that will help us with
+		//							the decision in the high-level algorithmm
+		// Function description	: This public member function returns the distance to
+		//							the closest obstacle from the current location
+		// Remarks				: Do it more efficient in the future
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: current location and DSM map info
+		/////////////////////////////////////////////////////////////////////////////////
+		double SwissArmyKnife::ClosestObstacleDistance(Location &currentLocation, DsmInformation &dsmMapInfo)
+		{
+			int		column, row;
+			double	distanceFromCurrentLocationToObstacle	= DBL_MAX;
+			
+			for (column = 0; column < dsmMapInfo.Columns(); column++)
+			{
+				for (row = 0; row < dsmMapInfo.Rows(); row++)
+				{
+					Location	location(column, row);
+					
+					if (dsmMapInfo.Obstacle(location))
+					{
+						//	If the locations is an obstacle, calculate the distance to current location
+						double	distance						= location.Distance(currentLocation);
+						distanceFromCurrentLocationToObstacle	= min(distanceFromCurrentLocationToObstacle, distance);
+					}
+				}
+			}
+			
+			return distanceFromCurrentLocationToObstacle;
+			
+		}	//	 SwissArmyKnife::ClosestObstacleDistance()
 		
 		/////////////////////////////////////////////////////////////////////////////////
 		// Class name			: SwissArmyKnife
@@ -797,16 +973,19 @@
 		//							the decision in the high-level algorithmm
 		// Function description	: This public member function returns back all the
 		//							possible movements of an object given its location
-		// Remarks				: There is no DSM constraint because there is no
+		// Remarks				: There is no DSM constraints because there is no
 		//							DSM file as a parameter
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: list to be return with possible movements locations,
-		//							original location
+		//							current location
 		/////////////////////////////////////////////////////////////////////////////////
-		bool SwissArmyKnife::PossibleMovements(list <Location>& locationsList, Location &location)
-		{
-			int				column 	= location.Column();
-			int				row		= location.Row();
+		bool SwissArmyKnife::PossibleMovements(list <Location>& locationsList, Location &currentLocation)
+		{	
+			//	Clear the list of locations
+			locationsList.clear();
+			
+			int				column 	= currentLocation.Column();
+			int				row		= currentLocation.Row();
 
 			//	To store the first enumerator, and the last one, depending in the quantity of pixels per each movement
 			directionEnumerator	directionFirst	= (this->couldStayInPlace) ? DIRECTION_SAME_PLACE : DIRECTION_NORTH;
@@ -965,7 +1144,7 @@
 				}	//	switch()
 				
 				//	do not enter into the list the locations with column or row less than 0
-				if (possibleLocation.Column() >=0 && possibleLocation.Row() >= 0)
+				if (possibleLocation.Column() >= 0 && possibleLocation.Row() >= 0)
 				{
 					locationsList.push_back(possibleLocation);
 				}
@@ -987,12 +1166,16 @@
 		// Remarks				: 
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: list to be return with possible movements locations,
-		//							DSM map, original location
+		//							DSM map, current location
 		/////////////////////////////////////////////////////////////////////////////////
-		void SwissArmyKnife::PossibleMovements(list <Location>& locationsList, Location &location, DsmInformation &dsmMapInfo)
+		void SwissArmyKnife::PossibleMovements(list <Location>& locationsList, Location &currentLocation, DsmInformation &dsmMapInfo)
 		{
+			//	Clear the list of locations
+			locationsList.clear();
+			
 			//	First bring ALL the possible movements list without DSM constraints
-			this->PossibleMovements(locationsList, location);
+			this->PossibleMovements(locationsList, currentLocation);
+			
 			//	And now "fine-tune" with DSM map info
 			
 			// Iterate over the list using Iterators and erase elements
@@ -1053,6 +1236,9 @@
 			double							minimumLosDistance;
 			double							maximumLosDistance;
 			
+			//	Clear the list for observer locations
+			observerLosInfoList.clear();
+			
 			//	Iterate between all the observer possible locations
 			observerLocationIterator = observerLocationsList.begin();
 			while (observerLocationIterator != observerLocationsList.end()) 
@@ -1105,6 +1291,7 @@
 						observerLosInfo.losToPotentialLocations	= losBetweenObserverAndObserved;
 						observerLosInfo.minimumLosDistance		= minimumLosDistance;
 						observerLosInfo.maximumLosDistance		= maximumLosDistance;
+						observerLosInfo.closestObstacleDistance	= this->ClosestObstacleDistance(observerLosInfo.location, dsmMapInfo);
 						//	Insert the strucure into the LOS info list for observer locations
 						observerLosInfoList.push_back(observerLosInfo);
 						//	Increment the quantity of potential LOS locations for observer
@@ -1118,6 +1305,259 @@
 			return observerPotentialLocationsWithLos;
 			
 		}	//	SwissArmyKnife::PossibleLineOfSightLocations()
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: SwissArmyKnife
+		// Function				: OrderInfoListByLos
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 09-03-2021
+		// Class description	: This class implements many tools that will help us with
+		//							the decision in the high-level algorithmm
+		// Function description	: This public member function sorts the LOS info list by
+		//							LOS "quality" of potential observed person
+		//							next movements (maximum potential LOS locations)
+		// Remarks				: 
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: LOS info list of locations
+		//
+		/////////////////////////////////////////////////////////////////////////////////
+		void SwissArmyKnife::OrderInfoListByLos(list <AI_SUPPORT_ALGORITHMS_losInfo>& observerLosInfoList)
+		{
+			observerLosInfoList.sort(_CompareLosQuantityOfPossibleLocations);
+			
+		}	//	SwissArmyKnife::OrderInfoListByLos()
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: SwissArmyKnife
+		// Function				: OrderInfoListByMinimumDistanceToObserved
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 09-03-2021
+		// Class description	: This class implements many tools that will help us with
+		//							the decision in the high-level algorithmm
+		// Function description	: This public member function sorts the LOS info list by
+		//							minimum potential distance to observed
+		// Remarks				: 
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: LOS info list of locations
+		//					Default argument: order by minimum distance first
+		//
+		/////////////////////////////////////////////////////////////////////////////////
+		void SwissArmyKnife::OrderInfoListByMinimumDistanceToObserved(
+									list <AI_SUPPORT_ALGORITHMS_losInfo>& observerLosInfoList, 
+									bool orderByMinimumDistanceFirst)
+		{
+			if (orderByMinimumDistanceFirst)
+				observerLosInfoList.sort(_CompareMinimumDistanceToObservedFirst);
+			else
+				observerLosInfoList.sort(_CompareMinimumDistanceToObservedLast);
+			
+		}	//	SwissArmyKnife::OrderInfoListByMinimumDistanceToObserved()
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: SwissArmyKnife
+		// Function				: OrderInfoListByMinimumDistanceToObstacle
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 10-03-2021
+		// Class description	: This class implements many tools that will help us with
+		//							the decision in the high-level algorithmm
+		// Function description	: This public member function sorts the LOS info list by
+		//							minimum distance to obstacle
+		// Remarks				: 
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: LOS info list of locations
+		//					Default argument: order by minimum distance first
+		//
+		/////////////////////////////////////////////////////////////////////////////////
+		void SwissArmyKnife::OrderInfoListByMinimumDistanceToObstacle(
+									list <AI_SUPPORT_ALGORITHMS_losInfo>& observerLosInfoList, 
+									bool orderByMinimumDistanceFirst)
+		{
+			if (orderByMinimumDistanceFirst)
+				observerLosInfoList.sort(_CompareMinimumDistanceToObstacleFirst);
+			else
+				observerLosInfoList.sort(_CompareMinimumDistanceToObstacleLast);
+			
+		}	//	SwissArmyKnife::OrderInfoListByMinimumDistanceToObstacle()
+
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: SwissArmyKnife
+		// Function				: Ranking
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 10-03-2021
+		// Class description	: This class implements many tools that will help us with
+		//							the decision in the high-level algorithmm
+		// Function description	: This public member function ranks the observer info list
+		//							by setting the percentage of the element into the
+		//							minimum and maximum values
+		// Remarks				: 
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: LOS info list of locations
+		//
+		/////////////////////////////////////////////////////////////////////////////////
+		void SwissArmyKnife::Ranking(list <AI_SUPPORT_ALGORITHMS_losInfo>& observerLosInfoList)
+		{
+			int		minLosBetweenObserverAndObserved 		= INT_MAX;
+			int		maxLosBetweenObserverAndObserved		= 0;
+			double	minMinimumLosDistance					= DBL_MAX;
+			double	maxMinimumLosDistance					= -1.0;
+			double	minMaximumLosDistance					= DBL_MAX;
+			double	maxMaximumLosDistance					= -1.0;
+			double	minClosestObstacleDistance				= DBL_MAX;
+			double	maxClosestObstacleDistance				= -1.0;
+			int		rangeLosBetweenObserverAndObserved;
+			double	rangeMinimumLosDistance;
+			double	rangeMaximumLosDistance;
+			double	rangeClosestObstacleDistance;
+			
+
+			//	Calculate minimum and maximum values in the list
+			std::list<AI_SUPPORT_ALGORITHMS_losInfo>::iterator	it = observerLosInfoList.begin();
+			while (it != observerLosInfoList.end()) 
+			{
+				minLosBetweenObserverAndObserved			= std::min(minLosBetweenObserverAndObserved, (*it).losToPotentialLocations);
+				maxLosBetweenObserverAndObserved			= std::max(maxLosBetweenObserverAndObserved, (*it).losToPotentialLocations);
+				
+				minMinimumLosDistance						= std::min(minMinimumLosDistance, (*it).minimumLosDistance);
+				maxMinimumLosDistance						= std::max(maxMinimumLosDistance, (*it).minimumLosDistance);
+				
+				minMaximumLosDistance						= std::min(minMaximumLosDistance, (*it).maximumLosDistance);
+				maxMaximumLosDistance						= std::max(maxMaximumLosDistance, (*it).maximumLosDistance);
+				
+				minClosestObstacleDistance					= std::min(minClosestObstacleDistance, (*it).closestObstacleDistance);
+				maxClosestObstacleDistance					= std::max(maxClosestObstacleDistance, (*it).closestObstacleDistance);
+				
+				it++;
+			}
+			
+			//	Compute the ranges
+			rangeLosBetweenObserverAndObserved				= maxLosBetweenObserverAndObserved - minLosBetweenObserverAndObserved;
+			rangeMinimumLosDistance							= maxMinimumLosDistance - minMinimumLosDistance;
+			rangeMaximumLosDistance							= maxMaximumLosDistance - minMaximumLosDistance;
+			rangeClosestObstacleDistance					= maxClosestObstacleDistance - minClosestObstacleDistance;
+				
+			//	Ranking every element in the list according to percentage of minimum and maximum values, and calculate the percentage with respect to maximum
+			it	= observerLosInfoList.begin();
+			while (it != observerLosInfoList.end()) 
+			{
+				(*it).ranking.losToPotentialLocations		= (0 == rangeLosBetweenObserverAndObserved) ? 100 : (((*it).losToPotentialLocations-minLosBetweenObserverAndObserved) * 100 / rangeLosBetweenObserverAndObserved);
+				(*it).ranking.minimumLosDistance			= (0.0 == rangeMinimumLosDistance) ? 100 : (int) (((*it).minimumLosDistance-minMinimumLosDistance) * 100 / rangeMinimumLosDistance);
+				(*it).ranking.maximumLosDistance			= (0.0 == rangeMaximumLosDistance) ? 100 : (int) (((*it).maximumLosDistance-minMaximumLosDistance) * 100 / rangeMaximumLosDistance);
+				(*it).ranking.closestObstacleDistance		= (0.0 == rangeClosestObstacleDistance) ? 100 : (int) (((*it).closestObstacleDistance-minClosestObstacleDistance) * 100 / rangeClosestObstacleDistance);
+				
+				it++;
+			}
+
+		}	//	SwissArmyKnife::Ranking()
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: RankingOrder
+		// Function				: Ranking
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 10-03-2021
+		// Class description	: This class implements many tools that will help us with
+		//							the decision in the high-level algorithmm
+		// Function description	: This public member function order the list of locations
+		//							according to various parameters for criteria
+		// Remarks				: 
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: LOS info list of locations
+		//							relative importance of more LOS locations to observed
+		//							relative importance of minimum distance to observed
+		//							relative importance of maximum distance to observed
+		//							relative importance of distance to obstacle	
+		//					Default arguments:
+		//							better more LOS locations to observed
+		//							better closest minimum distance to observed
+		//							better closest maximum distance to observed
+		//							better closest distance to obstacle
+		//
+		/////////////////////////////////////////////////////////////////////////////////
+		void SwissArmyKnife::RankingOrder(list <AI_SUPPORT_ALGORITHMS_losInfo>& observerLosInfoList,
+						unsigned short relativeImportanceMoreLosLocations,
+						unsigned short relativeImportanceClosestMinimumDistanceToObserved,
+						unsigned short relativeImportanceClosestMaximumDistanceToObserved,
+						unsigned short relativeImportanceClosestDistanceToObstacle,
+						bool betterMoreLosLocations,
+						bool betterClosestMinimumDistanceToObserved,
+						bool betterClosestMaximumDistanceToObserved,
+						bool betterClosestDistanceToObstacle
+		)
+		{
+			unsigned int	relativeImportanceSum;
+			
+			//	Calculate the sum of the relative importances
+			relativeImportanceSum							= relativeImportanceMoreLosLocations + relativeImportanceClosestMinimumDistanceToObserved 
+															+ relativeImportanceClosestMaximumDistanceToObserved + relativeImportanceClosestDistanceToObstacle;
+															
+			//	Calculate the importance of the specific element according to criteria
+			std::list<AI_SUPPORT_ALGORITHMS_losInfo>::iterator it	= observerLosInfoList.begin();
+			while (it != observerLosInfoList.end()) 
+			{
+				if (!betterMoreLosLocations)
+					(*it).ranking.losToPotentialLocations	= 100 - (*it).ranking.losToPotentialLocations;
+				if (betterClosestMinimumDistanceToObserved)
+					(*it).ranking.minimumLosDistance		= 100 - (*it).ranking.minimumLosDistance;
+				if (betterClosestMaximumDistanceToObserved)
+					(*it).ranking.maximumLosDistance		= 100 - (*it).ranking.maximumLosDistance;
+				if (betterClosestDistanceToObstacle)
+					(*it).ranking.closestObstacleDistance	= 100 - (*it).ranking.closestObstacleDistance;
+					
+				(*it).importance							= ((((*it).ranking.losToPotentialLocations * relativeImportanceMoreLosLocations) +
+																((*it).ranking.minimumLosDistance * relativeImportanceClosestMinimumDistanceToObserved) +
+																((*it).ranking.maximumLosDistance * relativeImportanceClosestMaximumDistanceToObserved) +
+																((*it).ranking.closestObstacleDistance * relativeImportanceClosestDistanceToObstacle)) / relativeImportanceSum);
+
+				it++;
+			}
+			
+			//	Sort by better ranking
+			observerLosInfoList.sort(_CompareRanking);
+
+		}	//	SwissArmyKnife::RankingOrder()
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: SwissArmyKnife
+		// Function				: Obstacles2Csv
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 10-03-2021
+		// Class description	: This class implements many tools that will help us with
+		//							the decision in the high-level algorithmm
+		// Function description	: This public member function creates a .csv file with
+		//							the information of all the obstacles in the DSM map
+		// Remarks				: In the future we need to care about possible failures,
+		//							and return false in that case
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: DSM map info, and .csv file name
+		//
+		/////////////////////////////////////////////////////////////////////////////////
+		bool SwissArmyKnife::Obstacles2Csv(DsmInformation &dsmMapInfo, string csvObstaclesFilename)
+		{
+			int	column,  row;
+			
+			//	Create the .csv DSM map obstacles file
+			std::ofstream csvObstaclesFile;
+			csvObstaclesFile.open (csvObstaclesFilename);
+			//	Create the header
+			csvObstaclesFile << "Column, Row, Elevation\n";
+			
+			for (row = 0; row < dsmMapInfo.Rows(); row++)
+			{
+				for (column = 0; column < dsmMapInfo.Columns(); column++)
+				{
+					if (dsmMapInfo.Obstacle(column, row))
+					{
+						csvObstaclesFile << column << "," << row << "," << dsmMapInfo.Elevation(column, row) << endl;
+					}
+					
+				}
+			}
+			
+			//	Close the .csv DSM map obstacles file
+			csvObstaclesFile.close();
+			
+			return true;
+			
+		}	//	SwissArmyKnife::Obstacles2Csv()
 
 	/*
 		****************************************************************************

@@ -48,6 +48,7 @@
 		#include <set>			//	for sets
 		#include <cstring>		//	for memset
 		#include <algorithm>	//	for max and min
+		#include <float.h>		//	for FLT_MAX and DBL_MAX
 		/*---- library files -------------------------------------------------------*/
 		/*---- program files -------------------------------------------------------*/
 		#include "AiSupportAlgorithms_Ifc.h"
@@ -76,7 +77,6 @@
 		/*---- context -------------------------------------------------------------*/
 		/*---- macros --------------------------------------------------------------*/
 		/*---- defines --------------------------------------------------------------*/
-		#define	FLT_MAX	99999999999
 		/*---- data declarations ---------------------------------------------------*/
 		typedef enum {
 						DIRECTION_SAME_PLACE, 
@@ -100,6 +100,12 @@
 		};	//	struct cell
 
 		/*---- function prototypes -------------------------------------------------*/
+		static bool _CompareLosQuantityOfPossibleLocations(const AI_SUPPORT_ALGORITHMS_losInfo& first, const AI_SUPPORT_ALGORITHMS_losInfo& second);
+		static bool _CompareMinimumDistanceToObservedFirst(const AI_SUPPORT_ALGORITHMS_losInfo& first, const AI_SUPPORT_ALGORITHMS_losInfo& second);
+		static bool _CompareMinimumDistanceToObservedLast(const AI_SUPPORT_ALGORITHMS_losInfo& first, const AI_SUPPORT_ALGORITHMS_losInfo& second);
+		static bool _CompareMinimumDistanceToObstacleFirst(const AI_SUPPORT_ALGORITHMS_losInfo& first, const AI_SUPPORT_ALGORITHMS_losInfo& second);
+		static bool _CompareMinimumDistanceToObstacleLast(const AI_SUPPORT_ALGORITHMS_losInfo& first, const AI_SUPPORT_ALGORITHMS_losInfo& second);
+		static bool _CompareRanking(const AI_SUPPORT_ALGORITHMS_losInfo& first, const AI_SUPPORT_ALGORITHMS_losInfo& second);
 		bool _IsValid(DsmInformation& dsmInformation, Location location);
 		bool _IsUnblocked(DsmInformation& dsmInformation, Location location);
 		bool _IsDestination(Location currentLocation, Location destinationLocation);

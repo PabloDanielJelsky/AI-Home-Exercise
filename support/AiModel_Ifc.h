@@ -162,7 +162,7 @@
 		/////////////////////////////////////////////////////////////////////////////////
 		// Class name		: Target
 		// Programmer name	: Pablo Daniel Jelsky
-		// Last update date	: 06-03-2021
+		// Last update date	: 09-03-2021
 		// Description		: This class represents a target person
 		// Remarks			: It is derived from Model class
 		//
@@ -173,9 +173,9 @@
 				//	Default Constructor 
 				Target(); 
 				//	Parametrized Constructors 
-				Target(string geoTiffFilename, string modelName) : Model { geoTiffFilename, modelName } 
+				Target(string geoTiffFilename, string targetName) : Model { geoTiffFilename, targetName } 
 				{
-					this->_Initialize(geoTiffFilename, modelName);
+					this->_Initialize(geoTiffFilename, targetName);
 					this->_AStarAlgorithmConfiguration(AI_SUPPORT_ALGORITHMS_4_PIXELS_MOVEMENT, false);
 				}
 				//	Destructor
@@ -192,7 +192,7 @@
 		/////////////////////////////////////////////////////////////////////////////////
 		// Class name		: Agent
 		// Programmer name	: Pablo Daniel Jelsky
-		// Last update date	: 06-03-2021
+		// Last update date	: 09-03-2021
 		// Description		: This class represents an agent person
 		// Remarks			: It is derived from Target class 
 		//						(the agent also could be a target of another agent)
@@ -226,9 +226,9 @@
 				//	Default Constructor 
 				Agent(); 
 				//	Parametrized Constructors 
-				Agent(string geoTiffFilename, string modelName) : Target {geoTiffFilename, modelName}
+				Agent(string geoTiffFilename, string agentName) : Target {geoTiffFilename, agentName}
 				{
-					this->_Initialize(geoTiffFilename, modelName);
+					this->_Initialize(geoTiffFilename, agentName);
 					this->_AStarAlgorithmConfiguration(AI_SUPPORT_ALGORITHMS_12_PIXELS_MOVEMENT, true);
 				}
 				//	Destructor
@@ -243,7 +243,7 @@
 				bool 							aStartSearchPixelsCouldStayOnPlaceForTarget			= false;
 				int								minimumDistanceToTarget								= AI_MODEL_MINIMUM_DISTANCE_FROM_AGENT_TO_TARGET;
 				class TargetDsmInformation		targetDsmMapInfo;
-				Location						firstTargetLocation, currentTargetLocation;
+				Location						firstTargetLocation, currentTargetLocation, lastSeenTargetLocation;
 			private:
 				//	Private variables
 
