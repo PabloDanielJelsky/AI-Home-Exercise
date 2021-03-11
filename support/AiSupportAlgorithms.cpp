@@ -1172,12 +1172,12 @@
 		{
 			//	Clear the list of locations
 			locationsList.clear();
-			
+
 			//	First bring ALL the possible movements list without DSM constraints
 			this->PossibleMovements(locationsList, currentLocation);
-			
+
 			//	And now "fine-tune" with DSM map info
-			
+
 			// Iterate over the list using Iterators and erase elements
 			// that are not in the DSM map or the locations that are an
 			//	obstacle while iterating through list
@@ -1214,6 +1214,7 @@
 		// Arguments			: observer "potential" locations, observed "potential"
 		//							locations, DSM map information, and the function
 		//							brings back the information about the LOS positions
+		//							specific location (to be used by second agent)
 		//					Default parameters:
 		//							minimum potential distance from observer to observed
 		//							(if the minimum distance is less that this one,
@@ -1226,6 +1227,7 @@
 				list <Location>& observedLocationsList, 
 				DsmInformation &dsmMapInfo, 
 				list <AI_SUPPORT_ALGORITHMS_losInfo>& observerLosInfoList,
+				Location& specificLocation,
 				double minimumPotentialDistanceFromObserverToObserved)
 		{
 			AI_SUPPORT_ALGORITHMS_losInfo	observerLosInfo;
@@ -1235,7 +1237,8 @@
 			int								losBetweenObserverAndObserved;
 			double							minimumLosDistance;
 			double							maximumLosDistance;
-			
+			Location						dummyLocation(-1,-1);
+
 			//	Clear the list for observer locations
 			observerLosInfoList.clear();
 			
@@ -1254,7 +1257,7 @@
 					if (dsmMapInfo.LineOfSight(*observerLocationIterator, *observedLocationIterator))
 					{
 						double	distanceBetweenObserverAndObserved;
-						
+
 
 						//	If there exists a LOS between observer and observed,
 						//	calculate the distance between these two points
@@ -1277,7 +1280,7 @@
 					}
 					observedLocationIterator++;
 				}
-				
+
 				if (losBetweenObserverAndObserved)
 				{
 					//	If there was at least one potential LOS between the observer location and "potentials" observed locations
@@ -1288,20 +1291,22 @@
 						
 						//	Fill the LOS info structure
 						observerLosInfo.location.Modify(((*observerLocationIterator)).Column(), ((*observerLocationIterator)).Row());
-						observerLosInfo.losToPotentialLocations	= losBetweenObserverAndObserved;
-						observerLosInfo.minimumLosDistance		= minimumLosDistance;
-						observerLosInfo.maximumLosDistance		= maximumLosDistance;
-						observerLosInfo.closestObstacleDistance	= this->ClosestObstacleDistance(observerLosInfo.location, dsmMapInfo);
+						observerLosInfo.losToPotentialLocations				= losBetweenObserverAndObserved;
+						observerLosInfo.minimumLosDistance					= minimumLosDistance;
+						observerLosInfo.maximumLosDistance					= maximumLosDistance;
+						observerLosInfo.closestObstacleDistance				= this->ClosestObstacleDistance(observerLosInfo.location, dsmMapInfo);
+						if (specificLocation != dummyLocation)
+							observerLosInfo.minimumDistanceToSpecificLocation	= observerLosInfo.location.Distance(specificLocation);
 						//	Insert the strucure into the LOS info list for observer locations
 						observerLosInfoList.push_back(observerLosInfo);
 						//	Increment the quantity of potential LOS locations for observer
 						observerPotentialLocationsWithLos++;
 					}
 				}
-				
+
 				observerLocationIterator++;
 			}
-			
+
 			return observerPotentialLocationsWithLos;
 			
 		}	//	SwissArmyKnife::PossibleLineOfSightLocations()
@@ -1350,7 +1355,7 @@
 				observerLosInfoList.sort(_CompareMinimumDistanceToObservedFirst);
 			else
 				observerLosInfoList.sort(_CompareMinimumDistanceToObservedLast);
-			
+
 		}	//	SwissArmyKnife::OrderInfoListByMinimumDistanceToObserved()
 		
 		/////////////////////////////////////////////////////////////////////////////////
@@ -1404,10 +1409,13 @@
 			double	maxMaximumLosDistance					= -1.0;
 			double	minClosestObstacleDistance				= DBL_MAX;
 			double	maxClosestObstacleDistance				= -1.0;
+			double	minClosestSpecificLocationDistance		= DBL_MAX;
+			double	maxClosestSpecificLocationDistance		= -1.0;
 			int		rangeLosBetweenObserverAndObserved;
 			double	rangeMinimumLosDistance;
 			double	rangeMaximumLosDistance;
 			double	rangeClosestObstacleDistance;
+			double	rangeClosestSpecificLocationDistance;
 			
 
 			//	Calculate minimum and maximum values in the list
@@ -1416,15 +1424,18 @@
 			{
 				minLosBetweenObserverAndObserved			= std::min(minLosBetweenObserverAndObserved, (*it).losToPotentialLocations);
 				maxLosBetweenObserverAndObserved			= std::max(maxLosBetweenObserverAndObserved, (*it).losToPotentialLocations);
-				
+
 				minMinimumLosDistance						= std::min(minMinimumLosDistance, (*it).minimumLosDistance);
 				maxMinimumLosDistance						= std::max(maxMinimumLosDistance, (*it).minimumLosDistance);
-				
+
 				minMaximumLosDistance						= std::min(minMaximumLosDistance, (*it).maximumLosDistance);
 				maxMaximumLosDistance						= std::max(maxMaximumLosDistance, (*it).maximumLosDistance);
-				
+
 				minClosestObstacleDistance					= std::min(minClosestObstacleDistance, (*it).closestObstacleDistance);
 				maxClosestObstacleDistance					= std::max(maxClosestObstacleDistance, (*it).closestObstacleDistance);
+
+				minClosestSpecificLocationDistance			= std::min(minClosestSpecificLocationDistance, (*it).minimumDistanceToSpecificLocation);
+				maxClosestSpecificLocationDistance			= std::max(maxClosestSpecificLocationDistance, (*it).minimumDistanceToSpecificLocation);
 				
 				it++;
 			}
@@ -1434,16 +1445,18 @@
 			rangeMinimumLosDistance							= maxMinimumLosDistance - minMinimumLosDistance;
 			rangeMaximumLosDistance							= maxMaximumLosDistance - minMaximumLosDistance;
 			rangeClosestObstacleDistance					= maxClosestObstacleDistance - minClosestObstacleDistance;
+			rangeClosestSpecificLocationDistance			= maxClosestSpecificLocationDistance - minClosestSpecificLocationDistance;
 				
 			//	Ranking every element in the list according to percentage of minimum and maximum values, and calculate the percentage with respect to maximum
 			it	= observerLosInfoList.begin();
 			while (it != observerLosInfoList.end()) 
 			{
-				(*it).ranking.losToPotentialLocations		= (0 == rangeLosBetweenObserverAndObserved) ? 100 : (((*it).losToPotentialLocations-minLosBetweenObserverAndObserved) * 100 / rangeLosBetweenObserverAndObserved);
-				(*it).ranking.minimumLosDistance			= (0.0 == rangeMinimumLosDistance) ? 100 : (int) (((*it).minimumLosDistance-minMinimumLosDistance) * 100 / rangeMinimumLosDistance);
-				(*it).ranking.maximumLosDistance			= (0.0 == rangeMaximumLosDistance) ? 100 : (int) (((*it).maximumLosDistance-minMaximumLosDistance) * 100 / rangeMaximumLosDistance);
-				(*it).ranking.closestObstacleDistance		= (0.0 == rangeClosestObstacleDistance) ? 100 : (int) (((*it).closestObstacleDistance-minClosestObstacleDistance) * 100 / rangeClosestObstacleDistance);
-				
+				(*it).ranking.losToPotentialLocations			= (0 == rangeLosBetweenObserverAndObserved) ? 100 : (((*it).losToPotentialLocations-minLosBetweenObserverAndObserved) * 100 / rangeLosBetweenObserverAndObserved);
+				(*it).ranking.minimumLosDistance				= (0.0 == rangeMinimumLosDistance) ? 100 : (int) (((*it).minimumLosDistance-minMinimumLosDistance) * 100 / rangeMinimumLosDistance);
+				(*it).ranking.maximumLosDistance				= (0.0 == rangeMaximumLosDistance) ? 100 : (int) (((*it).maximumLosDistance-minMaximumLosDistance) * 100 / rangeMaximumLosDistance);
+				(*it).ranking.closestObstacleDistance			= (0.0 == rangeClosestObstacleDistance) ? 100 : (int) (((*it).closestObstacleDistance-minClosestObstacleDistance) * 100 / rangeClosestObstacleDistance);
+				(*it).ranking.minimumDistanceToSpecificLocation	= (0.0 == minClosestSpecificLocationDistance) ? 100 : (int) (((*it).minimumDistanceToSpecificLocation-minClosestSpecificLocationDistance) * 100 / rangeClosestSpecificLocationDistance);
+
 				it++;
 			}
 
@@ -1466,6 +1479,7 @@
 		//							relative importance of maximum distance to observed
 		//							relative importance of distance to obstacle	
 		//					Default arguments:
+		//							relative importance of minimum distance to specific location (for second agent)
 		//							better more LOS locations to observed
 		//							better closest minimum distance to observed
 		//							better closest maximum distance to observed
@@ -1477,6 +1491,7 @@
 						unsigned short relativeImportanceClosestMinimumDistanceToObserved,
 						unsigned short relativeImportanceClosestMaximumDistanceToObserved,
 						unsigned short relativeImportanceClosestDistanceToObstacle,
+						unsigned short relativeImportanceClosestMinimumDistanceToSpecificLocation,
 						bool betterMoreLosLocations,
 						bool betterClosestMinimumDistanceToObserved,
 						bool betterClosestMaximumDistanceToObserved,
@@ -1487,25 +1502,28 @@
 			
 			//	Calculate the sum of the relative importances
 			relativeImportanceSum							= relativeImportanceMoreLosLocations + relativeImportanceClosestMinimumDistanceToObserved 
-															+ relativeImportanceClosestMaximumDistanceToObserved + relativeImportanceClosestDistanceToObstacle;
+															+ relativeImportanceClosestMaximumDistanceToObserved + relativeImportanceClosestDistanceToObstacle 
+															+ relativeImportanceClosestMinimumDistanceToSpecificLocation;
 															
 			//	Calculate the importance of the specific element according to criteria
 			std::list<AI_SUPPORT_ALGORITHMS_losInfo>::iterator it	= observerLosInfoList.begin();
 			while (it != observerLosInfoList.end()) 
 			{
 				if (!betterMoreLosLocations)
-					(*it).ranking.losToPotentialLocations	= 100 - (*it).ranking.losToPotentialLocations;
+					(*it).ranking.losToPotentialLocations		= 100 - (*it).ranking.losToPotentialLocations;
 				if (betterClosestMinimumDistanceToObserved)
-					(*it).ranking.minimumLosDistance		= 100 - (*it).ranking.minimumLosDistance;
+					(*it).ranking.minimumLosDistance			= 100 - (*it).ranking.minimumLosDistance;
 				if (betterClosestMaximumDistanceToObserved)
-					(*it).ranking.maximumLosDistance		= 100 - (*it).ranking.maximumLosDistance;
+					(*it).ranking.maximumLosDistance			= 100 - (*it).ranking.maximumLosDistance;
 				if (betterClosestDistanceToObstacle)
-					(*it).ranking.closestObstacleDistance	= 100 - (*it).ranking.closestObstacleDistance;
-					
+					(*it).ranking.closestObstacleDistance		= 100 - (*it).ranking.closestObstacleDistance;
+				(*it).ranking.minimumDistanceToSpecificLocation	= 100 - (*it).ranking.minimumDistanceToSpecificLocation;
+
 				(*it).importance							= ((((*it).ranking.losToPotentialLocations * relativeImportanceMoreLosLocations) +
 																((*it).ranking.minimumLosDistance * relativeImportanceClosestMinimumDistanceToObserved) +
 																((*it).ranking.maximumLosDistance * relativeImportanceClosestMaximumDistanceToObserved) +
-																((*it).ranking.closestObstacleDistance * relativeImportanceClosestDistanceToObstacle)) / relativeImportanceSum);
+																((*it).ranking.closestObstacleDistance * relativeImportanceClosestDistanceToObstacle) +
+																((*it).ranking.minimumDistanceToSpecificLocation * relativeImportanceClosestMinimumDistanceToSpecificLocation)) / relativeImportanceSum);
 
 				it++;
 			}

@@ -234,6 +234,17 @@
 			class Location textLocation,
 			class Location noLosTextLocation
 		);
+		static void _TwoAgentsSimulationCentralCalculation
+		(
+			class Target& target, 
+			class Location targetStart, 
+			class Location targetObjective, 
+			class Location firstAgentStart,
+			class Location secondAgentStart,
+			class SwissArmyKnife targetAlgorithm,
+			class Location textLocation,
+			class Location noLosTextLocation
+		);
 
 	/*
 		****************************************************************************
@@ -255,12 +266,11 @@
 	int main(int argc, char *argv[])
 	{
 		//	Delete all the previous runs PNG files
-		system("rm -r output/target/*.png");
-		system("rm -r output/agent/*.png");
-		system("rm -r output/lonelyAgent/*.png");
-		system("rm -r output/losExample/*.png");
+		system("rm -r output/target/*.*");
+		system("rm -r output/agent/*.*");
+		system("rm -r output/lonelyAgent/*.*");
+		system("rm -r output/losExample/*.*");
 
-		
 		//	"Algorithms" tools for target
 		class SwissArmyKnife	targetAlgorithm(AI_SUPPORT_ALGORITHMS_4_PIXELS_MOVEMENT, false);
 		
@@ -518,9 +528,9 @@
 			string		target_base_text		= "Target path progress over time on map second = ";
 			string		steps_base_text			= "Step = ";
 			string		filename, text, steps_text;
-			
+
 			cout << "Target: " << targetCurrentLocation << endl;
-	
+
 			targetNextLocation					= targetAlone.NextLocation();
 
 			simulationSeconds++;
@@ -637,7 +647,7 @@
 
 			agentAlone.GraphicClose(AI_SUPPORT_CLASSES_GRAPHIC_TYPE_PNG);
 
-			
+
 			if (agentAlone.CurrentLocation() == agentAlone.DestinationLocation())
 			{
 				agentArrived	= true;
@@ -647,7 +657,7 @@
 			if (simulationSeconds > 1000)
 				break;
 		}  
-		
+
 		//	Close the .csv DSM map for agent file
 		csvAgentFile.close();
 		
@@ -668,12 +678,14 @@
 		int						simulationSeconds	= 0;
 		bool					targetLossMode		= false;
 		Location				lastSeenTargetLocation;
+//		Location				dummyLocation(-1,-1);
+		Location				dummyLocation(100,100);
 		
 		class SwissArmyKnife	agentAlgorithm(AI_SUPPORT_ALGORITHMS_12_PIXELS_MOVEMENT, true);
 		
 		list <class Location>	targetPotentialMovements;
 		list <class Location>	agentPotentialMovements;
-		
+
 		//	Set target (current and objective locations)
 		target.CurrentLocation(targetStart);
 		target.DestinationLocation(targetObjective);
@@ -682,7 +694,7 @@
 		//	Set agent current location
 		//	Set target (current and objective locations)
 		lonelyAgent.CurrentLocation(agentStart);
-		
+
 		lonelyAgent.GraphicOpen("output/1_1_DsmOriginalFile Lonely agent", "DSM original input");
 		lonelyAgent.GraphicPreparation(true);
 		lonelyAgent.GraphicText(textLocation, "Original cage6.tif");
@@ -696,7 +708,6 @@
 		csvLonelyAgentFile.open ("output/LonelyAgent.csv");
 		//	Create the header
 		csvLonelyAgentFile << "Target Column, Target Row, Agent Column, Agent Row, Distance, LOS\n";
-		
 
 		while (!targetArrived)
 		{
@@ -734,6 +745,7 @@
 					targetPotentialMovements, 
 					target.DsmMap(), 
 					lonelyAgentLosInfoList,
+					dummyLocation,
 					10
 				);
 				
@@ -745,7 +757,7 @@
 					agentAlgorithm.RankingOrder(lonelyAgentLosInfoList, 0, 10, 0, 0);
 				else
 					agentAlgorithm.RankingOrder(lonelyAgentLosInfoList, 0, 1, 0, 10);
-	
+
 				losInfo	= lonelyAgentLosInfoList.front();
 			}
 			else
@@ -759,6 +771,7 @@
 					targetPotentialMovements, 
 					target.DsmMap(), 
 					lonelyAgentLosInfoList,
+					dummyLocation,
 					10
 				);
 				
@@ -775,18 +788,22 @@
 					agentAlgorithm.RankingOrder(lonelyAgentLosInfoList, 0, 10, 0, 0);
 				else
 					agentAlgorithm.RankingOrder(lonelyAgentLosInfoList, 0, 1, 0, 10);
-			
-//				cout << "Potential observer locations with LOS to observed = " << quantityOfLosPotentialLocationsForObserver << endl;
-//				std::list<AI_SUPPORT_ALGORITHMS_losInfo>::iterator it = lonelyAgentLosInfoList.begin();
-//				while (it != lonelyAgentLosInfoList.end()) 
-//				{
-//					cout << "[" << (*it).location.Column() << ", " << (*it).location.Row() << "]\n";
-//					cout << "Minimum/Maximum [" << (*it).minimumLosDistance << ", " << (*it).maximumLosDistance << "]\n";
-//					cout << "Obstacle distance = " << (*it).closestObstacleDistance << endl;
-//					cout << "Quantity LOS = " << (*it).losToPotentialLocations << endl;
-//					cout << "Ranking = " << (*it).importance << endl;
-//					it++;
-//				}
+
+if (1)
+{
+				cout << "Potential observer locations with LOS to observed = " << quantityOfLosPotentialLocationsForObserver << endl;
+				std::list<AI_SUPPORT_ALGORITHMS_losInfo>::iterator it = lonelyAgentLosInfoList.begin();
+				while (it != lonelyAgentLosInfoList.end()) 
+				{
+					cout << "[" << (*it).location.Column() << ", " << (*it).location.Row() << "]\n";
+					cout << "Minimum/Maximum [" << (*it).minimumLosDistance << ", " << (*it).maximumLosDistance << "]\n";
+					cout << "Obstacle distance = " << (*it).closestObstacleDistance << endl;
+					cout << "Specific location distance = " << (*it).minimumDistanceToSpecificLocation << endl;
+					cout << "Quantity LOS = " << (*it).losToPotentialLocations << endl;
+					cout << "Ranking = " << (*it).importance << endl;
+					it++;
+				}
+}
 
 				losInfo	= lonelyAgentLosInfoList.front();
 //	-	3.1)	Write a function that will return the progress command to the agent given his and the "target" current locations: 
@@ -805,9 +822,9 @@
 					lonelyAgent.CurrentLocation(lonelyAgentNextLocation);
 				}
 			}
-				
+
 			simulationSeconds++;
-			
+
 			steps_text									= steps_base_text;
 			steps_text									+= std::to_string(simulationSeconds);
 			
@@ -881,4 +898,243 @@
 		csvLonelyAgentFile.close();
 		
 	}	// _LonelyAgentSimulation()
+	
+	static void _TwoAgentsSimulationCentralCalculation
+	(
+		class Target& target, 
+		class Location targetStart, 
+		class Location targetObjective, 
+		class Location firstAgentStart,
+		class Location secondAgentStart,
+		class SwissArmyKnife targetAlgorithm,
+		class Location textLocation,
+		class Location noLosTextLocation
+	)
+	{
+		bool					targetArrived		= false;
+		int						simulationSeconds	= 0;
+		bool					targetLossMode		= false;
+		Location				lastSeenTargetLocation;
+		Location				dummyLocation(-1,-1);
+		
+		class SwissArmyKnife	firstAgentAlgorithm(AI_SUPPORT_ALGORITHMS_12_PIXELS_MOVEMENT, true);
+		class SwissArmyKnife	secondAgentAlgorithm(AI_SUPPORT_ALGORITHMS_12_PIXELS_MOVEMENT, true);
+		
+		list <class Location>	targetPotentialMovements;
+		list <class Location>	firstAgentPotentialMovements;
+		list <class Location>	secondAgentPotentialMovements;
+
+		//	Set target (current and objective locations)
+		target.CurrentLocation(targetStart);
+		target.DestinationLocation(targetObjective);
+		
+		class Agent				firstAgent(DSM_FILE, "firsAgentCentralized");
+		class Agent				secondAgent(DSM_FILE, "secondAgentCentralized");
+		//	Set agents current location
+		//	Set target (current and objective locations)
+		firstAgent.CurrentLocation(firstAgentStart);
+		secondAgent.CurrentLocation(secondAgentStart);
+
+		firstAgent.GraphicOpen("output/4_DsmOriginalFile Two agents centralized", "DSM original input");
+		firstAgent.GraphicPreparation(true);
+		firstAgent.GraphicText(textLocation, "Original cage6.tif");
+		firstAgent.GraphicClose(AI_SUPPORT_CLASSES_GRAPHIC_TYPE_PNG);
+		firstAgent.GraphicClose(AI_SUPPORT_CLASSES_GRAPHIC_TYPE_GEOTIFF);
+		//	Draws a cross at the target objective
+		firstAgent.GraphicCross(targetObjective, AI_SUPPORT_CLASSES_COLOR_WHITE, true);
+		
+		//	Create the .csv DSM map for lonely agent and target file
+		std::ofstream csvTwoAgentsCentralizedFile;
+		csvTwoAgentsCentralizedFile.open ("output/TwoAgentsCentralized.csv");
+		//	Create the header
+		csvTwoAgentsCentralizedFile << "Target column, Target row, Agent column, Agent row, Distance from first agent, LOS to first agent, Second agent column, Second agent row, Distance from second agent, LOS to second agent\n";
+
+		while (!targetArrived)
+		{
+			Location								targetCurrentLocation			= target.CurrentLocation(), targetNextLocation;
+			Location								firstAgentCurrentLocation		= firstAgent.CurrentLocation(), firstAgentNextLocation;
+			Location								secondAgentCurrentLocation		= secondAgent.CurrentLocation(), secondAgentNextLocation;
+
+			AI_SUPPORT_ALGORITHMS_losInfo			losInfo;
+			int										quantityOfLosPotentialLocationsForObserver;
+			list <AI_SUPPORT_ALGORITHMS_losInfo>	firstAgentLosInfoList;
+			list <AI_SUPPORT_ALGORITHMS_losInfo>	secondAgentLosInfoList;
+						
+			string		agents_and_target_base_filename	= "output/twoAgentsCentralized/4_TwoAgentsFollowTargetOverTime_";
+			string		agents_and_target_base_text		= "Two agents (centralized) and target path progress over time on map second = ";
+			string		steps_base_text					= "Step = ";
+			string		filename, text, steps_text;
+			
+			cout << "First agent: " << firstAgentCurrentLocation << ", second agent: " << secondAgentCurrentLocation << ", Target: " << targetCurrentLocation << endl;
+			
+//	-	3.1)	Write a function that will return the progress command to the agent given his and the "target" current locations: 
+//					CalculateNextLocation(TargetCurrentLocation, AgentCurrentLocation)
+//	-	3.2)	Progress command will take in account the potential next location of both the "target" and the "agent" so that will have LOS 
+//					between "agent" and "target" as much as possible time	- Begin
+
+			//	Agent algorithm
+			if (targetLossMode)
+			{
+				//	Do NOT let the first agent stay in place
+				firstAgentAlgorithm.MovementType(AI_SUPPORT_ALGORITHMS_12_PIXELS_MOVEMENT, false);
+				
+				targetAlgorithm.PossibleMovements(targetPotentialMovements, lastSeenTargetLocation, target.DsmMap());
+				firstAgentAlgorithm.PossibleMovements(firstAgentPotentialMovements, firstAgentCurrentLocation, target.DsmMap());
+				
+				quantityOfLosPotentialLocationsForObserver	= firstAgentAlgorithm.PossibleLineOfSightLocations
+				(
+					firstAgentPotentialMovements, 
+					targetPotentialMovements, 
+					target.DsmMap(), 
+					firstAgentLosInfoList,
+					dummyLocation,
+					10
+				);
+				
+				//	Order the list
+				firstAgentAlgorithm.Ranking(firstAgentLosInfoList);
+				
+				//	Improve, but works
+				if (targetCurrentLocation.Distance(firstAgentCurrentLocation) > 20)
+					firstAgentAlgorithm.RankingOrder(firstAgentLosInfoList, 0, 10, 0, 0);
+				else
+					firstAgentAlgorithm.RankingOrder(firstAgentLosInfoList, 0, 1, 0, 10);
+
+				losInfo	= firstAgentLosInfoList.front();
+			}
+			else
+			{
+				targetAlgorithm.PossibleMovements(targetPotentialMovements, targetCurrentLocation, target.DsmMap());
+				firstAgentAlgorithm.PossibleMovements(firstAgentPotentialMovements, firstAgentCurrentLocation, target.DsmMap());
+				
+				quantityOfLosPotentialLocationsForObserver	= firstAgentAlgorithm.PossibleLineOfSightLocations
+				(
+					firstAgentPotentialMovements, 
+					targetPotentialMovements, 
+					target.DsmMap(), 
+					firstAgentLosInfoList,
+					dummyLocation,
+					10
+				);
+				
+				//	Order the list by maximum LOS potential locations and minimum distance to target
+//				agentAlgorithm.OrderInfoListByMinimumDistanceToObstacle(lonelyAgentLosInfoList);
+//				agentAlgorithm.OrderInfoListByLos(lonelyAgentLosInfoList);
+//				agentAlgorithm.OrderInfoListByMinimumDistanceToObserved(lonelyAgentLosInfoList);
+
+				//	Order the list
+				firstAgentAlgorithm.Ranking(firstAgentLosInfoList);
+			
+				//	Improve, but works
+				if (targetCurrentLocation.Distance(firstAgentCurrentLocation) > 20)
+					firstAgentAlgorithm.RankingOrder(firstAgentLosInfoList, 0, 10, 0, 0);
+				else
+					firstAgentAlgorithm.RankingOrder(firstAgentLosInfoList, 0, 1, 0, 10);
+
+//				cout << "Potential observer locations with LOS to observed = " << quantityOfLosPotentialLocationsForObserver << endl;
+//				std::list<AI_SUPPORT_ALGORITHMS_losInfo>::iterator it = lonelyAgentLosInfoList.begin();
+//				while (it != lonelyAgentLosInfoList.end()) 
+//				{
+//					cout << "[" << (*it).location.Column() << ", " << (*it).location.Row() << "]\n";
+//					cout << "Minimum/Maximum [" << (*it).minimumLosDistance << ", " << (*it).maximumLosDistance << "]\n";
+//					cout << "Obstacle distance = " << (*it).closestObstacleDistance << endl;
+//					cout << "Quantity LOS = " << (*it).losToPotentialLocations << endl;
+//					cout << "Ranking = " << (*it).importance << endl;
+//					it++;
+//				}
+
+
+				losInfo	= firstAgentLosInfoList.front();
+//	-	3.1)	Write a function that will return the progress command to the agent given his and the "target" current locations: 
+//					CalculateNextLocation(TargetCurrentLocation, AgentCurrentLocation)
+//	-	3.2)	Progress command will take in account the potential next location of both the "target" and the "agent" so that will have LOS 
+//					between "agent" and "target" as much as possible time	- End
+			}
+
+			if (!targetArrived)
+			{
+				targetNextLocation						= target.NextLocation();
+				
+				if (0 != quantityOfLosPotentialLocationsForObserver)
+				{
+					firstAgentNextLocation				= losInfo.location;
+					firstAgent.CurrentLocation(firstAgentNextLocation);
+				}
+			}
+
+			simulationSeconds++;
+
+			steps_text									= steps_base_text;
+			steps_text									+= std::to_string(simulationSeconds);
+			
+			if (!targetArrived)
+			{
+				//	Update the .csv DSM map for first agent and target file with the current information
+				double	distanceBetweenTargetAndAgent	= firstAgentNextLocation.Distance(targetNextLocation);
+				bool 	losBetweenAgentAndTarget		= target.DsmMap().LineOfSight(firstAgentNextLocation, targetNextLocation);
+				csvTwoAgentsCentralizedFile << targetNextLocation.Column() << "," << targetNextLocation.Row() << "," << firstAgentNextLocation.Column() << "," << firstAgentNextLocation.Row() << "," << distanceBetweenTargetAndAgent << "," << losBetweenAgentAndTarget << endl;
+				
+				if (targetLossMode && losBetweenAgentAndTarget)
+				{
+					//	Bring back original configuration for first agent
+					firstAgentAlgorithm.MovementType(AI_SUPPORT_ALGORITHMS_12_PIXELS_MOVEMENT, true);
+					targetLossMode				= false;
+				}
+
+				if (!losBetweenAgentAndTarget)
+				{
+					cout << "LOS between agent and target LOST\n";
+					if (!targetLossMode)
+					{
+						lastSeenTargetLocation	= targetCurrentLocation;
+						targetLossMode			= true;
+					}
+				}
+
+				char cString[10];
+				sprintf(cString, "%04d", simulationSeconds);
+				std::string	cppString(cString);
+				
+//	-	3.2)	Progress command will take in account the potential next location of both the "target" and the "agent" so that will have LOS 
+//					between "agent" and "target" as much as possible time	- Begin
+				filename								= agents_and_target_base_filename;
+				filename								+= cppString; 
+				text									= agents_and_target_base_text;
+				text									+= std::to_string(simulationSeconds);
+
+				firstAgent.GraphicOpen(filename, text, true);
+				firstAgent.GraphicText(textLocation, steps_text);
+				firstAgent.GraphicLine(targetCurrentLocation, targetNextLocation, AI_SUPPORT_CLASSES_COLOR_WHITE, true);
+				//	Draws a cross at the agent
+				firstAgent.GraphicCross(firstAgentNextLocation, AI_SUPPORT_CLASSES_COLOR_PURPLE, false);
+				if (losBetweenAgentAndTarget)
+				{
+					//	Draws a gray line for LOS between first agent and target
+					firstAgent.GraphicLine(firstAgentNextLocation, targetNextLocation, AI_SUPPORT_CLASSES_COLOR_GRAY, false);
+				}
+				else
+				{
+					//	Shows a text "LOS lost"
+					firstAgent.GraphicText(noLosTextLocation, "LOS lost");
+				}
+				firstAgent.GraphicClose(AI_SUPPORT_CLASSES_GRAPHIC_TYPE_PNG);
+//	-	3.2)	Progress command will take in account the potential next location of both the "target" and the "agent" so that will have LOS 
+//					between "agent" and "target" as much as possible time	- End
+			}
+				
+			if (target.CurrentLocation() == target.DestinationLocation())
+			{
+				targetArrived	= true;
+			}
+			
+
+			//	In case of some error
+			if (simulationSeconds > 1000)
+				break;
+		}  
+		
+		//	Close the .csv DSM map for two agents and target file
+		csvTwoAgentsCentralizedFile.close();
+		
+	}	// _TwoAgentsSimulationCentralCalculation()
 

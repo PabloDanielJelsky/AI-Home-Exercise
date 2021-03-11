@@ -73,6 +73,7 @@
 			int				minimumLosDistance;
 			int				maximumLosDistance;
 			int				closestObstacleDistance;
+			int				minimumDistanceToSpecificLocation;
 			
 		}	AI_SUPPORT_ALGORITHMS_ranking;
 		
@@ -83,6 +84,7 @@
 			double							minimumLosDistance;
 			double							maximumLosDistance;
 			double							closestObstacleDistance;
+			double							minimumDistanceToSpecificLocation;
 			AI_SUPPORT_ALGORITHMS_ranking	ranking;
 			int								importance;
 
@@ -128,6 +130,7 @@
 								list <Location>& observedLocationsList, 
 								DsmInformation &dsmMapInfo, 
 								list <AI_SUPPORT_ALGORITHMS_losInfo>& observerLosInfoList,
+								Location& specificLocation,
 								double minimumPotentialDistanceFromObserverToObserved = 0);
 								
 				//	Order function members
@@ -142,6 +145,7 @@
 								unsigned short relativeImportanceClosestMinimumDistanceToObserved,
 								unsigned short relativeImportanceClosestMaximumDistanceToObserved,
 								unsigned short relativeImportanceClosestDistanceToObstacle,
+								unsigned short relativeImportanceClosestMinimumDistanceToSpecificLocation = 0,
 								bool betterMoreLosLocations = true,
 								bool betterClosestMinimumDistanceToObserved = true,
 								bool betterClosestMaximumDistanceToObserved = true,
