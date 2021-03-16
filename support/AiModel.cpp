@@ -184,7 +184,7 @@
 		/////////////////////////////////////////////////////////////////////////////////
 		Model::Model(string geoTiffFilename, string modelName)
 		{
-			this->_Initialize(geoTiffFilename, modelName);
+			this->Initialize(geoTiffFilename, modelName);
 			this->_AStarAlgorithmConfiguration(AI_SUPPORT_ALGORITHMS_4_PIXELS_MOVEMENT, false);
 			
 		}	//	Model::Model()
@@ -299,6 +299,48 @@
 			return this->dsmMapInfo;
 			
 		}	//	Model::DsmMap()
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: Model
+		// Function				: Initialize
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 05-03-2021
+		// Class description	: This base class represents the model that will be derived
+		//						as a person (class) that could be an agent, a target, etc
+		// Function description	: This public class member takes as parameter GeoTIFF
+		// 							file that will be the base of the DSM information map
+		// Remarks				: 
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: string geoTiffFilename (name of the GeoTIFF file)
+		//						 string modelName (name that will be used for logger and .csv files)
+		/////////////////////////////////////////////////////////////////////////////////
+		void Model::Initialize(string geoTiffFilename, string modelName)
+		{
+			if (!this->initialized)
+			{
+				string	loggerDirectory	= "output/";
+				string	loggerSuffix	= ".txt";
+				
+				this->geoTiffFilename	= geoTiffFilename;
+				this->modelName			= modelName;
+				//	Creating the logger object
+				this->logger.Filename(loggerDirectory + this->modelName + loggerSuffix);
+				//	Registering the GDAL drivers
+				this->_GdalDriverInitialization();
+				//	Raster the GeoTIFF input file inside the object for further use
+				if (!_DsmInputFileRaster())
+				{
+					this->initialized	= false;
+					return;
+				}
+				
+				this->graphic.Rows(this->dsmMapInfo.Rows());
+				this->graphic.Columns(this->dsmMapInfo.Columns());
+			
+				this->initialized	= true;
+			}
+			
+		}	//	Model::Initialize()
 		
 		/////////////////////////////////////////////////////////////////////////////////
 		// Class name			: Model
@@ -884,45 +926,7 @@
 		* PROTECTED CLASS MEMBER FUNCTION DEFINITIONS
 		****************************************************************************
 	*/
-		/////////////////////////////////////////////////////////////////////////////////
-		// Class name			: Model
-		// Function				: _Initialize
-		// Programmer name		: Pablo Daniel Jelsky
-		// Last update date		: 05-03-2021
-		// Class description	: This base class represents the model that will be derived
-		//						as a person (class) that could be an agent, a target, etc
-		// Function description	: This protected class member takes as parameter GeoTIFF
-		// 							file that will be the base of the DSM information map
-		// Remarks				: 
-		/////////////////////////////////////////////////////////////////////////////////
-		// Arguments			: string geoTiffFilename (name of the GeoTIFF file)
-		//						 string modelName (name that will be used for logger and .csv files)
-		/////////////////////////////////////////////////////////////////////////////////
-		void Model::_Initialize(string geoTiffFilename, string modelName)
-		{
-			string	loggerDirectory	= "output/";
-			string	loggerSuffix	= ".txt";
-			
-			this->geoTiffFilename	= geoTiffFilename;
-			this->modelName			= modelName;
-			//	Creating the logger object
-			this->logger.Filename(loggerDirectory + this->modelName + loggerSuffix);
-			//	Registering the GDAL drivers
-			this->_GdalDriverInitialization();
-			//	Raster the GeoTIFF input file inside the object for further use
-			if (!_DsmInputFileRaster())
-			{
-				this->initialized	= false;
-				return;
-			}
-			
-			this->graphic.Rows(this->dsmMapInfo.Rows());
-			this->graphic.Columns(this->dsmMapInfo.Columns());
-			
-			this->initialized	= true;
-			
-		}	//	Model::_Initialize()
-		
+
 		/////////////////////////////////////////////////////////////////////////////////
 		// Class name			: Model
 		// Function				: _AStarAlgorithmConfiguration

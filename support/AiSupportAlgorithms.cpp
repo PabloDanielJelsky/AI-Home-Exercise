@@ -1213,13 +1213,13 @@
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: observer "potential" locations, observed "potential"
 		//							locations, DSM map information, and the function
-		//							brings back the information about the LOS positions
-		//							specific location (to be used by second agent)
+		//							brings back the information about the LOS positions							
 		//					Default parameters:
 		//							minimum potential distance from observer to observed
 		//							(if the minimum distance is less that this one,
 		//							then, this location won't  be inserted in the list
 		//							of potential observer locations)
+		//							specific location (to be used by second agent)
 		//
 		/////////////////////////////////////////////////////////////////////////////////
 		int SwissArmyKnife::PossibleLineOfSightLocations(
@@ -1227,8 +1227,8 @@
 				list <Location>& observedLocationsList, 
 				DsmInformation &dsmMapInfo, 
 				list <AI_SUPPORT_ALGORITHMS_losInfo>& observerLosInfoList,
-				Location& specificLocation,
-				double minimumPotentialDistanceFromObserverToObserved)
+				double minimumPotentialDistanceFromObserverToObserved,
+				Location& specificLocation)
 		{
 			AI_SUPPORT_ALGORITHMS_losInfo	observerLosInfo;
 			std::list<Location>::iterator 	observerLocationIterator;
@@ -1237,7 +1237,6 @@
 			int								losBetweenObserverAndObserved;
 			double							minimumLosDistance;
 			double							maximumLosDistance;
-			Location						dummyLocation(-1,-1);
 
 			//	Clear the list for observer locations
 			observerLosInfoList.clear();
@@ -1295,8 +1294,7 @@
 						observerLosInfo.minimumLosDistance					= minimumLosDistance;
 						observerLosInfo.maximumLosDistance					= maximumLosDistance;
 						observerLosInfo.closestObstacleDistance				= this->ClosestObstacleDistance(observerLosInfo.location, dsmMapInfo);
-						if (specificLocation != dummyLocation)
-							observerLosInfo.minimumDistanceToSpecificLocation	= observerLosInfo.location.Distance(specificLocation);
+						observerLosInfo.minimumDistanceToSpecificLocation	= (AI_SUPPORT_CLASSES_DefaultLocation == specificLocation) ? -1 : observerLosInfo.location.Distance(specificLocation);
 						//	Insert the strucure into the LOS info list for observer locations
 						observerLosInfoList.push_back(observerLosInfo);
 						//	Increment the quantity of potential LOS locations for observer

@@ -130,8 +130,8 @@
 								list <Location>& observedLocationsList, 
 								DsmInformation &dsmMapInfo, 
 								list <AI_SUPPORT_ALGORITHMS_losInfo>& observerLosInfoList,
-								Location& specificLocation,
-								double minimumPotentialDistanceFromObserverToObserved = 0);
+								double minimumPotentialDistanceFromObserverToObserved = 0,
+								Location& specificLocation = AI_SUPPORT_CLASSES_DefaultLocation);
 								
 				//	Order function members
 				void OrderInfoListByLos(list <AI_SUPPORT_ALGORITHMS_losInfo>& observerLosInfoList);

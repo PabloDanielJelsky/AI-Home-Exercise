@@ -97,6 +97,7 @@
 		{ 
 			public:
 				//	Public member functions
+				void Initialize(string geoTiffFilename, string modelName);
 				class DsmInformation &DsmMap(void);
 				int DsmMapFileColumns(void);
 				int DsmMapFileRows(void);
@@ -131,7 +132,6 @@
 
 			protected:
 				//	Protected member functions
-				void _Initialize(string geoTiffFilename, string modelName);
 				bool _AStarAlgorithmConfiguration(AI_SUPPORT_ALGORITHMS_pixelsMovementType aStarSearchPixelsMovementTypeForFindPath, bool possibilityOfNotMoving);
 				void _GdalDriverInitialization(void);
 				bool _DsmInputFileRaster(void);
@@ -175,7 +175,7 @@
 				//	Parametrized Constructors 
 				Target(string geoTiffFilename, string targetName) : Model { geoTiffFilename, targetName } 
 				{
-					this->_Initialize(geoTiffFilename, targetName);
+					this->Initialize(geoTiffFilename, targetName);
 					this->_AStarAlgorithmConfiguration(AI_SUPPORT_ALGORITHMS_4_PIXELS_MOVEMENT, false);
 				}
 				//	Destructor
@@ -228,7 +228,7 @@
 				//	Parametrized Constructors 
 				Agent(string geoTiffFilename, string agentName) : Target {geoTiffFilename, agentName}
 				{
-					this->_Initialize(geoTiffFilename, agentName);
+					this->Initialize(geoTiffFilename, agentName);
 					this->_AStarAlgorithmConfiguration(AI_SUPPORT_ALGORITHMS_12_PIXELS_MOVEMENT, true);
 				}
 				//	Destructor
