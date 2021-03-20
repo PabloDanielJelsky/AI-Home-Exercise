@@ -1847,13 +1847,14 @@
 		//							text string
 		//						Default parameters:
 		//							text color
+		//							copy to shado
 		//							font size
 		//							path and filename of the font to be used
 		//							angle of the text (in degrees)
 		/////////////////////////////////////////////////////////////////////////////////
 		bool Graphic::Text(class Location from, string text, 
 			//	Default arguments
-			AI_SUPPORT_CLASSES_color textColor, int fontSize,
+			AI_SUPPORT_CLASSES_color textColor, bool copyToShadow, int fontSize,
 			string fontPathAndFilename,	double angle)
 		{
 			const double PI	= 3.141592653589793238463;
@@ -1871,6 +1872,19 @@
 				colorToRgb[textColor].green * CONVERSION_FROM_8_BIT_TO_16_BIT_COLOR, 
 				colorToRgb[textColor].blue * CONVERSION_FROM_8_BIT_TO_16_BIT_COLOR);
 				
+			if (copyToShadow)
+			{
+				(*this->pPngObjectShadow).plot_text_utf8(
+				(char *)fontPathAndFilename.c_str(), fontSize,
+				from.Column() + PNG_COLUMN_OFFSET_FROM_DSM_MAP, 
+				from.Row()  + PNG_ROW_OFFSET_FROM_DSM_MAP, 
+				(angle * PI / 180.0),	// convert from degrees to radians
+				(char *) text.c_str(),
+				colorToRgb[textColor].red * CONVERSION_FROM_8_BIT_TO_16_BIT_COLOR, 
+				colorToRgb[textColor].green * CONVERSION_FROM_8_BIT_TO_16_BIT_COLOR, 
+				colorToRgb[textColor].blue * CONVERSION_FROM_8_BIT_TO_16_BIT_COLOR);
+			}
+
 			return true;
 			 
 		}	//	Graphic::Text()

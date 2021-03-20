@@ -202,7 +202,8 @@
 		/*---- context -------------------------------------------------------------*/
 		/*---- macros --------------------------------------------------------------*/
 		/*---- defines --------------------------------------------------------------*/
-		#define DSM_FILE	"../Input/cage6.tif"
+		#define DSM_FILE									"../Input/cage6.tif"
+		#define	MINIMUM_DISTANCE_BETWEEN_AGENT_AND_TARGET	10
 		
 		/*---- data declarations ---------------------------------------------------*/
 		//	Logger support object created to log all the relevant events of this simulation
@@ -274,13 +275,14 @@
 		system("rm -r output/lonelyAgent/*.*");
 		system("rm -r output/lonelyAgent_LastLocation/*.*");
 		system("rm -r output/losExample/*.*");
+		system("rm -r output/twoAgentsCentralized/*.*");
 
 		//	"Algorithms" tools for target
 		class SwissArmyKnife	targetAlgorithm(AI_SUPPORT_ALGORITHMS_4_PIXELS_MOVEMENT, false);
 		
 		//	Text location for PNG files
 		class Location			textLocation(20, 3);
-		class Location			noLosTextLocation(100, 3);
+		class Location			noLosTextLocation(150, 3);
 		//	Initial and objective locations (by default)
 		class Location			targetStart(5, 5);
 		class Location			targetObjective(300,100);
@@ -325,7 +327,7 @@
 		for (losPointBeingTested = 0; losPointBeingTested < (sizeof(losPointsToBeTested)/sizeof(losPointsToBeTested[0])); losPointBeingTested++)
 		_DrawLineOfSightBetweenTwoLocationsInDsmMap(target, targetStart, losPointsToBeTested[losPointBeingTested], losPointBeingTested+1);
 //	-	2.2)	Take a number of DSM locations and display the LOS between them - End
-/*
+
 //	-	1.2.2)		Display "target" path progress over time on map - Begin
 		_TargetAloneSimulation(targetStart, targetObjective, textLocation);
 //	-	1.2.2)		Display "target" path progress over time on map - End
@@ -338,15 +340,16 @@
 		_LonelyAgentSimulation(target, targetStart, targetObjective, agent1Start, targetAlgorithm, textLocation, noLosTextLocation, "lonelyAgent");
 //		_LonelyAgentSimulation(target, targetStart, targetObjective, agent1Start, targetAlgorithm, textLocation, noLosTextLocation, "lonelyAgent_LastLocation", true);
 //	-	3)	Working with "only" one agent - End
-*/
+
 		_TwoAgentsSimulationCentralCalculation(target, targetStart, targetObjective, agent1Start, agent2Start, targetAlgorithm, textLocation, noLosTextLocation, "twoAgentsWithCentralCalculation");
 		
 		//	Create animated GIFs for R
 		system("gifski -o output/target/target.gif output/target/*.png");
 		system("gifski -o output/agent/agent.gif output/agent/*.png");
-		system("gifski -o output/lonelyAgent/lonelyAgent.gif output/lonelyAgent/*.png");
-		system("gifski -o output/lonelyAgent_LastLocation/lonelyAgent_LastLocation.gif output/lonelyAgent_LastLocation/*.png");
+		system("gifski -o output/lonelyAgent/lonelyAgent.gif --fps 10 output/lonelyAgent/*.png");
+		system("gifski -o output/lonelyAgent_LastLocation/lonelyAgent_LastLocation.gif --fps 10 output/lonelyAgent_LastLocation/*.png");
 		system("gifski -o output/losExample/losExample.gif --fps 1 output/losExample/*.png");
+		system("gifski -o output/twoAgentsCentralized/twoAgentsCentralized.gif --fps 10 output/twoAgentsCentralized/*.png");
 		
 		return EXIT_SUCCESS;
 		
@@ -779,7 +782,7 @@
 					targetPotentialMovements, 
 					target.DsmMap(), 
 					lonelyAgentLosInfoList,
-					10,
+					MINIMUM_DISTANCE_BETWEEN_AGENT_AND_TARGET,
 					lastSeenTargetLocation
 				);
 			}
@@ -791,7 +794,7 @@
 					targetPotentialMovements, 
 					target.DsmMap(), 
 					lonelyAgentLosInfoList,
-					10
+					MINIMUM_DISTANCE_BETWEEN_AGENT_AND_TARGET
 				);
 			}
 			
@@ -943,26 +946,29 @@ if (0)
 		string modelName
 	)
 	{
-		#define	QUANTITY_OF_AGENTS						2
-		#define	BOTH_AGENTS_HAVE_LOST_LOSS_WITH_TARGET	-1
+		#define	QUANTITY_OF_AGENTS				2
 		
-		int						agentCounter;
+		int										agentCounter;
 
-		bool					targetArrived							= false;
-		int						simulationSeconds						= 0;
-		bool					targetLossMode[QUANTITY_OF_AGENTS];
-		Location				lastSeenTargetLocation					= targetStart;
-		int						quantityOfLosLoss[QUANTITY_OF_AGENTS+1];
+		bool									targetArrived			= false;
+		int										simulationSeconds		= 0;
+		bool									targetLossMode[QUANTITY_OF_AGENTS];
+		Location								lastSeenTargetLocation	= targetStart;
+		int										quantityOfLosLoss[QUANTITY_OF_AGENTS+1];
 
-		class SwissArmyKnife	*agentAlgorithm;
-		class Agent				*agent;
-		agentAlgorithm			= new class SwissArmyKnife[QUANTITY_OF_AGENTS];
-		agent					= new class Agent[QUANTITY_OF_AGENTS];
+		class SwissArmyKnife					*agentAlgorithm;
+		class Agent								*agent;
+		agentAlgorithm													= new class SwissArmyKnife[QUANTITY_OF_AGENTS];
+		agent															= new class Agent[QUANTITY_OF_AGENTS];
 
-		list <class Location>	targetPotentialMovements;
-		list <class Location>	agentPotentialMovements[QUANTITY_OF_AGENTS];
+		list <class Location>					targetPotentialMovements;
+		list <class Location>					agentPotentialMovements[QUANTITY_OF_AGENTS];
 		
-		bool					masterAgent	= -1, slaveAgent = -1;
+		int										quantityOfLosPotentialLocationsForObserver[QUANTITY_OF_AGENTS];
+		AI_SUPPORT_ALGORITHMS_losInfo			losInfo[QUANTITY_OF_AGENTS];
+		list <AI_SUPPORT_ALGORITHMS_losInfo>	agentLosInfoList[QUANTITY_OF_AGENTS];
+		
+		bool									masterAgent	= 0, slaveAgent = 1;
 
 		for (agentCounter = 0; agentCounter < QUANTITY_OF_AGENTS; agentCounter++)
 		{
@@ -995,7 +1001,43 @@ if (0)
 		std::ofstream csvTwoAgentsSimulationCentralCalculationFile;
 		csvTwoAgentsSimulationCentralCalculationFile.open ("output/" + modelName + ".csv");
 		//	Create the header
-		csvTwoAgentsSimulationCentralCalculationFile << "Target column, Target row, Agent0 column, Agent0 row, Agent0 to target distance, Agent0 LOS, Agent1 column, Agent1 row, Agent1 to target distance, Agent1 LOS\n";
+		csvTwoAgentsSimulationCentralCalculationFile << "Target column, Target row, Agent0 column, Agent0 row, Agent1 column, Agent1 row, Agent0 to target distance, Agent1 to target distance, Agent0 LOS loss, Agent1 LOS loss, Agent0 master, Agent1 master, Master opposite location column, Master opposite location row, Slave agent distance to opposite location\n";
+
+
+		//	If at least one of the agents has LOS with the target, calculate target potential movement according to last position
+		targetAlgorithm.PossibleMovements(targetPotentialMovements, targetStart, target.DsmMap());
+		
+		//	First time calculation about who will be master and who will be slave agent in the first cycle
+		for (agentCounter = 0; agentCounter < QUANTITY_OF_AGENTS; agentCounter++)
+		{
+			//	If there is loss of LOS, let the agent stay in place
+			agentAlgorithm[agentCounter].MovementType(AI_SUPPORT_ALGORITHMS_12_PIXELS_MOVEMENT, true);
+			//	Verify potential movements for agent
+			agentAlgorithm[agentCounter].PossibleMovements(agentPotentialMovements[agentCounter], agent[agentCounter].CurrentLocation(), target.DsmMap());
+			quantityOfLosPotentialLocationsForObserver[agentCounter]	= agentAlgorithm[agentCounter].PossibleLineOfSightLocations
+																			(
+																				agentPotentialMovements[agentCounter], 
+																				targetPotentialMovements, 
+																				target.DsmMap(), 
+																				agentLosInfoList[agentCounter],
+																				MINIMUM_DISTANCE_BETWEEN_AGENT_AND_TARGET
+																			);
+																			
+			if (0 == quantityOfLosPotentialLocationsForObserver[agentCounter])
+			{
+				//	Set the flag of LOS loss with target
+				targetLossMode[agentCounter]	= true;
+			}
+			else
+			{
+				//	Set the flag of LOS loss with target
+				targetLossMode[agentCounter]	= false;
+
+			}
+		}
+		//	The agent with the most quantity of LOS potential locations will be the master
+		masterAgent	= (quantityOfLosPotentialLocationsForObserver[0] > quantityOfLosPotentialLocationsForObserver[1]) ? 0 : 1;
+		slaveAgent	= (masterAgent == 0) ? 1 : 0;
 
 		while (!targetArrived)
 		{
@@ -1006,12 +1048,11 @@ if (0)
 
 			agentCurrentLocation												= new class Location[QUANTITY_OF_AGENTS];
 			agentNextLocation													= new class Location[QUANTITY_OF_AGENTS];
-			AI_SUPPORT_ALGORITHMS_losInfo			losInfo[QUANTITY_OF_AGENTS];
-			int										quantityOfLosPotentialLocationsForObserver[QUANTITY_OF_AGENTS];
-			list <AI_SUPPORT_ALGORITHMS_losInfo>	agentLosInfoList[QUANTITY_OF_AGENTS];
+			
+			double									distanceBetweenSlaveAndSpecificTarget;
+			Location								oppositeLocation;
 
 			double									distanceBetweenTargetAndAgent[QUANTITY_OF_AGENTS];
-			bool 									losBetweenAgentAndTarget[QUANTITY_OF_AGENTS];
 
 			for (agentCounter = 0; agentCounter < QUANTITY_OF_AGENTS; agentCounter++)
 			{
@@ -1028,88 +1069,120 @@ if (0)
 //	-	4.1)	Like in the previous section, but the function should give guidance to both agents: CalculateNextLocationForAgent2(TargetCurrentLocation, AgentCurrentLocation)__
 //	-	4.2)	It is desirable that there will be some kind of coordination between both commands so that one agent will complement the other	- Begin
 
-			//	Agent algorithm
 			if (targetLossMode[0] && targetLossMode[1])
 			{
-				cout << endl << ">>>>> Both agent have lost LOS with the target <<<<<" << endl << endl;
-				//	Add one case to the total number of LOS loss cases (of both agents at the same time)
-				quantityOfLosLoss[QUANTITY_OF_AGENTS]++;
-
-				for (agentCounter = 0; agentCounter < QUANTITY_OF_AGENTS; agentCounter++)
-				{
-					//	Do NOT let the agent stay in place
-					agentAlgorithm[agentCounter].MovementType(AI_SUPPORT_ALGORITHMS_12_PIXELS_MOVEMENT, false);
-				}
-				//	Calculate target potential movement according to last SEEN position
+				//	If both agents have lost LOS with the target, calculate target potential movement according to last SEEN position
 				targetAlgorithm.PossibleMovements(targetPotentialMovements, lastSeenTargetLocation, target.DsmMap());
 			}
 			else
 			{
-				if (targetLossMode[0])
-				{
-					cout << endl << ">>>>> Agent0 has lost LOS with the target <<<<<" << endl << endl;
-					//	Add one case to the total number of LOS loss cases
-					quantityOfLosLoss[0]++;
-				
-					//	Do NOT let the agent stay in place
-					agentAlgorithm[0].MovementType(AI_SUPPORT_ALGORITHMS_12_PIXELS_MOVEMENT, false);
-				} else if (targetLossMode[1])
-				{
-					cout << endl << ">>>>> Agent1 has lost LOS with the target <<<<<" << endl << endl;
-					//	Add one case to the total number of LOS loss cases
-					quantityOfLosLoss[1]++;
-				
-					//	Do NOT let the agent stay in place
-					agentAlgorithm[1].MovementType(AI_SUPPORT_ALGORITHMS_12_PIXELS_MOVEMENT, false);
-				}
-				
-				//	Calculate target potential movement according to last position (at least the other agent knows the target position)
+				//	If at least one of the agents has LOS with the target, calculate target potential movement according to last position
 				targetAlgorithm.PossibleMovements(targetPotentialMovements, targetCurrentLocation, target.DsmMap());
 			}
-
-			for (agentCounter = 0; agentCounter < QUANTITY_OF_AGENTS; agentCounter++)
+			
+			if (targetLossMode[0] && targetLossMode[1])
 			{
-				//	Calculate agents' potential movements
-				agentAlgorithm[agentCounter].PossibleMovements(agentPotentialMovements[agentCounter], agentCurrentLocation[agentCounter], target.DsmMap());
-				
-				//	Filter only the potential movements that still mantain LOS between agent and target
-				if (targetLossMode[0] && targetLossMode[1])
+				//	If both agents have lost LOS with the target 
+				for (agentCounter = 0; agentCounter < QUANTITY_OF_AGENTS; agentCounter++)
 				{
+					//	If there is loss of LOS, do NOT let the agent stay in place
+					agentAlgorithm[agentCounter].MovementType(AI_SUPPORT_ALGORITHMS_12_PIXELS_MOVEMENT, false);
+					//	Verify potential movements for agent
+					agentAlgorithm[agentCounter].PossibleMovements(agentPotentialMovements[agentCounter], agentCurrentLocation[agentCounter], target.DsmMap());
+					//	In case of simultaneous loss of LOS between both agents and target, filter from all the potential movements
+					//	only the ones that will guard the minimum distance between agent and target (according to last seen target location)
 					quantityOfLosPotentialLocationsForObserver[agentCounter]	= agentAlgorithm[agentCounter].PossibleLineOfSightLocations
 					(
 						agentPotentialMovements[agentCounter], 
 						targetPotentialMovements, 
 						target.DsmMap(), 
 						agentLosInfoList[agentCounter],
-						10,
+						MINIMUM_DISTANCE_BETWEEN_AGENT_AND_TARGET,
 						lastSeenTargetLocation
 					);
-					//	None of the agents is master, because both of them have lost LOS with target
-					masterAgent	= BOTH_AGENTS_HAVE_LOST_LOSS_WITH_TARGET;
-					slaveAgent	= BOTH_AGENTS_HAVE_LOST_LOSS_WITH_TARGET;
 				}
-				else
+				
+			}
+			else if (!targetLossMode[0] != !targetLossMode[1])
+			{
+				//	Only ONE of the agents has lost LOS with the target
+				masterAgent	= (targetLossMode[0]) ? 1 : 0;
+				slaveAgent	= (masterAgent == 0) ? 1 : 0;
+				
+				//	Choose the opposite location to master agent (being the central point the target)
+				slaveAgentSpecificLocation	= agentCurrentLocation[masterAgent].Opposite(targetCurrentLocation);
+				
+				for (agentCounter = 0; agentCounter < QUANTITY_OF_AGENTS; agentCounter++)
 				{
+					if (masterAgent == agentCounter)
+					{
+						//	In case of master agent (has LOS with the target)
+						
+						//	If there is loss of LOS, let the agent stay in place
+						agentAlgorithm[agentCounter].MovementType(AI_SUPPORT_ALGORITHMS_12_PIXELS_MOVEMENT, true);
+						//	Verify potential movements for agent
+						agentAlgorithm[agentCounter].PossibleMovements(agentPotentialMovements[agentCounter], agentCurrentLocation[agentCounter], target.DsmMap());
+						//	In case this agent has LOS between him and target, filter from all the potential movements
+						//	only the ones that will guard the minimum distance between agent and target
+						quantityOfLosPotentialLocationsForObserver[agentCounter]	= agentAlgorithm[agentCounter].PossibleLineOfSightLocations
+						(
+							agentPotentialMovements[agentCounter], 
+							targetPotentialMovements, 
+							target.DsmMap(), 
+							agentLosInfoList[agentCounter],
+							MINIMUM_DISTANCE_BETWEEN_AGENT_AND_TARGET
+						);
+					}
+					else
+					{
+						//	In case of slave agent (has lost LOS with the target)
+						
+						//	If there is loss of LOS, do NOT let the agent stay in place
+						agentAlgorithm[agentCounter].MovementType(AI_SUPPORT_ALGORITHMS_12_PIXELS_MOVEMENT, false);
+						//	Verify potential movements for agent
+						agentAlgorithm[agentCounter].PossibleMovements(agentPotentialMovements[agentCounter], agentCurrentLocation[agentCounter], target.DsmMap());
+						//	In case only this agent has loss of LOS between him and target, filter from all the potential movements
+						//	only the ones that will guard the minimum distance between agent and target (according to other agent's target location),
+						//	and insert distance to slave agent specific location
+						quantityOfLosPotentialLocationsForObserver[agentCounter]	= agentAlgorithm[agentCounter].PossibleLineOfSightLocations
+						(
+							agentPotentialMovements[agentCounter], 
+							targetPotentialMovements, 
+							target.DsmMap(), 
+							agentLosInfoList[agentCounter],
+							MINIMUM_DISTANCE_BETWEEN_AGENT_AND_TARGET,
+							slaveAgentSpecificLocation
+						);
+					}
+				}
+			}
+			else
+			{
+				//	Both agents have LOS with the target, we must decide who wil be the master and who will be the slave
+				
+				for (agentCounter = 0; agentCounter < QUANTITY_OF_AGENTS; agentCounter++)
+				{
+				
+					//	If there is loss of LOS, let the agent stay in place
+					agentAlgorithm[agentCounter].MovementType(AI_SUPPORT_ALGORITHMS_12_PIXELS_MOVEMENT, true);
+					//	Verify potential movements for agent
+					agentAlgorithm[agentCounter].PossibleMovements(agentPotentialMovements[agentCounter], agentCurrentLocation[agentCounter], target.DsmMap());
+					//	In case this agent has LOS between him and target, filter from all the potential movements
+					//	only the ones that will guard the minimum distance between agent and target
 					quantityOfLosPotentialLocationsForObserver[agentCounter]	= agentAlgorithm[agentCounter].PossibleLineOfSightLocations
 					(
 						agentPotentialMovements[agentCounter], 
 						targetPotentialMovements, 
 						target.DsmMap(), 
 						agentLosInfoList[agentCounter],
-						10
+						MINIMUM_DISTANCE_BETWEEN_AGENT_AND_TARGET
 					);
 				}
-			}
-			
-			if (!targetLossMode[0] != !targetLossMode[1])
-			{
-				cout << endl << ">>>>> One of the agents has lost LOS with the target <<<<<" << endl << endl;
-				
-				//	If at least one of the agents has not lost LOS with target
+				//	The agent with the most quantity of LOS potential locations will be the master
 				masterAgent	= (quantityOfLosPotentialLocationsForObserver[0] > quantityOfLosPotentialLocationsForObserver[1]) ? 0 : 1;
 				slaveAgent	= (masterAgent == 0) ? 1 : 0;
 				
-				//	Choose the opposite location to anothe agent (being the central point the target)
+				//	Choose the opposite location to master agent (being the central point the target)
 				slaveAgentSpecificLocation	= agentCurrentLocation[masterAgent].Opposite(targetCurrentLocation);
 				//	Filter only the potential movements that still mantain LOS between agent and target but insert distance to slave agent specific location
 				quantityOfLosPotentialLocationsForObserver[slaveAgent]	= agentAlgorithm[slaveAgent].PossibleLineOfSightLocations
@@ -1118,15 +1191,13 @@ if (0)
 					targetPotentialMovements, 
 					target.DsmMap(), 
 					agentLosInfoList[slaveAgent],
-					10,
+					MINIMUM_DISTANCE_BETWEEN_AGENT_AND_TARGET,
 					slaveAgentSpecificLocation
 				);
 			}
-
+			
 			for (agentCounter = 0; agentCounter < QUANTITY_OF_AGENTS; agentCounter++)
 			{
-				cout << ">>>>> Agent0 target LOS loss mode = " << targetLossMode[0] << ", agent1 target LOS loss mode = " << targetLossMode[1] << " <<<<<" << endl;
-				
 				//	Order the list
 				agentAlgorithm[agentCounter].Ranking(agentLosInfoList[agentCounter]);
 				
@@ -1163,13 +1234,21 @@ if (0)
 					else
 					{
 						//	If this agent is the slave (should be opposite to master agent)
-						//	Give preference to potential movements that will reduce the distance between the slave agent and the opposite location to master agent
-						agentAlgorithm[agentCounter].RankingOrder(agentLosInfoList[agentCounter], 0, 0, 0, 0, 10);
+						if (targetCurrentLocation.Distance(agentCurrentLocation[agentCounter]) > 20)
+						{
+							//	Give preference to potential movements that will reduce the distance between the slave agent and the opposite location to master agent, and also to target
+							agentAlgorithm[agentCounter].RankingOrder(agentLosInfoList[agentCounter], 0, 10, 0, 0, 10);
+						}
+						else
+						{
+							//	Give preference to potential movements that will reduce the distance between the slave agent and the opposite location to master agent and closest obstacle
+							agentAlgorithm[agentCounter].RankingOrder(agentLosInfoList[agentCounter], 0, 1, 0, 10, 10);
+						}
 					}
 				}
 			}
 
-if (1)
+if (0)
 {
 			for (agentCounter = 0; agentCounter < QUANTITY_OF_AGENTS; agentCounter++)
 			{
@@ -1196,6 +1275,37 @@ if (1)
 
 //	-	4.1)	Like in the previous section, but the function should give guidance to both agents: CalculateNextLocationForAgent2(TargetCurrentLocation, AgentCurrentLocation)__
 //	-	4.2)	It is desirable that there will be some kind of coordination between both commands so that one agent will complement the other	- End
+			oppositeLocation	= slaveAgentSpecificLocation;
+			
+			if (0 == masterAgent)
+			{
+				distanceBetweenSlaveAndSpecificTarget	= agent[1].CurrentLocation().Distance(slaveAgentSpecificLocation);
+			}
+			else if (1 == masterAgent)
+			{
+				distanceBetweenSlaveAndSpecificTarget	= agent[0].CurrentLocation().Distance(slaveAgentSpecificLocation);
+			}
+			else
+			{
+				//	Both agents have lost LOS with the target
+				distanceBetweenSlaveAndSpecificTarget	= -1;
+				oppositeLocation.Modify(-1,-1);
+			}
+			
+			for (agentCounter = 0; agentCounter < QUANTITY_OF_AGENTS; agentCounter++)
+			{
+				distanceBetweenTargetAndAgent[agentCounter]	= agent[agentCounter].CurrentLocation().Distance(target.CurrentLocation());
+			}
+
+			//	Update the .csv DSM map for two agents (centralized control) and target file with the current information
+			csvTwoAgentsSimulationCentralCalculationFile << target.CurrentLocation().Column() << "," << target.CurrentLocation().Row() << "," <<
+															agent[0].CurrentLocation().Column() << "," << agent[0].CurrentLocation().Row() << "," << 
+															agent[1].CurrentLocation().Column() << "," << agent[1].CurrentLocation().Row() << "," << 
+															distanceBetweenTargetAndAgent[0] << "," << distanceBetweenTargetAndAgent[1] << "," <<
+															targetLossMode[0] << "," << targetLossMode[1] << "," <<
+															((masterAgent == 0) ? "True" : "False") << "," << ((masterAgent == 1) ? "True" : "False") << "," <<
+															oppositeLocation.Column() << "," << oppositeLocation.Row() << "," << 
+															distanceBetweenSlaveAndSpecificTarget << endl;
 
 			targetNextLocation						= target.NextLocation();
 			
@@ -1215,35 +1325,29 @@ if (1)
 
 			for (agentCounter = 0; agentCounter < QUANTITY_OF_AGENTS; agentCounter++)
 			{
-				distanceBetweenTargetAndAgent[agentCounter]	= agentNextLocation[agentCounter].Distance(targetNextLocation);
-				losBetweenAgentAndTarget[agentCounter]		= target.DsmMap().LineOfSight(agentNextLocation[agentCounter], targetNextLocation);
+//				distanceBetweenTargetAndAgent[agentCounter]	= agentNextLocation[agentCounter].Distance(targetNextLocation);
+				targetLossMode[agentCounter]				= !(target.DsmMap().LineOfSight(agentNextLocation[agentCounter], targetNextLocation));
 			}
-
-			//	Update the .csv DSM map for lonely agent and target file with the current information
-			csvTwoAgentsSimulationCentralCalculationFile << targetNextLocation.Column() << "," << targetNextLocation.Row() << "," <<
-															agentNextLocation[0].Column() << "," << agentNextLocation[0].Row() << "," << 
-															distanceBetweenTargetAndAgent[0] << "," << losBetweenAgentAndTarget[0] << 
-															agentNextLocation[1].Column() << "," << agentNextLocation[1].Row() << "," << 
-															distanceBetweenTargetAndAgent[1] << "," << losBetweenAgentAndTarget[1] << endl;
-															
-			for (agentCounter = 0; agentCounter < QUANTITY_OF_AGENTS; agentCounter++)
+			if (targetLossMode[0] && targetLossMode[1])
 			{
-				if (targetLossMode[agentCounter] && losBetweenAgentAndTarget[agentCounter])
-				{
-					//	Bring back original configuration for agent
-					agentAlgorithm[agentCounter].MovementType(AI_SUPPORT_ALGORITHMS_12_PIXELS_MOVEMENT, true);
-					targetLossMode[agentCounter]				= false;
-				}
-
-				if (!losBetweenAgentAndTarget[agentCounter])
-				{
-					cout << "LOS between agent" << agentCounter << " and target LOST\n";
-					if (!targetLossMode[agentCounter])
-					{
-						lastSeenTargetLocation					= targetCurrentLocation;
-						targetLossMode[agentCounter]			= true;
-					}
-				}
+				cout << endl << ">>>>> Both agents have lost LOS with the target <<<<<" << endl << endl;
+				//	Add one case to the total number of LOS loss cases (of both agents at the same time)
+				quantityOfLosLoss[QUANTITY_OF_AGENTS]++;
+				
+				//	Save latest seen target location
+				lastSeenTargetLocation					= targetCurrentLocation;
+			}
+			else if (targetLossMode[0])
+			{
+				cout << endl << ">>>>> Agent0 has lost LOS with the target <<<<<" << endl << endl;
+				//	Add one case to the total number of LOS loss cases
+				quantityOfLosLoss[0]++;
+			}
+			else if (targetLossMode[1])
+			{
+				cout << endl << ">>>>> Agent1 has lost LOS with the target <<<<<" << endl << endl;
+				//	Add one case to the total number of LOS loss cases
+				quantityOfLosLoss[1]++;
 			}
 
 			char cString[10];
@@ -1266,7 +1370,7 @@ if (1)
 			{
 				//	Draws a cross at the agent
 				agent[0].GraphicCross(agentNextLocation[agentCounter], AI_SUPPORT_CLASSES_COLOR_PURPLE, false);
-				if (losBetweenAgentAndTarget[agentCounter])
+				if (!targetLossMode[agentCounter])
 				{
 					//	Draws a gray line for LOS between agent and target
 					agent[0].GraphicLine(agentNextLocation[agentCounter], targetNextLocation, AI_SUPPORT_CLASSES_COLOR_GRAY, false);
@@ -1277,6 +1381,11 @@ if (1)
 					agent[0].GraphicText(noLosTextLocation, "agent" +  std::to_string(agentCounter) + " LOS lost");
 				}
 				agent[0].GraphicClose(AI_SUPPORT_CLASSES_GRAPHIC_TYPE_PNG);
+			}
+			if (targetLossMode[0] && targetLossMode[1])
+			{
+				//	Shows a text "LOS lost"
+				agent[0].GraphicText(noLosTextLocation, "Both agents lost LOS with target simultaneously");
 			}
 
 //	-	3.2)	Progress command will take in account the potential next location of both the "target" and the "agent" so that will have LOS 
@@ -1289,8 +1398,43 @@ if (1)
 
 
 			//	In case of some error
-			if (simulationSeconds > 1000)
+			if ((simulationSeconds > 1000) || targetArrived)
+			{
+				//	Saving last step to target
+				oppositeLocation	= slaveAgentSpecificLocation;
+				
+				if (0 == masterAgent)
+				{
+					distanceBetweenSlaveAndSpecificTarget	= agent[1].CurrentLocation().Distance(slaveAgentSpecificLocation);
+				}
+				else if (1 == masterAgent)
+				{
+					distanceBetweenSlaveAndSpecificTarget	= agent[0].CurrentLocation().Distance(slaveAgentSpecificLocation);
+				}
+				else
+				{
+					//	Both agents have lost LOS with the target
+					distanceBetweenSlaveAndSpecificTarget	= -1;
+					oppositeLocation.Modify(-1,-1);
+				}
+				
+				for (agentCounter = 0; agentCounter < QUANTITY_OF_AGENTS; agentCounter++)
+				{
+					distanceBetweenTargetAndAgent[agentCounter]	= agent[agentCounter].CurrentLocation().Distance(target.CurrentLocation());
+				}
+
+				//	Update the .csv DSM map for two agents (centralized control) and target file with the current information
+				csvTwoAgentsSimulationCentralCalculationFile << target.CurrentLocation().Column() << "," << target.CurrentLocation().Row() << "," <<
+																agent[0].CurrentLocation().Column() << "," << agent[0].CurrentLocation().Row() << "," << 
+																agent[1].CurrentLocation().Column() << "," << agent[1].CurrentLocation().Row() << "," << 
+																distanceBetweenTargetAndAgent[0] << "," << distanceBetweenTargetAndAgent[1] << "," <<
+																targetLossMode[0] << "," << targetLossMode[1] << "," <<
+																((masterAgent == 0) ? "True" : "False") << "," << ((masterAgent == 1) ? "True" : "False") << "," <<
+																oppositeLocation.Column() << "," << oppositeLocation.Row() << "," << 
+																distanceBetweenSlaveAndSpecificTarget << endl;
+
 				break;
+			}
 		}  
 
 

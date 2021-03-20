@@ -109,6 +109,7 @@
 				bool GraphicText(class Location from, string text, 
 					//	Default arguments
 					AI_SUPPORT_CLASSES_color textColor = AI_SUPPORT_CLASSES_COLOR_WHITE, 
+					bool copyToShadow = false,
 					int fontSize = 12,
 					string fontPathAndFilename = "/usr/share/fonts/truetype/ubuntu/Ubuntu-M.ttf",
 					double angle = 0.0			//	angle is the text angle in degrees

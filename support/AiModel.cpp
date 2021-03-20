@@ -878,17 +878,18 @@
 		/////////////////////////////////////////////////////////////////////////////////
 		// Arguments			: text location, text
 		//					Default parameters:
-		//							text color, font size
+		//							text color, copy to shadow, font size
 		//							font path and filename, angle
 		/////////////////////////////////////////////////////////////////////////////////
 		bool Model::GraphicText(class Location from, string text, 
 			//	Default arguments
 			AI_SUPPORT_CLASSES_color textColor, 
+			bool copyToShadow,
 			int fontSize,
 			string fontPathAndFilename,
 			double angle)					//	angle is the text angle in degrees
 		{
-			return (this->graphic.Text(from, text, textColor, fontSize, fontPathAndFilename, angle));
+			return (this->graphic.Text(from, text, textColor, copyToShadow, fontSize, fontPathAndFilename, angle));
 			
 		}	//	Model::GraphicText()
 

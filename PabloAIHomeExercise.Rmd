@@ -244,3 +244,41 @@ plot(DsmTestRaster)
 
 
 ![](/home/pablo/Documents/Software Engineering/AI home exercise/Solution/output/lonelyAgent/lonelyAgent.gif)
+
+##   Algorithm for lonely agent following target
+-   Build a list of possible NEXT locations both for agent and target with SwissArmyKnife.PossibleMovements() given as input parameters: type of movement of person (1 meter constant, up to two meters, etc), current location and DSM map info, and receiving as output the list of possible NEXT movements
+
+-   Filter from this list only the locations that have LOS between agent and target and also that will be at a minimum distance of the ALLOWED distance (10 meters in this case) with SwissArmyKnife.PossibleLineOfSightLocations() given as input parameters: list of possible NEXT movements from both agent and target, DSM map info, and minimum ALLOWED distance between both agent and target. The output received from this function is a new list having all the possible NEXT movements for agent, that will have LOS with target caring for the minimum allowed distance
+
+-   Rank the last list by minimum and maximum distance from agent to target, quantity of potential LOS with target, and distance to obstacle with the following functions: SwissArmyKnife.Ranking(). The idea of ranking, is that for all the potential movements, there will be a minimum and maximum (range) for each one of these variables. And therefore we will rank from 0% to 100%, according to where specific element is in the range of the possible NEXT movements.
+
+-   Once ranked these variables, we could use another function: SwissArmyKnife.RankingOrder() that will give a specific relative "weight" for each one of these variables:
+  minimum distance from agent to target
+  maximum distance from agent to target
+  quantity of possible LOS situations
+  minimum distance to obstacle
+  
+-   This function will order this list according to our requirements
+-   After a few verifications, it has been seen, that the distance to obstacle should be with high relative weight, but once the distance between target and agent is more than 20, then the weigth should fall more in the minimum distance to target (in order for the agent to reduce the distance)
+
+-   In case of LOS loss, we need to have the last target position seen (as the "target" position), modify temporarily the possibility to stay in place for the agent, so it could move towards the last seen position. Once there is again LOS,  we need to bring back the regular configuration, and set the target position as the real target position
+
+
+##    3)	Working with two agents (centralized control)
+
+
+![](/home/pablo/Documents/Software Engineering/AI home exercise/Solution/output/twoAgentsCentralized/twoAgentsCentralized.gif)
+
+FPS = 10
+
+
+```{r}
+# Set the working directory
+setwd ("/home/pablo/Documents/Software Engineering/AI home exercise/Solution/output")
+# Import the two agents with centralized control data-frame, importing the header and classifying non available data
+twoAgentsWithCentralizedControl.data  = read.csv(file = "twoAgentsWithCentralCalculation.csv", header = TRUE, na.strings = "NaN")
+# Display table with the required information
+#kable(twoAgentsWithCentralizedControl.data, 
+#      label = "Two agents following target (with central control)")
+```
+
