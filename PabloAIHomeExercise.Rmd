@@ -181,11 +181,11 @@ CalculateNextLocation = function(TargetCurrentLocation, AgentCurrentLocation)
 ```
 
 
-##    Working with a couple of agents - Central calculation
+##    Working with a couple of agents - Central control
 -   Like in the previous section, but the function should give guidance to both agent: __CalculateNextLocation2(TargetCurrentLocation, AgentCurrentLocation)__
 -   It is desirable that there will be some kind of coordination between both commands so that one agent will complement the other
 
-##    Working with a couple of agents - Distributed calculation
+##    Working with a couple of agents - Distributed control
 -   Write a function that will return the progress command to a __single__ agent given his, the second agent and the "target" current locations: __CalculateNextLocation3(TargetCurrentLocation, OtherAgentCurrentLocation, AgentCurrentLocation)__
 -   The functions (for each agent) are not related between them
 -   The functions will give guidance every 2 seconds, once the function will work with agent1, and the next second will work with agent2, therefore the function(s) won't work with the same input
@@ -213,13 +213,12 @@ plot(DsmTestRaster)
 ![](/home/pablo/Documents/Software Engineering/AI home exercise/Solution/output/agent/agent.gif)
 
 
-
-
 ##    2.2) Take a number of DSM locations and display the LOS between them
 
 
 ![](/home/pablo/Documents/Software Engineering/AI home exercise/Solution/output/losExample/losExample.gif)
 
+FPS = 1
 
 ##   Algorithm for lonely agent following target
 -   Build a list of possible NEXT locations both for agent and target with SwissArmyKnife.PossibleMovements() given as input parameters: type of movement of person (1 meter constant, up to two meters, etc), current location and DSM map info, and receiving as output the list of possible NEXT movements
@@ -235,7 +234,7 @@ plot(DsmTestRaster)
   minimum distance to obstacle
   
 -   This function will order this list according to our requirements
--   After a few verifications, it has been seen, that the distance to obstacle should be with high relative weight, but once the distance between target and agent is more than 20, then the weigth should fall more in the minimum distance to target (in order for the agent to reduce the distance)
+-   After a few verifications it has been seen, that the distance to obstacle should be with high relative weight, but once the distance between target and agent is more than 20, then the weight should fall more in the minimum distance to target (in order for the agent to reduce the distance)
 
 -   In case of LOS loss, we need to have the last target position seen (as the "target" position), modify temporarily the possibility to stay in place for the agent, so it could move towards the last seen position. Once there is again LOS,  we need to bring back the regular configuration, and set the target position as the real target position
 
@@ -245,10 +244,13 @@ plot(DsmTestRaster)
 
 ![](/home/pablo/Documents/Software Engineering/AI home exercise/Solution/output/lonelyAgent/lonelyAgent.gif)
 
-##   Algorithm for lonely agent following target
--   Build a list of possible NEXT locations both for agent and target with SwissArmyKnife.PossibleMovements() given as input parameters: type of movement of person (1 meter constant, up to two meters, etc), current location and DSM map info, and receiving as output the list of possible NEXT movements
+FPS = 10
+-   There was two LOS loss between agent and target at steps 155 and 156
 
--   Filter from this list only the locations that have LOS between agent and target and also that will be at a minimum distance of the ALLOWED distance (10 meters in this case) with SwissArmyKnife.PossibleLineOfSightLocations() given as input parameters: list of possible NEXT movements from both agent and target, DSM map info, and minimum ALLOWED distance between both agent and target. The output received from this function is a new list having all the possible NEXT movements for agent, that will have LOS with target caring for the minimum allowed distance
+##   Algorithm for two agents following target (centralized control)
+-   Build a list of possible NEXT locations for both agents and target with SwissArmyKnife.PossibleMovements() given as input parameters: type of movement of person (1 meter constant, up to two meters, etc), current location and DSM map info, and receiving as output the list of possible NEXT movements
+
+-   Filter from this list only the locations that have LOS between both agents and target and also that will be at a minimum distance of the ALLOWED distance (10 meters in this case) with SwissArmyKnife.PossibleLineOfSightLocations() given as input parameters: list of possible NEXT movements from both agent and target, DSM map info, and minimum ALLOWED distance between both agent and target. The output received from this function is a new list having all the possible NEXT movements for agent, that will have LOS with target caring for the minimum allowed distance
 
 -   Rank the last list by minimum and maximum distance from agent to target, quantity of potential LOS with target, and distance to obstacle with the following functions: SwissArmyKnife.Ranking(). The idea of ranking, is that for all the potential movements, there will be a minimum and maximum (range) for each one of these variables. And therefore we will rank from 0% to 100%, according to where specific element is in the range of the possible NEXT movements.
 
@@ -257,19 +259,32 @@ plot(DsmTestRaster)
   maximum distance from agent to target
   quantity of possible LOS situations
   minimum distance to obstacle
+  distance to opposite location of other agent
   
 -   This function will order this list according to our requirements
--   After a few verifications, it has been seen, that the distance to obstacle should be with high relative weight, but once the distance between target and agent is more than 20, then the weigth should fall more in the minimum distance to target (in order for the agent to reduce the distance)
+-   After a few verifications it has been seen, that the distance to obstacle should be with high relative weight, but once the distance between target and agent is more than 20, then the weight should fall more in the minimum distance to target (in order for the agent to reduce the distance)
+
+-   If both agents have LOS, then the one with more potential movements with LOS to target will be the master
+
+-   The slave agent will have, in addition to the regular rankings (like distance to obstacle, distance to target, etc), also the distance to the master agent opposite location (being the central point of this line, the target location)
+
+-   The ranking is different depending on the situation, and the kind of agent (master/slave)
+-       If agent is master, and the distance to target is more than 20 meters, then in the ranking give preference to potential movements that will reduce the distance between agent and target
+-       If agent is master, and the distance to target is less or equal to 20 meters, then in the ranking give preference to potential movements that will increase the distance between agent and closest obstacle
+-       If agent is slave, and the distance to target is more than 20 meters, then in the ranking give preference to potential movements that will reduce the distance between the slave agent and the opposite location to master agent, and also to target
+-       If agent is slave, and the distance to target is less or equal to 20 meters, then in the ranking give preference to potential movements that will reduce the distance between the slave agent and the opposite location to master agent and increase the distance to closest obstacle
+-       If both agents have lost LOS with target, and the distance to last known target location is more than 20 meters, then in the ranking give preference to potential movements that will reduce the distance between agent and last know target location
+-       If both agents have lost LOS with target, and the distance to last known target location is less or equal than 20 meters, then in the ranking give preference to potential movements that will increase the distance between agent and closest obstacle
 
 -   In case of LOS loss, we need to have the last target position seen (as the "target" position), modify temporarily the possibility to stay in place for the agent, so it could move towards the last seen position. Once there is again LOS,  we need to bring back the regular configuration, and set the target position as the real target position
 
+##    4)	Working with two agents (centralized control)
 
-##    3)	Working with two agents (centralized control)
 
-
-![](/home/pablo/Documents/Software Engineering/AI home exercise/Solution/output/twoAgentsCentralized/twoAgentsCentralized.gif)
+![](/home/pablo/Documents/Software Engineering/AI home exercise/Solution/output/twoAgentsWithCentralControl/twoAgentsWithCentralControl.gif)
 
 FPS = 10
+-   There was one LOS loss between agent 1 and target at step 156
 
 
 ```{r}
@@ -281,4 +296,50 @@ twoAgentsWithCentralizedControl.data  = read.csv(file = "twoAgentsWithCentralCal
 #kable(twoAgentsWithCentralizedControl.data, 
 #      label = "Two agents following target (with central control)")
 ```
+
+##   Algorithm for two agents following target (distributed)
+-   Build a list of possible NEXT locations for the (current) agent (working one second, and the other second, the second agent works) and target with SwissArmyKnife.PossibleMovements() given as input parameters: type of movement of person (1 meter constant, up to two meters, etc), current location and DSM map info, and receiving as output the list of possible NEXT movements, and current other agent location
+
+-   Filter from this list only the locations that have LOS between the agent and the target and also that will be at a minimum distance of the ALLOWED distance (10 meters in this case) with SwissArmyKnife.PossibleLineOfSightLocations() given as input parameters: list of possible NEXT movements from both agent and target, DSM map info, and minimum ALLOWED distance between both agent and target. The output received from this function is a new list having all the possible NEXT movements for agent, that will have LOS with target caring for the minimum allowed distance
+
+-   Rank the last list by minimum and maximum distance from agent to target, quantity of potential LOS with target, and distance to obstacle with the following functions: SwissArmyKnife.Ranking(). The idea of ranking, is that for all the potential movements, there will be a minimum and maximum (range) for each one of these variables. And therefore we will rank from 0% to 100%, according to where specific element is in the range of the possible NEXT movements.
+
+-   Once ranked these variables, we could use another function: SwissArmyKnife.RankingOrder() that will give a specific relative "weight" for each one of these variables:
+  minimum distance from agent to target
+  maximum distance from agent to target
+  quantity of possible LOS situations
+  minimum distance to obstacle
+  distance to opposite location of other agent
+  
+-   This function will order this list according to our requirements
+-   After a few verifications it has been seen, that the distance to obstacle should be with high relative weight, but once the distance between target and agent is more than 20, then the weight should fall more in the minimum distance to target (in order for the agent to reduce the distance)
+
+-   One of the agents will be "hard-coded" as master
+
+-   The slave agent will have, in addition to the regular rankings (like distance to obstacle, distance to target, etc), also the distance to the master agent opposite location (being the central point of this line, the target location)
+
+-   The ranking is different depending on the situation, and the kind of agent (master/slave)
+-       If agent is master, and the distance to target is more than 20 meters, then in the ranking give preference to potential movements that will reduce the distance between agent and target
+-       If agent is master, and the distance to target is less or equal to 20 meters, then in the ranking give preference to potential movements that will increase the distance between agent and closest obstacle
+-       If agent is slave, and the distance to target is more than 20 meters, then in the ranking give preference to potential movements that will reduce the distance between the slave agent and the opposite location to master agent, and also to target
+-       If agent is slave, and the distance to target is less or equal to 20 meters, then in the ranking give preference to potential movements that will reduce the distance between the slave agent and the opposite location to master agent and increase the distance to closest obstacle
+-       If both agents have lost LOS with target, and the distance to last known target location is more than 20 meters, then in the ranking give preference to potential movements that will reduce the distance between agent and last know target location
+-       If both agents have lost LOS with target, and the distance to last known target location is less or equal than 20 meters, then in the ranking give preference to potential movements that will increase the distance between agent and closest obstacle
+
+-   In case of LOS loss, we need to have the last target position seen (as the "target" position), modify temporarily the possibility to stay in place for the agent, so it could move towards the last seen position. Once there is again LOS,  we need to bring back the regular configuration, and set the target position as the real target position
+
+##    5)	Working with two agents (distributed control)
+
+
+![](/home/pablo/Documents/Software Engineering/AI home exercise/Solution/output/twoAgentsWithDistributedControl/twoAgentsWithDistributedControl.gif)
+
+FPS = 10
+-   There was one LOS loss between agent 1 and target at step 154
+-   There was one LOS loss between both agents simultaneously and target at step 155
+-   There was one LOS loss between agent 0 and target at step 156
+
+We must take in account that in this case, the progress is slower than in previous
+one, up to 2 meters/second every 2 seconds
+
+
 
