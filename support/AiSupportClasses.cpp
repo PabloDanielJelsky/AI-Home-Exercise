@@ -60,7 +60,7 @@
 		****************************************************************************
 	*/
 		/*---- data declarations ---------------------------------------------------*/
-		Location AI_SUPPORT_CLASSES_DefaultLocation;
+		Location AI_SUPPORT_CLASSES_DefaultLocation (DEFAULT_LOCATION_COLUMN, DEFAULT_LOCATION_ROW);
 	/*
 		****************************************************************************
 		* PRIVATE DECLARATIONS  
@@ -756,7 +756,7 @@
 		// Class name			: Location
 		// Function				: Opposite
 		// Programmer name		: Pablo Daniel Jelsky
-		// Last update date		: 16-03-2021
+		// Last update date		: 20-03-2021
 		// Class description	: This class represents a specific location
 		// Function description	: This member function returns the opposite location
 		//							entering as input the central location and the 
@@ -785,14 +785,14 @@
 				//	Calculate row = (m * column) + b with central and A points being m (slope) and b (intercept)
 				slope							= this->LineSlope(centralPoint);
 				intercept						= this->LineIntercept(centralPoint);
-				oppositeColumn					= (centralPoint.Column() > this->Column()) ? (centralPoint.Column() + distanceToCentralPoint) : (centralPoint.Column() - distanceToCentralPoint);
-				oppositeRow						= (int) ((oppositeColumn * slope) + intercept);
+				oppositeColumn					= (centralPoint.Column() > this->Column()) ? round(centralPoint.Column() + distanceToCentralPoint) : round(centralPoint.Column() - distanceToCentralPoint);
+				oppositeRow						= round((oppositeColumn * slope) + intercept);
 			}
 			
 			oppositeLocation	= new Location();
 			oppositeLocation->Modify(oppositeColumn, oppositeRow);
-			//oppositeLocation.Modify(oppositeColumn, oppositeRow);
-			return *oppositeLocation;
+
+			return (*oppositeLocation);
 
 		}	//	Location::Opposite()
 			

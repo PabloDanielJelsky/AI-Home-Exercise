@@ -55,7 +55,7 @@
 		* INTERNAL REFERENCE    
 		****************************************************************************
 	*/
-		/*---- name spaces declarations --------------------------------------------*/		
+		/*---- name spaces declarations --------------------------------------------*/
 		/*---- data declarations ---------------------------------------------------*/
 		/*---- function prototypes -------------------------------------------------*/
 	
@@ -75,6 +75,8 @@
 		#define	PNG_COLUMN_OFFSET_FROM_DSM_MAP				1	// DSM map starts at (0,0) whereas .png file in (1,1)
 		#define	PNG_ROW_OFFSET_FROM_DSM_MAP					1	// DSM map starts at (0,0) whereas .png file in (1,1)
 		#define	ELEVATION_TO_DEFINE_PROXIMITY_TO_TARGET		100000
+		#define	DEFAULT_LOCATION_COLUMN						-12345678
+		#define	DEFAULT_LOCATION_ROW						-12345678
 		/*---- data declarations ---------------------------------------------------*/
 		typedef struct
 		{
@@ -84,8 +86,8 @@
 			
 		}	rgb;
 			
-		/*---- function prototypes -------------------------------------------------*/	
+		/*---- function prototypes -------------------------------------------------*/
 
-	
+
 
 #endif	// __AI_SUPPORT_CLASSES_H__
