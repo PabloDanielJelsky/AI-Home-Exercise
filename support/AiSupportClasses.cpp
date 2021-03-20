@@ -750,6 +750,51 @@
 			return pointA.Distance(pointB);
 			
 		}	//	Location::Distance()
+		
+		
+		/////////////////////////////////////////////////////////////////////////////////
+		// Class name			: Location
+		// Function				: Opposite
+		// Programmer name		: Pablo Daniel Jelsky
+		// Last update date		: 16-03-2021
+		// Class description	: This class represents a specific location
+		// Function description	: This member function returns the opposite location
+		//							entering as input the central location and the 
+		//							A location
+		// Remarks				:Returns the opposite location to this point
+		/////////////////////////////////////////////////////////////////////////////////
+		// Arguments			: central point location
+		/////////////////////////////////////////////////////////////////////////////////
+		Location& Location::Opposite(Location centralPoint)
+		{
+			Location*	oppositeLocation;
+			int			oppositeColumn, oppositeRow;
+			
+			if (centralPoint.Column() == this->Column())
+			{
+				//	If both central and A points have the same column
+				oppositeColumn					= centralPoint.Column();
+				int	distanceToCentralPoint		= abs(centralPoint.Row() - this->Row());
+				oppositeRow						= (centralPoint.Row() > this->Row()) ? (centralPoint.Row() + distanceToCentralPoint) : (centralPoint.Row() - distanceToCentralPoint);
+			}
+			else
+			{
+				double	slope, intercept;
+				int		distanceToCentralPoint	= abs(centralPoint.Column() - this->Column());
+				
+				//	Calculate row = (m * column) + b with central and A points being m (slope) and b (intercept)
+				slope							= this->LineSlope(centralPoint);
+				intercept						= this->LineIntercept(centralPoint);
+				oppositeColumn					= (centralPoint.Column() > this->Column()) ? (centralPoint.Column() + distanceToCentralPoint) : (centralPoint.Column() - distanceToCentralPoint);
+				oppositeRow						= (int) ((oppositeColumn * slope) + intercept);
+			}
+			
+			oppositeLocation	= new Location();
+			oppositeLocation->Modify(oppositeColumn, oppositeRow);
+			//oppositeLocation.Modify(oppositeColumn, oppositeRow);
+			return *oppositeLocation;
+
+		}	//	Location::Opposite()
 			
 		/////////////////////////////////////////////////////////////////////////////////
 		// Class name			: DsmLocation

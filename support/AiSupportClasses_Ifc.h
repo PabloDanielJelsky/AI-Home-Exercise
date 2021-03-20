@@ -210,6 +210,7 @@
 				double LineSlope(Location point);
 				double Distance(Location point);
 				double Distance(Location& pointA, Location pointB);
+				Location& Opposite(Location centralPoint);
 
 				//	Operators
 //				friend ostream& operator << (ostream& ostream, const Location& location);
